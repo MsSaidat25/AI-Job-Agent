@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Job Agent</title>
+  <style>
+    /* ── Reset & base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #242736;
+      --border: #2e3147;
+      --accent: #6c63ff;
+      --accent-hover: #8b84ff;
+      --accent-dim: rgba(108, 99, 255, 0.15);
+      --success: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --text-muted: #8892a4;
+      --radius: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --font: 'Inter', system-ui, sans-serif;
+      --mono: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Typography helpers ────────────────────────────────────────────── */
+    h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
+    h2 { font-size: 1.35rem; margin-bottom: 1rem; }
+    h3 { font-size: 1.05rem; margin-bottom: .6rem; color: var(--text-muted); }
+    p  { line-height: 1.65; }
+    small { color: var(--text-muted); font-size: 0.82rem; }
+    label { display: block; font-size: .88rem; font-weight: 600; margin-bottom: .3rem; color: var(--text-muted); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--mono); font-size: 0.85em; background: var(--surface2); padding: 2px 5px; border-radius: 4px; }
+
+    /* ── Layout ───────────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: .83rem;
+      color: var(--text-muted);
+    }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+    .dot.green { background: var(--success); }
+
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar nav ──────────────────────────────────────────────────── */
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      overflow-y: auto;
+    }
+
+    nav ul { list-style: none; }
+
+    nav li a {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .65rem 1.4rem;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-left: 3px solid transparent;
+      transition: all .15s;
+    }
+
+    nav li a:hover, nav li a.active {
+      color: var(--text);
+      background: var(--accent-dim);
+      border-left-color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav li a .icon { font-size: 1.1rem; }
+
+    /* ── Main content ─────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Cards ────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Forms ────────────────────────────────────────────────────────── */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+
+    input[type="text"], input[type="email"], input[type="tel"],
+    input[type="number"], input[type="url"], textarea, select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: .6rem .9rem;
+      color: var(--text);
+      font-size: .92rem;
+      font-family: inherit;
+      transition: border-color .15s;
+      width: 100%;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+    select option { background: var(--surface2); }
+
+    /* ── Buttons ──────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .55rem 1.2rem;
+      border: none;
+      border-radius: 7px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-danger {
+      background: rgba(239,68,68,.15);
+      color: var(--danger);
+      border: 1px solid rgba(239,68,68,.3);
+    }
+    .btn-danger:hover { background: rgba(239,68,68,.25); }
+
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+    .btn-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* ── Response box ─────────────────────────────────────────────────── */
+    .response-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      white-space: pre-wrap;
+      font-size: .9rem;
+      line-height: 1.7;
+      min-height: 60px;
+      display: none;
+    }
+
+    .response-box.visible { display: block; }
+
+    /* ── Loading spinner ──────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast notifications ─────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.2rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .75rem 1.1rem;
+      font-size: .88rem;
+      max-width: 360px;
+      animation: slide-in .2s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error   { border-color: var(--danger);  color: var(--danger);  }
+    .toast.info    { border-color: var(--accent);  color: var(--accent);  }
+
+    @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } }
+
+    /* ── Badge / pill ─────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-size: .78rem;
+      font-weight: 600;
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .badge.green { background: rgba(34,197,94,.15); color: var(--success); }
+    .badge.yellow { background: rgba(245,158,11,.15); color: var(--warn); }
+    .badge.red { background: rgba(239,68,68,.15); color: var(--danger); }
+
+    /* ── Tags input helper ────────────────────────────────────────────── */
+    .tags-hint { font-size: .78rem; color: var(--text-muted); margin-top: .25rem; }
+
+    /* ── Chat ─────────────────────────────────────────────────────────── */
+    #chat-window {
+      height: 420px;
+      overflow-y: auto;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: .65rem 1rem;
+      border-radius: 12px;
+      font-size: .92rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #fff;
+      border-bottom-right-radius: 3px;
+    }
+
+    .msg.agent {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 3px;
+    }
+
+    .msg.thinking {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 3px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    #chat-input-row { display: flex; gap: .6rem; }
+    #chat-input { flex: 1; }
+
+    /* ── Analytics stats ──────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .stat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: .3rem;
+    }
+
+    .stat-card .label { font-size: .78rem; color: var(--text-muted); }
+
+    /* ── Profile locked banner ────────────────────────────────────────── */
+    .profile-locked {
+      background: var(--accent-dim);
+      border: 1px solid rgba(108,99,255,.3);
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-size: .88rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      nav { width: 60px; }
+      nav li a span:not(.icon) { display: none; }
+      nav li a { justify-content: center; padding: .75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Toast container ──────────────────────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ── Header ───────────────────────────────────────────────────────────── -->
+<header>
+  <h1>🤖 AI Job Agent</h1>
+  <div class="header-status">
+    <div class="dot" id="conn-dot"></div>
+    <span id="conn-label">Checking…</span>
+  </div>
+</header>
+
+<!-- ── Layout ────────────────────────────────────────────────────────────── -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav>
+    <ul>
+      <li><a href="#" class="active" data-page="profile">
+        <span class="icon">👤</span><span>Profile</span></a></li>
+      <li><a href="#" data-page="search">
+        <span class="icon">🔍</span><span>Job Search</span></a></li>
+      <li><a href="#" data-page="market">
+        <span class="icon">📊</span><span>Market Intel</span></a></li>
+      <li><a href="#" data-page="documents">
+        <span class="icon">📄</span><span>Documents</span></a></li>
+      <li><a href="#" data-page="applications">
+        <span class="icon">📋</span><span>Applications</span></a></li>
+      <li><a href="#" data-page="analytics">
+        <span class="icon">📈</span><span>Analytics</span></a></li>
+      <li><a href="#" data-page="chat">
+        <span class="icon">💬</span><span>Chat</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- Main -->
+  <main>
+
+    <!-- ── Profile page ───────────────────────────────────────────────── -->
+    <div class="page active" id="page-profile">
+      <h2>👤 Your Profile</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.2rem;">
+        Set up your profile to initialise the AI agent. All data is kept in your browser session.
+      </p>
+
+      <div class="profile-locked" id="profile-locked-banner">
+        ✅ Profile saved. You can update and re-save at any time.
+      </div>
+
+      <div class="card">
+        <h3>Personal Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input id="p-name" type="text" placeholder="Jane Smith" />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input id="p-email" type="email" placeholder="jane@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input id="p-phone" type="tel" placeholder="+1 555 000 0000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location *</label>
+            <input id="p-location" type="text" placeholder="Austin, TX, USA" />
+          </div>
+          <div class="form-group">
+            <label>Portfolio URL</label>
+            <input id="p-portfolio" type="url" placeholder="https://yoursite.dev" />
+          </div>
+          <div class="form-group">
+            <label>LinkedIn URL</label>
+            <input id="p-linkedin" type="url" placeholder="https://linkedin.com/in/you" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Career Details</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Experience Level</label>
+            <select id="p-exp-level">
+              <option value="entry">Entry Level</option>
+              <option value="mid" selected>Mid Level</option>
+              <option value="senior">Senior</option>
+              <option value="lead">Lead</option>
+              <option value="executive">Executive</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Years of Experience</label>
+            <input id="p-years" type="number" min="0" max="50" value="3" />
+          </div>
+          <div class="form-group">
+            <label>Min Desired Salary (USD)</label>
+            <input id="p-sal-min" type="number" min="0" placeholder="80000" />
+          </div>
+          <div class="form-group">
+            <label>Max Desired Salary (USD)</label>
+            <input id="p-sal-max" type="number" min="0" placeholder="130000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Skills <small>(comma-separated)</small></label>
+            <input id="p-skills" type="text" placeholder="Python, FastAPI, SQL, Docker" />
+            <span class="tags-hint">e.g. Python, React, AWS, Leadership</span>
+          </div>
+          <div class="form-group">
+            <label>Desired Roles <small>(comma-separated)</small></label>
+            <input id="p-roles" type="text" placeholder="Backend Engineer, Tech Lead" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Languages <small>(comma-separated)</small></label>
+            <input id="p-langs" type="text" value="English" />
+          </div>
+          <div class="form-group">
+            <label>Certifications <small>(comma-separated)</small></label>
+            <input id="p-certs" type="text" placeholder="AWS SAA, PMP" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Desired Job Types</label>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.3rem;">
+            <label style="display:flex;align-items:center;gap:.3rem;font-weight:400;color:var(--text);">
+              <input type="checkbox" value="full_time" class="jt-check" checked> Full-time
+            </label>
+            <label style="display:flex;align-items:center;gap:.3rem;font-weight:400;color:var(--text);">
+              <input type="checkbox" value="remote" class="jt-check"> Remote
+            </label>
+            <label style="display:flex;align-items:center;gap:.3rem;font-weight:400;color:var(--text);">
+              <input type="checkbox" value="contract" class="jt-check"> Contract
+            </label>
+            <label style="display:flex;align-items:center;gap:.3rem;font-weight:400;color:var(--text);">
+              <input type="checkbox" value="part_time" class="jt-check"> Part-time
+            </label>
+            <label style="display:flex;align-items:center;gap:.3rem;font-weight:400;color:var(--text);">
+              <input type="checkbox" value="freelance" class="jt-check"> Freelance
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Work History <small>(most recent first, JSON-friendly)</small></h3>
+        <textarea id="p-work" placeholder='[{"title":"Software Engineer","company":"Acme Corp","start_year":2021,"end_year":2024,"description":"Built microservices in Python"}]'></textarea>
+      </div>
+
+      <div class="card">
+        <h3>Education</h3>
+        <textarea id="p-edu" placeholder='[{"degree":"BSc Computer Science","institution":"MIT","year":2021,"field":"Computer Science"}]'></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveProfile()">
+          💾 Save Profile &amp; Initialise Agent
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Job Search page ────────────────────────────────────────────── -->
+    <div class="page" id="page-search">
+      <h2>🔍 Job Search</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.2rem;">
+        Search for roles that match your profile. The agent scores and ranks results for you.
+      </p>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location Filter <small>(leave blank for global)</small></label>
+            <input id="s-location" type="text" placeholder="Berlin, Germany" />
+          </div>
+          <div class="form-group">
+            <label>Max Results</label>
+            <select id="s-max">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+            </select>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:.4rem;font-weight:400;color:var(--text);margin-bottom:1rem;">
+          <input type="checkbox" id="s-remote" checked> Include remote opportunities
+        </label>
+        <button class="btn btn-primary" onclick="searchJobs()">🔍 Search Jobs</button>
+      </div>
+
+      <div class="response-box" id="search-result"></div>
+    </div>
+
+    <!-- ── Market Intel page ──────────────────────────────────────────── -->
+    <div class="page" id="page-market">
+      <h2>📊 Market Intelligence</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.2rem;">
+        Get a detailed job-market report for any region and industry.
+      </p>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Region *</label>
+            <input id="m-region" type="text" placeholder="Tokyo, Japan" />
+          </div>
+          <div class="form-group">
+            <label>Industry *</label>
+            <input id="m-industry" type="text" placeholder="Technology" />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="getMarketInsights()">📊 Get Report</button>
+          <button class="btn btn-secondary" onclick="getAppTips()">💡 Application Tips</button>
+        </div>
+      </div>
+
+      <div class="response-box" id="market-result"></div>
+    </div>
+
+    <!-- ── Documents page ─────────────────────────────────────────────── -->
+    <div class="page" id="page-documents">
+      <h2>📄 Document Generator</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.2rem;">
+        Generate a tailored resume or cover letter for a job from your last search.
+        Run a job search first to populate job IDs.
+      </p>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Job ID</label>
+            <input id="d-job-id" type="text" placeholder="Paste job ID from search results" />
+          </div>
+          <div class="form-group">
+            <label>Resume Tone</label>
+            <select id="d-tone">
+              <option value="professional" selected>Professional</option>
+              <option value="technical">Technical</option>
+              <option value="creative">Creative</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="generateResume()">📝 Generate Resume</button>
+          <button class="btn btn-secondary" onclick="generateCoverLetter()">✉️ Generate Cover Letter</button>
+        </div>
+      </div>
+
+      <div class="response-box" id="doc-result"></div>
+    </div>
+
+    <!-- ── Applications page ──────────────────────────────────────────── -->
+    <div class="page" id="page-applications">
+      <h2>📋 Application Tracker</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.2rem;">
+        Log and update your job applications. Paste job IDs from your search results.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>Track New Application</h3>
+          <div class="form-group">
+            <label>Job ID *</label>
+            <input id="app-job-id" type="text" placeholder="Job ID from search" />
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="app-notes" placeholder="Referral from John, deadline Dec 1…"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="trackApp()">📋 Track Application</button>
+        </div>
+
+        <div class="card">
+          <h3>Update Application</h3>
+          <div class="form-group">
+            <label>Application ID *</label>
+            <input id="upd-app-id" type="text" placeholder="Application ID from tracking" />
+          </div>
+          <div class="form-group">
+            <label>New Status *</label>
+            <select id="upd-status">
+              <option value="submitted">Submitted</option>
+              <option value="under_review">Under Review</option>
+              <option value="interview_scheduled">Interview Scheduled</option>
+              <option value="offer_received">Offer Received</option>
+              <option value="rejected">Rejected</option>
+              <option value="withdrawn">Withdrawn</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Employer Feedback</label>
+            <textarea id="upd-feedback" placeholder="They said they wanted more cloud experience…"></textarea>
+          </div>
+          <button class="btn btn-secondary" onclick="updateApp()">🔄 Update Status</button>
+        </div>
+      </div>
+
+      <div class="response-box" id="app-result"></div>
+    </div>
+
+    <!-- ── Analytics page ─────────────────────────────────────────────── -->
+    <div class="page" id="page-analytics">
+      <h2>📈 Analytics &amp; Insights</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.2rem;">
+        See your application success metrics and AI-generated career advice.
+      </p>
+
+      <div class="btn-row" style="margin-bottom:1.2rem;">
+        <button class="btn btn-primary" onclick="getAnalytics()">📈 Load Analytics</button>
+        <button class="btn btn-secondary" onclick="getFeedback()">🧠 Feedback Analysis</button>
+      </div>
+
+      <div class="response-box" id="analytics-result"></div>
+    </div>
+
+    <!-- ── Chat page ──────────────────────────────────────────────────── -->
+    <div class="page" id="page-chat">
+      <h2>💬 Chat with Agent</h2>
+      <p style="color:var(--text-muted);margin-bottom:1rem;">
+        Ask anything — the agent can search jobs, generate documents, give market advice, and more.
+      </p>
+
+      <div id="chat-window">
+        <div class="msg agent">
+          👋 Hi! I'm your AI Job Agent. I can help you search for jobs, generate tailored resumes and cover letters, provide market insights, and track your applications.<br><br>
+          Make sure your profile is saved first, then ask me anything!
+        </div>
+      </div>
+
+      <div id="chat-input-row">
+        <input id="chat-input" type="text"
+               placeholder="Ask me to search jobs, generate a resume, analyse the market…"
+               onkeydown="if(event.key==='Enter')sendChat()" />
+        <button class="btn btn-primary" onclick="sendChat()">Send</button>
+        <button class="btn btn-danger" title="Reset conversation" onclick="resetChat()">🗑</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── JavaScript ─────────────────────────────────────────────────────────── -->
+<script>
+  // ── Config ────────────────────────────────────────────────────────────────
+  const API = '';  // same origin; change to 'http://localhost:8000' for dev
+
+  // ── Session management ────────────────────────────────────────────────────
+  let sessionId = localStorage.getItem('aja_session_id');
+
+  async function ensureSession() {
+    if (sessionId) return;
+    const res = await fetch(`${API}/api/session`, { method: 'POST' });
+    if (!res.ok) throw new Error('Could not create session');
+    const data = await res.json();
+    sessionId = data.session_id;
+    localStorage.setItem('aja_session_id', sessionId);
+  }
+
+  function apiHeaders() {
+    return { 'Content-Type': 'application/json', 'X-Session-ID': sessionId || '' };
+  }
+
+  // ── Health check ──────────────────────────────────────────────────────────
+  async function checkHealth() {
+    try {
+      const res = await fetch(`${API}/api/health`);
+      const dot = document.getElementById('conn-dot');
+      const label = document.getElementById('conn-label');
+      if (res.ok) {
+        dot.classList.add('green');
+        label.textContent = 'Connected';
+      } else {
+        label.textContent = 'Degraded';
+      }
+    } catch {
+      document.getElementById('conn-label').textContent = 'Offline';
+    }
+  }
+
+  checkHealth();
+  setInterval(checkHealth, 30000);
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  document.querySelectorAll('nav a[data-page]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const page = link.dataset.page;
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${page}`).classList.add('active');
+    });
+  });
+
+  // ── Show / hide response box ──────────────────────────────────────────────
+  function showResponse(id, text) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.add('visible');
+  }
+
+  // ── Button loading state ──────────────────────────────────────────────────
+  function setLoading(btn, loading) {
+    btn.disabled = loading;
+    btn._origText = btn._origText || btn.innerHTML;
+    btn.innerHTML = loading ? '<span class="spinner"></span> Working…' : btn._origText;
+  }
+
+  // ── Generic POST helper ───────────────────────────────────────────────────
+  async function post(path, body) {
+    await ensureSession();
+    const res = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Request failed');
+    }
+    return res.json();
+  }
+
+  async function get(path) {
+    await ensureSession();
+    const res = await fetch(`${API}${path}`, { headers: apiHeaders() });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Request failed');
+    }
+    return res.json();
+  }
+
+  function csvToList(str) {
+    return str.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  // ── Profile ───────────────────────────────────────────────────────────────
+  async function saveProfile() {
+    const btn = event.currentTarget;
+    setLoading(btn, true);
+    try {
+      const workRaw = document.getElementById('p-work').value.trim();
+      const eduRaw  = document.getElementById('p-edu').value.trim();
+      let work = [], edu = [];
+      if (workRaw) work = JSON.parse(workRaw);
+      if (eduRaw)  edu  = JSON.parse(eduRaw);
+
+      const jobTypes = [...document.querySelectorAll('.jt-check:checked')].map(c => c.value);
+
+      const body = {
+        name:                 document.getElementById('p-name').value.trim(),
+        email:                document.getElementById('p-email').value.trim(),
+        phone:                document.getElementById('p-phone').value.trim() || null,
+        location:             document.getElementById('p-location').value.trim(),
+        portfolio_url:        document.getElementById('p-portfolio').value.trim() || null,
+        linkedin_url:         document.getElementById('p-linkedin').value.trim() || null,
+        experience_level:     document.getElementById('p-exp-level').value,
+        years_of_experience:  parseInt(document.getElementById('p-years').value) || 0,
+        desired_salary_min:   parseInt(document.getElementById('p-sal-min').value) || null,
+        desired_salary_max:   parseInt(document.getElementById('p-sal-max').value) || null,
+        skills:               csvToList(document.getElementById('p-skills').value),
+        desired_roles:        csvToList(document.getElementById('p-roles').value),
+        languages:            csvToList(document.getElementById('p-langs').value),
+        certifications:       csvToList(document.getElementById('p-certs').value),
+        desired_job_types:    jobTypes,
+        work_history:         work,
+        education:            edu,
+      };
+
+      if (!body.name || !body.email || !body.location) {
+        toast('Name, email, and location are required.', 'error');
+        return;
+      }
+
+      await post('/api/profile', body);
+      document.getElementById('profile-locked-banner').style.display = 'block';
+      toast('Profile saved! Agent is ready.', 'success');
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  // ── Job Search ────────────────────────────────────────────────────────────
+  async function searchJobs() {
+    const btn = event.currentTarget;
+    setLoading(btn, true);
+    try {
+      const data = await post('/api/jobs/search', {
+        location_filter: document.getElementById('s-location').value.trim(),
+        include_remote:  document.getElementById('s-remote').checked,
+        max_results:     parseInt(document.getElementById('s-max').value),
+      });
+      showResponse('search-result', data.response);
+      toast(`Search complete. ${data.job_cache_size} jobs cached.`, 'success');
+    } catch (err) {
+      toast(`Search failed: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  // ── Market ────────────────────────────────────────────────────────────────
+  async function getMarketInsights() {
+    const btn = event.currentTarget;
+    setLoading(btn, true);
+    try {
+      const data = await post('/api/market-insights', {
+        region:   document.getElementById('m-region').value.trim(),
+        industry: document.getElementById('m-industry').value.trim(),
+      });
+      showResponse('market-result', data.response);
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  async function getAppTips() {
+    const btn = event.currentTarget;
+    const region = document.getElementById('m-region').value.trim();
+    if (!region) { toast('Enter a region first.', 'error'); return; }
+    setLoading(btn, true);
+    try {
+      const data = await post('/api/application-tips', { region });
+      showResponse('market-result', data.response);
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  // ── Documents ─────────────────────────────────────────────────────────────
+  async function generateResume() {
+    const btn = event.currentTarget;
+    const jobId = document.getElementById('d-job-id').value.trim();
+    if (!jobId) { toast('Enter a Job ID.', 'error'); return; }
+    setLoading(btn, true);
+    try {
+      const data = await post('/api/documents/resume', {
+        job_id: jobId,
+        tone:   document.getElementById('d-tone').value,
+      });
+      showResponse('doc-result', data.response);
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  async function generateCoverLetter() {
+    const btn = event.currentTarget;
+    const jobId = document.getElementById('d-job-id').value.trim();
+    if (!jobId) { toast('Enter a Job ID.', 'error'); return; }
+    setLoading(btn, true);
+    try {
+      const data = await post('/api/documents/cover-letter', { job_id: jobId });
+      showResponse('doc-result', data.response);
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  // ── Applications ──────────────────────────────────────────────────────────
+  async function trackApp() {
+    const btn = event.currentTarget;
+    const jobId = document.getElementById('app-job-id').value.trim();
+    if (!jobId) { toast('Enter a Job ID.', 'error'); return; }
+    setLoading(btn, true);
+    try {
+      const data = await post('/api/applications', {
+        job_id: jobId,
+        notes:  document.getElementById('app-notes').value.trim(),
+      });
+      showResponse('app-result', data.response);
+      toast('Application tracked!', 'success');
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  async function updateApp() {
+    const btn = event.currentTarget;
+    const appId = document.getElementById('upd-app-id').value.trim();
+    if (!appId) { toast('Enter an Application ID.', 'error'); return; }
+    setLoading(btn, true);
+    try {
+      await ensureSession();
+      const res = await fetch(`${API}/api/applications/${encodeURIComponent(appId)}`, {
+        method: 'PUT',
+        headers: apiHeaders(),
+        body: JSON.stringify({
+          new_status: document.getElementById('upd-status').value,
+          feedback:   document.getElementById('upd-feedback').value.trim() || null,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || 'Update failed');
+      }
+      const data = await res.json();
+      showResponse('app-result', data.response);
+      toast('Application updated!', 'success');
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  // ── Analytics ─────────────────────────────────────────────────────────────
+  async function getAnalytics() {
+    const btn = event.currentTarget;
+    setLoading(btn, true);
+    try {
+      const data = await get('/api/analytics');
+      showResponse('analytics-result', data.response);
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  async function getFeedback() {
+    const btn = event.currentTarget;
+    setLoading(btn, true);
+    try {
+      const data = await get('/api/feedback');
+      showResponse('analytics-result', data.response);
+    } catch (err) {
+      toast(`Error: ${err.message}`, 'error');
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
+  function appendMsg(text, role) {
+    const win = document.getElementById('chat-window');
+    const el = document.createElement('div');
+    el.className = `msg ${role}`;
+    el.textContent = text;
+    win.appendChild(el);
+    win.scrollTop = win.scrollHeight;
+    return el;
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    appendMsg(msg, 'user');
+    const thinking = appendMsg('Thinking…', 'thinking');
+
+    try {
+      const data = await post('/api/chat', { message: msg });
+      thinking.remove();
+      appendMsg(data.response, 'agent');
+    } catch (err) {
+      thinking.remove();
+      appendMsg(`Error: ${err.message}`, 'agent');
+    }
+  }
+
+  async function resetChat() {
+    await ensureSession();
+    await fetch(`${API}/api/chat/reset`, { method: 'DELETE', headers: apiHeaders() });
+    const win = document.getElementById('chat-window');
+    win.innerHTML = '<div class="msg agent">🗑️ Conversation reset. How can I help you?</div>';
+    toast('Conversation cleared.', 'info');
+  }
+</script>
+</body>
+</html>
