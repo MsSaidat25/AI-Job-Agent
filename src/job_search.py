@@ -21,7 +21,9 @@ import uuid
 from datetime import date, timedelta
 from typing import Any, Optional
 
-import anthropic
+import os
+
+from openai import OpenAI
 
 from config.settings import AGENT_MODEL, MAX_JOBS_PER_SEARCH, MAX_TOKENS
 from src.models import ExperienceLevel, JobListing, JobType, MarketInsight, UserProfile
@@ -191,8 +193,11 @@ class JobSearchEngine:
         2. Call it inside `search()` and merge results.
     """
 
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: OpenAI | None = None) -> None:
+        self._client = client or OpenAI(
+            api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+            base_url="https://openrouter.ai/api/v1",
+        )
 
     # ── Public API ─────────────────────────────────────────────────────────
 
@@ -267,12 +272,12 @@ IMPORTANT: Do NOT consider or infer any protected attributes (gender, age, ethni
 Return a JSON array: [{{"id": "...", "score": <0-100>, "rationale": "..."}}]
 Return ONLY the JSON array, no other text.
 """
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=MAX_TOKENS,
             messages=[{"role": "user", "content": prompt}],
         )
-        raw_text = response.content[0].text.strip()
+        raw_text = response.choices[0].message.content.strip()
         # Defensive: strip markdown fences if present
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]
@@ -299,8 +304,11 @@ class MarketIntelligenceService:
     in-demand skills, salary ranges, cultural hiring norms, and growth trends.
     """
 
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: OpenAI | None = None) -> None:
+        self._client = client or OpenAI(
+            api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+            base_url="https://openrouter.ai/api/v1",
+        )
 
     def get_insights(self, region: str, industry: str) -> MarketInsight:
         """Return a MarketInsight for the requested region and industry."""
@@ -320,12 +328,12 @@ Return ONLY valid JSON with these exact keys:
 
 Be concise and factual. If data is unavailable, use null.
 """
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=1024,
             messages=[{"role": "user", "content": prompt}],
         )
-        raw = response.content[0].text.strip()
+        raw = response.choices[0].message.content.strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
@@ -341,9 +349,9 @@ Provide 5–7 concise, actionable tips for job seekers applying to positions in 
 Cover: CV/resume format, cover letter expectations, interview etiquette, follow-up norms.
 Format as a numbered list. Be specific to this region's culture.
 """
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return response.choices[0].message.content.strip()

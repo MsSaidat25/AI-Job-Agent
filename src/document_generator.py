@@ -23,7 +23,9 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-import anthropic
+import os
+
+from openai import OpenAI
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
 from src.models import GeneratedDocument, JobListing, UserProfile
@@ -57,8 +59,11 @@ Rules:
 
 
 class DocumentGenerator:
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: OpenAI | None = None) -> None:
+        self._client = client or OpenAI(
+            api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+            base_url="https://openrouter.ai/api/v1",
+        )
 
     # ── Public API ─────────────────────────────────────────────────────────
 
@@ -121,23 +126,25 @@ at {job.company}.
 Provide 5–7 specific, actionable improvement suggestions as a numbered list.
 Focus on: keyword optimisation, impact quantification, relevance, and structure.
 """
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return response.choices[0].message.content.strip()
 
     # ── Private helpers ────────────────────────────────────────────────────
 
     def _call_model(self, system: str, user_content: str) -> str:
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=MAX_TOKENS,
-            system=system,
-            messages=[{"role": "user", "content": user_content}],
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_content},
+            ],
         )
-        return response.content[0].text.strip()
+        return response.choices[0].message.content.strip()
 
     def _split_notes(self, raw: str) -> tuple[str, str]:
         """Separate document body from trailing ```json ... ``` tailoring notes."""

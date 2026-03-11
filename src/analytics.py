@@ -21,7 +21,9 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from typing import Optional
 
-import anthropic
+import os
+
+from openai import OpenAI
 from sqlalchemy.orm import Session
 
 from config.settings import AGENT_MODEL
@@ -44,10 +46,13 @@ class ApplicationTracker:
     def __init__(
         self,
         session: Session | None = None,
-        client: anthropic.Anthropic | None = None,
+        client: OpenAI | None = None,
     ) -> None:
         self._session = session or init_db()
-        self._client = client or anthropic.Anthropic()
+        self._client = client or OpenAI(
+            api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+            base_url="https://openrouter.ai/api/v1",
+        )
 
     # ── CRUD ───────────────────────────────────────────────────────────────
 
@@ -197,12 +202,12 @@ Write 3–5 bullet points of specific, actionable advice based on these numbers.
 Be honest about weaknesses (e.g. low response rate) and suggest concrete fixes.
 Keep each bullet under 2 sentences. Do NOT repeat the raw numbers verbatim.
 """
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return response.choices[0].message.content.strip()
 
     def employer_feedback_analysis(self, user_id: str) -> str:
         """Aggregate employer feedback and extract patterns via Claude."""
@@ -226,12 +231,12 @@ Provide:
 2. Most common reason for rejection (if apparent)
 3. Two specific action items the candidate should focus on
 """
-        response = self._client.messages.create(
+        response = self._client.chat.completions.create(
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return response.choices[0].message.content.strip()
 
     # ── Private helpers ────────────────────────────────────────────────────
 
