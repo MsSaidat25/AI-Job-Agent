@@ -34,7 +34,7 @@ from typing import Any, Optional
 
 import anthropic
 
-from config.settings import AGENT_MODEL, MAX_TOKENS
+from config.settings import AGENT_MODEL, MAX_TOKENS, LLM_API_KEY, LLM_BASE_URL
 from src.analytics import ApplicationTracker
 from src.document_generator import DocumentGenerator
 from src.job_search import JobSearchEngine, MarketIntelligenceService
@@ -210,7 +210,10 @@ class JobAgent:
 
     def __init__(self, profile: UserProfile) -> None:
         self.profile = profile
-        self._client = anthropic.Anthropic()
+        self._client = anthropic.Anthropic(
+            api_key=LLM_API_KEY,
+            **({"base_url": LLM_BASE_URL} if LLM_BASE_URL else {}),
+        )
         self._session = init_db()
         self._search_engine = JobSearchEngine(self._client)
         self._market_svc = MarketIntelligenceService(self._client)

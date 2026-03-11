@@ -16,10 +16,16 @@ DATA_DIR.mkdir(exist_ok=True)
 DB_PATH = DATA_DIR / "job_agent.db"
 TEMPLATES_DIR = BASE_DIR / "src" / "templates"
 
-# ── Anthropic ──────────────────────────────────────────────────────────────
+# ── LLM provider ───────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
 AGENT_MODEL: str = os.getenv("AGENT_MODEL", "claude-sonnet-4-6")
 MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "4096"))
+
+# When OPENROUTER_API_KEY is set, route all LLM calls through OpenRouter
+USE_OPENROUTER: bool = bool(OPENROUTER_API_KEY)
+LLM_API_KEY: str = OPENROUTER_API_KEY if USE_OPENROUTER else ANTHROPIC_API_KEY
+LLM_BASE_URL: str | None = "https://openrouter.ai/api/v1" if USE_OPENROUTER else None
 
 # ── Privacy ────────────────────────────────────────────────────────────────
 # When True, PII is stored encrypted at rest; key derived from user passphrase
