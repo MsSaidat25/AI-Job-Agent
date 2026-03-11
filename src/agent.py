@@ -6,12 +6,13 @@ This module wires together every sub-system and exposes a single
 
 Agent loop (tool-use pattern)
 ──────────────────────────────
-The agent runs an agentic loop using Anthropic's tool-use API:
+The agent runs an agentic loop using the OpenAI-compatible chat completions
+API (pointed at OpenRouter):
 
   1. User sends a natural-language request.
-  2. Claude decides which tool(s) to call.
+  2. The model decides which tool(s) to call.
   3. The orchestrator executes the tools and feeds results back.
-  4. Loop continues until Claude returns a final text response.
+  4. Loop continues until the model returns a final text response.
 
 Tools exposed to the model
 ──────────────────────────
@@ -28,11 +29,12 @@ Tools exposed to the model
 from __future__ import annotations
 
 import json
+import os
 import uuid
 from datetime import datetime
 from typing import Any, Optional
 
-import anthropic
+from openai import OpenAI
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
 from src.analytics import ApplicationTracker
@@ -49,125 +51,149 @@ from src.models import (
 )
 
 
-# ── Tool schemas (JSON Schema for Claude's tool-use API) ───────────────────
+# ── Tool schemas (OpenAI function-calling format) ──────────────────────────
 
 TOOLS: list[dict] = [
     {
-        "name": "search_jobs",
-        "description": (
-            "Search for job listings that match the user's profile. "
-            "Returns a ranked list of opportunities with match scores."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "location_filter": {
-                    "type": "string",
-                    "description": "Optional region filter, e.g. 'Austin, TX'. Pass empty string for global.",
+        "type": "function",
+        "function": {
+            "name": "search_jobs",
+            "description": (
+                "Search for job listings that match the user's profile. "
+                "Returns a ranked list of opportunities with match scores."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location_filter": {
+                        "type": "string",
+                        "description": "Optional region filter, e.g. 'Austin, TX'. Pass empty string for global.",
+                    },
+                    "include_remote": {
+                        "type": "boolean",
+                        "description": "Whether to include remote opportunities.",
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results to return (default 10).",
+                    },
                 },
-                "include_remote": {
-                    "type": "boolean",
-                    "description": "Whether to include remote opportunities.",
-                    "default": True,
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_market_insights",
+            "description": "Get a detailed job market report for a specific region and industry.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "region": {"type": "string", "description": "Geographic region, e.g. 'Berlin, Germany'"},
+                    "industry": {"type": "string", "description": "Industry sector, e.g. 'Technology'"},
                 },
-                "max_results": {
-                    "type": "integer",
-                    "description": "Maximum number of results to return (default 10).",
-                    "default": 10,
+                "required": ["region", "industry"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_application_tips",
+            "description": "Get culturally-aware job application tips for a specific region.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "region": {"type": "string", "description": "Geographic region, e.g. 'Japan'"},
                 },
+                "required": ["region"],
             },
-            "required": [],
         },
     },
     {
-        "name": "get_market_insights",
-        "description": "Get a detailed job market report for a specific region and industry.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "region": {"type": "string", "description": "Geographic region, e.g. 'Berlin, Germany'"},
-                "industry": {"type": "string", "description": "Industry sector, e.g. 'Technology'"},
-            },
-            "required": ["region", "industry"],
-        },
-    },
-    {
-        "name": "get_application_tips",
-        "description": "Get culturally-aware job application tips for a specific region.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "region": {"type": "string", "description": "Geographic region, e.g. 'Japan'"},
-            },
-            "required": ["region"],
-        },
-    },
-    {
-        "name": "generate_resume",
-        "description": "Generate a tailored resume for a specific job listing.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "job_id": {"type": "string", "description": "ID of the target job listing."},
-                "tone": {
-                    "type": "string",
-                    "enum": ["professional", "creative", "technical"],
-                    "description": "Desired tone of the resume.",
-                    "default": "professional",
+        "type": "function",
+        "function": {
+            "name": "generate_resume",
+            "description": "Generate a tailored resume for a specific job listing.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "job_id": {"type": "string", "description": "ID of the target job listing."},
+                    "tone": {
+                        "type": "string",
+                        "enum": ["professional", "creative", "technical"],
+                        "description": "Desired tone of the resume.",
+                    },
                 },
+                "required": ["job_id"],
             },
-            "required": ["job_id"],
         },
     },
     {
-        "name": "generate_cover_letter",
-        "description": "Generate a tailored cover letter for a specific job listing.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "job_id": {"type": "string", "description": "ID of the target job listing."},
-            },
-            "required": ["job_id"],
-        },
-    },
-    {
-        "name": "track_application",
-        "description": "Log a new job application in the tracker.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "job_id": {"type": "string", "description": "ID of the job applied to."},
-                "notes": {"type": "string", "description": "Optional notes about this application."},
-            },
-            "required": ["job_id"],
-        },
-    },
-    {
-        "name": "update_application",
-        "description": "Update the status or feedback for an existing application.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "application_id": {"type": "string"},
-                "new_status": {
-                    "type": "string",
-                    "enum": [s.value for s in ApplicationStatus],
+        "type": "function",
+        "function": {
+            "name": "generate_cover_letter",
+            "description": "Generate a tailored cover letter for a specific job listing.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "job_id": {"type": "string", "description": "ID of the target job listing."},
                 },
-                "feedback": {"type": "string", "description": "Employer feedback, if any."},
-                "notes": {"type": "string"},
+                "required": ["job_id"],
             },
-            "required": ["application_id", "new_status"],
         },
     },
     {
-        "name": "get_analytics",
-        "description": "Get application success metrics and AI-generated career insights.",
-        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "type": "function",
+        "function": {
+            "name": "track_application",
+            "description": "Log a new job application in the tracker.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "job_id": {"type": "string", "description": "ID of the job applied to."},
+                    "notes": {"type": "string", "description": "Optional notes about this application."},
+                },
+                "required": ["job_id"],
+            },
+        },
     },
     {
-        "name": "get_feedback_analysis",
-        "description": "Analyse patterns across all employer feedback received.",
-        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "type": "function",
+        "function": {
+            "name": "update_application",
+            "description": "Update the status or feedback for an existing application.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "application_id": {"type": "string"},
+                    "new_status": {
+                        "type": "string",
+                        "enum": [s.value for s in ApplicationStatus],
+                    },
+                    "feedback": {"type": "string", "description": "Employer feedback, if any."},
+                    "notes": {"type": "string"},
+                },
+                "required": ["application_id", "new_status"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_analytics",
+            "description": "Get application success metrics and AI-generated career insights.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_feedback_analysis",
+            "description": "Analyse patterns across all employer feedback received.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
     },
 ]
 
@@ -210,18 +236,22 @@ class JobAgent:
 
     def __init__(self, profile: UserProfile) -> None:
         self.profile = profile
-        self._client = anthropic.Anthropic()
+        self._client = OpenAI(
+            api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+            base_url="https://openrouter.ai/api/v1",
+        )
         self._session = init_db()
-        self._search_engine = JobSearchEngine(self._client)
-        self._market_svc = MarketIntelligenceService(self._client)
-        self._doc_gen = DocumentGenerator(self._client)
-        self._tracker = ApplicationTracker(self._session, self._client)
+        # Submodules manage their own internal API clients
+        self._search_engine = JobSearchEngine()
+        self._market_svc = MarketIntelligenceService()
+        self._doc_gen = DocumentGenerator()
+        self._tracker = ApplicationTracker(self._session)
 
         # In-memory caches for the current session
         self._job_cache: dict[str, JobListing] = {}
         self._app_cache: dict[str, ApplicationRecord] = {}
 
-        # Conversation history
+        # Conversation history (OpenAI format, without system message)
         self._messages: list[dict] = []
 
     # ── Public API ─────────────────────────────────────────────────────────
@@ -241,39 +271,54 @@ class JobAgent:
     # ── Agentic loop ───────────────────────────────────────────────────────
 
     def _agent_loop(self) -> str:
-        """Run Claude tool-use loop until a final text response is produced."""
+        """Run tool-use loop until a final text response is produced."""
         while True:
-            response = self._client.messages.create(
+            # Prepend system message each call (OpenAI style)
+            messages_with_system = [
+                {"role": "system", "content": _SYSTEM_PROMPT},
+                *self._messages,
+            ]
+
+            response = self._client.chat.completions.create(
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
-                system=_SYSTEM_PROMPT,
                 tools=TOOLS,
-                messages=self._messages,
+                messages=messages_with_system,
             )
 
+            choice = response.choices[0]
+            message = choice.message
+
             # Append assistant turn to history
-            self._messages.append({"role": "assistant", "content": response.content})
+            assistant_msg: dict[str, Any] = {"role": "assistant", "content": message.content}
+            if message.tool_calls:
+                assistant_msg["tool_calls"] = [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments,
+                        },
+                    }
+                    for tc in message.tool_calls
+                ]
+            self._messages.append(assistant_msg)
 
-            if response.stop_reason == "end_turn":
-                # Extract the text response
-                for block in response.content:
-                    if hasattr(block, "text"):
-                        return block.text
-                return ""
+            if choice.finish_reason == "stop":
+                return message.content or ""
 
-            if response.stop_reason == "tool_use":
-                tool_results = []
-                for block in response.content:
-                    if block.type == "tool_use":
-                        result = self._dispatch_tool(block.name, block.input)
-                        tool_results.append({
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": result,
-                        })
-                self._messages.append({"role": "user", "content": tool_results})
+            if choice.finish_reason == "tool_calls":
+                for tc in message.tool_calls:
+                    args = json.loads(tc.function.arguments)
+                    result = self._dispatch_tool(tc.function.name, args)
+                    self._messages.append({
+                        "role": "tool",
+                        "tool_call_id": tc.id,
+                        "content": result,
+                    })
             else:
-                # Unexpected stop reason
+                # Unexpected finish reason
                 break
 
         return "I encountered an unexpected issue. Please try again."
