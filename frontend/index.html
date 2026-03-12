@@ -3,470 +3,816 @@ Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com). All Rights Reserved
 avien@aviensolutions.com
 -->
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>JobPath AI — Avien Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JobPath AI — Land Your Next Role</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#f2cc0d",
+        "background-light": "#f8f8f5",
+        "background-dark": "#221f10",
+        "surface-dark": "#2a2714",
+        "sage": "#8da399",
+      },
+      fontFamily: { "display": ["Space Grotesk"] },
+      borderRadius: {
+        "DEFAULT": "0.125rem","lg": "0.5rem","xl": "1rem","2xl": "1.5rem","full": "9999px"
+      },
+    },
+  },
+}
+</script>
 <style>
-:root{--bg:#08080d;--surface:#0f0f18;--surface2:#16161f;--surface3:#1c1c28;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--gold:#e8c547;--gold2:#f5d876;--gold-dim:rgba(232,197,71,0.12);--gold-glow:rgba(232,197,71,0.25);--cyan:#4dd9e0;--rose:#f4717f;--green:#52d68a;--text:#eeeef5;--text2:#a0a0b8;--muted:#55556a;--shadow:0 8px 40px rgba(0,0,0,0.6);--shadow-sm:0 2px 12px rgba(0,0,0,0.4);--radius:12px;--radius-lg:18px;--radius-xl:24px}
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
-
-/* LANDING */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(8,8,13,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
-.logo-dot{width:7px;height:7px;background:var(--gold);border-radius:50%;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.nav-links{display:flex;align-items:center;gap:8px}
-.nav-link{padding:7px 16px;border-radius:20px;font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.2s;text-decoration:none;font-weight:500}
-.nav-link:hover{color:var(--gold);background:var(--gold-dim)}
-.nav-cta{background:var(--gold);color:#08080d;font-weight:700;padding:8px 22px;border-radius:20px;font-size:13px;cursor:pointer;transition:all 0.2s;border:none;font-family:'Outfit',sans-serif}
-.nav-cta:hover{background:var(--gold2);transform:translateY(-1px)}
-
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(232,197,71,0.08) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 80% 80%,rgba(77,217,224,0.04) 0%,transparent 60%);pointer-events:none}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 70% at 50% 0%,black 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid rgba(232,197,71,0.2);border-radius:20px;padding:6px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:32px;animation:fadeUp 0.6s ease both}
-.badge-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:blink 1.5s infinite}
-.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,7vw,5.5rem);font-weight:900;line-height:1.05;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff 0%,var(--gold2) 50%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px;max-width:900px;animation:fadeUp 0.6s 0.1s ease both}
-.hero-sub{font-size:18px;color:var(--text2);max-width:580px;line-height:1.7;margin-bottom:48px;font-weight:300;animation:fadeUp 0.6s 0.2s ease both}
-.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:72px;animation:fadeUp 0.6s 0.3s ease both}
-.btn-hero-primary{background:var(--gold);color:#08080d;font-weight:700;padding:14px 32px;border-radius:12px;font-size:15px;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all 0.2s;box-shadow:0 0 40px var(--gold-glow)}
-.btn-hero-primary:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 0 60px var(--gold-glow)}
-.btn-hero-ghost{background:transparent;border:1px solid var(--border2);color:var(--text);padding:14px 32px;border-radius:12px;font-size:15px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s}
-.btn-hero-ghost:hover{border-color:var(--gold);color:var(--gold)}
-.hero-stats{display:flex;gap:52px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.4s ease both}
-.hero-stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:var(--gold);line-height:1}
-.hero-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-family:'IBM Plex Mono',monospace;margin-top:4px}
-.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;font-family:'IBM Plex Mono',monospace;animation:bounce 2s infinite}
-@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-
-.section{padding:100px 48px;position:relative;z-index:1;max-width:1140px;margin:0 auto}
-.section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:12px}
-.section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.1;margin-bottom:16px;letter-spacing:-0.02em}
-.section-sub{color:var(--text2);font-size:16px;max-width:540px;line-height:1.7;margin-bottom:52px;font-weight:300}
-
-.problems-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.problem-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;overflow:hidden;transition:all 0.3s}
-.problem-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.problem-card:nth-child(1)::before{background:var(--rose)}.problem-card:nth-child(2)::before{background:var(--gold)}.problem-card:nth-child(3)::before{background:var(--cyan)}
-.problem-card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--border2)}
-.problem-num{font-family:'Playfair Display',serif;font-size:5rem;font-weight:900;color:var(--surface3);line-height:1;margin-bottom:16px}
-.problem-title{font-size:16px;font-weight:600;margin-bottom:8px}
-.problem-desc{font-size:14px;color:var(--text2);line-height:1.6;font-weight:300}
-
-.pipeline-section{background:var(--surface);padding:100px 48px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.pipeline-inner{max-width:1000px;margin:0 auto}
-.pipeline-steps{display:flex;margin-bottom:28px;overflow-x:auto;padding-bottom:8px}
-.pipe-step{flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
-.pipe-step:not(:last-child)::after{content:'';position:absolute;top:21px;left:calc(50% + 22px);right:calc(-50% + 22px);height:2px;background:var(--surface3);transition:background 0.3s;z-index:0}
-.pipe-step.active:not(:last-child)::after{background:var(--gold)}
-.pipe-icon{width:44px;height:44px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:1;transition:all 0.3s;margin-bottom:10px}
-.pipe-step.active .pipe-icon{background:var(--gold);border-color:var(--gold);box-shadow:0 0 20px var(--gold-glow)}
-.pipe-label{font-size:12px;color:var(--text2);text-align:center;font-family:'IBM Plex Mono',monospace}
-.pipe-step.active .pipe-label{color:var(--gold)}
-.pipe-detail{background:var(--surface2);border:1px solid var(--border);border-radius:18px;padding:28px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;animation:fadeUp 0.3s ease}
-.pipe-detail-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:800;margin-bottom:8px}
-.pipe-detail-desc{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:16px;font-weight:300}
-.pipe-tags{display:flex;flex-wrap:wrap;gap:6px}
-.pipe-tag{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,197,71,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-family:'IBM Plex Mono',monospace}
-.pipe-data{background:var(--surface3);border-radius:12px;padding:16px;min-width:180px}
-.pipe-kv{display:flex;justify-content:space-between;gap:16px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
-.pipe-kv:last-child{border-bottom:none}
-.pipe-kv-k{color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px}
-.pipe-kv-v{color:var(--gold);font-weight:500;font-size:12px;text-align:right}
-
-.roadmap-section{padding:100px 48px;max-width:1140px;margin:0 auto}
-.roadmap-track{display:flex;gap:16px;overflow-x:auto;padding-bottom:12px}
-.roadmap-card{min-width:220px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;flex-shrink:0;transition:all 0.2s}
-.roadmap-card:hover{border-color:var(--border2);transform:translateY(-3px)}
-.rm-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:3px 10px;border-radius:20px;margin-bottom:14px}
-.rm-live{background:rgba(82,214,138,0.12);color:#52d68a;border:1px solid rgba(82,214,138,0.2)}
-.rm-next{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,197,71,0.2)}
-.rm-future{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
-.roadmap-title{font-weight:600;font-size:14px;margin-bottom:12px}
-.roadmap-features{list-style:none;display:flex;flex-direction:column;gap:6px}
-.roadmap-features li{font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:7px;line-height:1.4}
-.roadmap-features li::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;background:var(--muted)}
-.has-live .roadmap-features li::before{background:#52d68a}
-.has-next .roadmap-features li::before{background:var(--gold)}
-
-.vision-section{padding:120px 48px;text-align:center;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(232,197,71,0.05) 0%,transparent 70%)}
-.vision-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;background:linear-gradient(135deg,var(--text) 0%,var(--gold2) 60%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px;letter-spacing:-0.02em}
-.vision-desc{font-size:18px;color:var(--text2);max-width:600px;margin:0 auto 40px;line-height:1.8;font-weight:300}
-.vision-hi{color:var(--gold);font-weight:500;-webkit-text-fill-color:var(--gold)}
-footer{padding:32px 48px;border-top:1px solid var(--border);text-align:center}
-.footer-logo{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:6px}
-.footer-txt{font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
-
-.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.hidden{display:none}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;padding:44px;box-shadow:var(--shadow)}
-.modal-brand{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:24px;display:flex;align-items:center;gap:8px}
-.modal h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-0.02em}
-.modal-sub{color:var(--text2);font-size:14px;margin-bottom:28px;font-weight:300}
-.steps-bar{display:flex;gap:6px;margin-bottom:28px}
-.step-bar-item{height:3px;flex:1;border-radius:2px;background:var(--surface3);transition:background 0.3s}
-.step-bar-item.done{background:var(--gold)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-grid .full{grid-column:1/-1}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
-.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
-.field select option{background:var(--surface2)}
-.field textarea{resize:vertical;min-height:80px}
-.tags-input{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;cursor:text;min-height:44px;transition:border-color 0.2s}
-.tags-input:focus-within{border-color:var(--gold)}
-.tags-input input{background:transparent;border:none;color:var(--text);font-size:14px;outline:none;flex:1;min-width:80px;padding:2px 6px;font-family:'Outfit',sans-serif}
-.tag{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,197,71,0.2);border-radius:6px;padding:2px 10px;font-size:12px;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:6px}
-.tag .remove{cursor:pointer;opacity:0.6;font-size:14px}.tag .remove:hover{opacity:1}
-.checkbox-group{display:flex;flex-wrap:wrap;gap:8px}
-.checkbox-item{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;transition:all 0.15s;user-select:none}
-.checkbox-item input{accent-color:var(--gold)}
-.checkbox-item:has(input:checked){border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
-
-/* BUTTONS */
-.btn{padding:10px 20px;border-radius:10px;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.btn-primary{background:var(--gold);color:#08080d}.btn-primary:hover{background:var(--gold2);transform:translateY(-1px)}.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
-.btn-danger{background:rgba(244,113,127,0.1);color:var(--rose);border:1px solid rgba(244,113,127,0.25)}.btn-danger:hover{background:rgba(244,113,127,0.2)}
-.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
-
-/* DASHBOARD */
-#app{display:none;height:100vh;overflow:hidden}
-.app-layout{display:flex;height:100vh}
-.sidebar{width:228px;min-width:228px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 14px}
-.sidebar-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--gold);padding:8px 10px 20px;border-bottom:1px solid var(--border);margin-bottom:18px;display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
-.nav-group{margin-bottom:20px}
-.nav-group-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;font-family:'IBM Plex Mono',monospace;padding:0 10px;margin-bottom:6px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;margin-bottom:1px;font-weight:400}
-.nav-item:hover{background:var(--surface2);color:var(--text)}.nav-item.active{background:var(--gold-dim);color:var(--gold)}
-.nav-item .ni{font-size:15px;width:20px;text-align:center}
-.sidebar-footer{margin-top:auto;border-top:1px solid var(--border);padding-top:14px}
-.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;transition:background 0.15s}.user-card:hover{background:var(--surface2)}
-.avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#c4922a);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:#08080d;flex-shrink:0}
-.user-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-role{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.page-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:800;letter-spacing:-0.01em}
-.status-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 12px;border-radius:20px;background:rgba(82,214,138,0.1);color:#52d68a;border:1px solid rgba(82,214,138,0.2)}
-.status-badge.offline{background:rgba(244,113,127,0.1);color:var(--rose);border-color:rgba(244,113,127,0.2)}
-.status-badge.connecting{background:var(--gold-dim);color:var(--gold);border-color:rgba(232,197,71,0.2)}
-.content{flex:1;overflow-y:auto;padding:24px 28px}
-.view{display:none}.view.active{display:block}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:14px}
-.card-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:800;margin-bottom:4px;letter-spacing:-0.01em}
-.card-sub{font-size:12px;color:var(--muted);margin-bottom:18px;font-family:'IBM Plex Mono',monospace}
-.input-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.input-row input,.input-row select{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;flex:1;min-width:140px;transition:border-color 0.2s;font-family:'Outfit',sans-serif}
-.input-row input:focus,.input-row select:focus{border-color:var(--gold)}
-.input-row select option{background:var(--surface2)}
-.response-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:20px;font-size:13px;line-height:1.8;color:var(--text);min-height:120px;max-height:520px;overflow-y:auto}
-.response-box.empty{display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px}
-.loading{display:flex;align-items:center;gap:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px}
-.spinner{width:14px;height:14px;border:2px solid rgba(232,197,71,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
-.response-box h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold);margin:18px 0 8px;font-weight:800}
-.response-box h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);margin:14px 0 6px;font-weight:700}
-.response-box h4{font-size:0.85rem;color:var(--gold);margin:12px 0 4px;font-weight:600;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.06em}
-.response-box strong{color:var(--text);font-weight:600}
-.response-box em{color:var(--text2)}
-.response-box hr{border:none;border-top:1px solid var(--border);margin:12px 0}
-.response-box code{background:var(--surface3);padding:1px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4dd9e0}
-.md-bullet{display:flex;gap:8px;margin:3px 0}.md-bullet-dot{color:var(--gold);flex-shrink:0}
-.md-num{display:flex;gap:8px;margin:3px 0}.md-num-n{color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:11px;flex-shrink:0;min-width:18px}
-.job-ids-box{margin-top:14px;padding:16px;background:var(--gold-dim);border:1px solid rgba(232,197,71,0.2);border-radius:12px;font-family:'IBM Plex Mono',monospace;font-size:12px}
-.job-ids-box strong{color:var(--gold);display:block;margin-bottom:10px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em}
-.job-id-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(232,197,71,0.1);color:var(--text2)}
-.job-id-item:last-child{border-bottom:none}
-.job-id-copy{cursor:pointer;color:var(--gold);font-size:10px;padding:2px 8px;border:1px solid rgba(232,197,71,0.3);border-radius:4px;transition:all 0.15s}
-.job-id-copy:hover{background:var(--gold);color:#08080d}
-.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 110px)}
-.chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:12px}
-.chat-msg{display:flex;gap:10px}.chat-msg.user{flex-direction:row-reverse}
-.chat-bubble{max-width:72%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.7}
-.chat-msg.user .chat-bubble{background:var(--gold-dim);border:1px solid rgba(232,197,71,0.2);color:var(--text)}
-.chat-msg.agent .chat-bubble{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
-.chat-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.user .chat-avatar{background:linear-gradient(135deg,var(--gold),#c4922a);color:#08080d;font-family:'Playfair Display',serif;font-weight:800;font-size:12px}
-.agent .chat-avatar{background:var(--surface3);font-size:16px}
-.chat-input-row{display:flex;gap:10px}
-.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;resize:none;transition:border-color 0.2s}
-.chat-input:focus{border-color:var(--gold)}
-.mini-modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:400;display:flex;align-items:center;justify-content:center}
-.mini-modal.hidden{display:none}
-.mini-modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:28px;width:420px;box-shadow:var(--shadow)}
-.mini-modal-box h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;margin-bottom:20px}
-#toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;z-index:9999;transform:translateY(20px);opacity:0;transition:all 0.3s;max-width:340px;box-shadow:var(--shadow-sm)}
-#toast.show{transform:translateY(0);opacity:1}
-#toast.success{border-color:rgba(82,214,138,0.4);color:#52d68a}
-#toast.error{border-color:rgba(244,113,127,0.4);color:var(--rose)}
-#toast.info{border-color:rgba(232,197,71,0.4);color:var(--gold)}
-#btt{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--gold);color:#08080d;border:none;border-radius:20px;padding:8px 20px;font-size:12px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all 0.3s;z-index:50;font-weight:500}
-#btt.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:768px){.problems-grid{grid-template-columns:1fr}.nav{padding:0 20px}.section{padding:60px 20px}.pipeline-section{padding:60px 20px}}
+body { font-family: "Space Grotesk", sans-serif; min-height: max(884px, 100dvh); }
+.material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+.step-anchor::before { content: ""; position: absolute; left: 50%; top: -24px; transform: translateX(-50%); width: 2px; height: 24px; background: linear-gradient(to bottom, transparent, #f2cc0d); opacity: 0.3; }
+input, select, textarea {
+  font-family: "Space Grotesk", sans-serif;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(141,163,153,0.25);
+  border-radius: 0.75rem;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input::placeholder, textarea::placeholder { color: #475569; }
+input:focus, select:focus, textarea:focus { border-color: rgba(242,204,13,0.6); }
+select option { background: #221f10; }
+textarea { resize: vertical; }
+.response-area {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(141,163,153,0.15);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: #cbd5e1;
+  min-height: 120px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.response-area.empty { display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.75rem; }
+.response-area h2 { color: #f2cc0d; font-weight: 700; font-size: 1rem; margin: 1rem 0 0.5rem; }
+.response-area h3 { color: #f2cc0d; font-weight: 600; font-size: 0.9rem; margin: 0.75rem 0 0.35rem; }
+.response-area h4 { color: rgba(242,204,13,0.8); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.75rem 0 0.25rem; }
+.response-area strong { color: #f1f5f9; font-weight: 600; }
+.response-area code { background: rgba(242,204,13,0.1); color: #f2cc0d; padding: 1px 5px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
+.response-area hr { border: none; border-top: 1px solid rgba(141,163,153,0.2); margin: 0.75rem 0; }
+.md-bullet { display:flex;gap:8px;margin:3px 0; }
+.md-bullet-dot { color:#f2cc0d;flex-shrink:0; }
+.md-num { display:flex;gap:8px;margin:3px 0; }
+.md-num-n { color:#f2cc0d;font-size:0.7rem;flex-shrink:0;min-width:18px; }
+.spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(242,204,13,0.2);border-top-color:#f2cc0d;border-radius:50%;animation:spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.job-ids-box { margin-top:12px;padding:14px;background:rgba(242,204,13,0.06);border:1px solid rgba(242,204,13,0.15);border-radius:1rem; }
+.job-id-item { display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(242,204,13,0.08);color:#94a3b8;font-size:0.75rem; }
+.job-id-item:last-child { border-bottom:none; }
+.job-id-copy { cursor:pointer;color:#f2cc0d;font-size:0.65rem;padding:2px 8px;border:1px solid rgba(242,204,13,0.25);border-radius:4px;transition:all 0.15s; }
+.job-id-copy:hover { background:#f2cc0d;color:#221f10; }
+#toast { position:fixed;bottom:20px;right:20px;padding:11px 18px;border-radius:12px;font-size:0.8rem;z-index:9999;transform:translateY(12px);opacity:0;transition:all 0.25s;max-width:300px;border:1px solid; }
+#toast.show { transform:translateY(0);opacity:1; }
+#toast.success { background:#221f10;border-color:rgba(141,163,153,0.4);color:#8da399; }
+#toast.error { background:#221f10;border-color:rgba(244,63,94,0.3);color:#f87171; }
+#toast.info { background:#221f10;border-color:rgba(242,204,13,0.3);color:#f2cc0d; }
+.reveal { opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease; }
+.reveal.visible { opacity:1;transform:translateY(0); }
 </style>
 </head>
-<body>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
 
-<!-- LANDING -->
+<!-- ════════════════════════════════
+     LANDING PAGE
+════════════════════════════════ -->
 <div id="landing">
-<nav class="nav">
-  <div class="nav-logo"><div class="logo-dot"></div>JobPath AI</div>
-  <div class="nav-links">
-    <a class="nav-link" href="#problems">Why JobPath</a>
-    <a class="nav-link" href="#pipeline">How It Works</a>
-    <a class="nav-link" href="#roadmap">Roadmap</a>
-    <button class="nav-cta" onclick="openSetup()">Get Started →</button>
+
+<!-- NAV -->
+<nav class="flex items-center justify-between p-4 lg:px-8 border-b border-primary/10 backdrop-blur-md sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80">
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary text-3xl">route</span>
+    <h2 class="text-xl font-bold tracking-tight">JobPath AI</h2>
+  </div>
+  <div class="flex items-center gap-3">
+    <a href="#how" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">How It Works</a>
+    <a href="#roadmap" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">Roadmap</a>
+    <button onclick="openSetup()" class="text-sm font-bold px-4 py-2 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all">Get Started</button>
   </div>
 </nav>
 
-<section class="hero" id="home">
-  <div class="hero-bg"></div><div class="hero-grid"></div>
-  <div class="hero-badge"><div class="badge-dot"></div>AI-Powered · Avien Solutions</div>
-  <h1>Your Career,<br/>Intelligently Navigated</h1>
-  <p class="hero-sub">JobPath AI finds the right roles, writes tailored applications, and tracks your progress — powered by Claude AI.</p>
-  <div class="hero-actions">
-    <button class="btn-hero-primary" onclick="openSetup()">Start Your Job Search →</button>
-    <button class="btn-hero-ghost" onclick="document.getElementById('pipeline').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+<!-- HERO -->
+<main class="max-w-7xl mx-auto px-4 py-12">
+  <div class="flex flex-col gap-10">
+    <div class="flex flex-col gap-6 text-center items-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 w-fit">
+        <span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+        <span class="text-xs font-semibold uppercase tracking-wider text-primary">Powered by Claude AI · Avien Solutions</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight dark:text-slate-50">
+        Your Career Journey,<br/><span class="text-primary italic">Guided by Intelligence</span>
+      </h1>
+      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
+        AI-powered job search, tailored resumes, smart tracking — everything you need to go from search to offer, faster.
+      </p>
+      <!-- STATS ROW -->
+      <div class="flex items-center gap-8 py-2">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary" data-target="9">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">AI Tools</div>
+        </div>
+        <div class="w-px h-8 bg-primary/20"></div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary" data-target="15">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Endpoints</div>
+        </div>
+        <div class="w-px h-8 bg-primary/20"></div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary">100%</div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Private</div>
+        </div>
+        <div class="w-px h-8 bg-primary/20"></div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary" data-target="3">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Resume Tones</div>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 pt-2 w-full max-w-sm">
+        <button onclick="openSetup()" class="flex-1 bg-primary text-background-dark font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-base flex items-center justify-center gap-2">
+          Begin Your Search <span class="material-symbols-outlined text-base">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- HERO VISUAL -->
+    <div class="relative w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-2xl">
+      <div class="absolute inset-0 bg-gradient-to-t from-background-dark/90 via-background-dark/20 to-transparent z-10"></div>
+      <div class="w-full aspect-[16/9] bg-surface-dark flex items-end">
+        <!-- Mock dashboard preview -->
+        <div class="absolute inset-0 p-6 flex flex-col gap-3 pt-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-primary text-sm">search</span>
+            <span class="text-xs text-primary font-bold uppercase tracking-wider">Live AI Job Matches</span>
+          </div>
+          <div class="grid gap-2">
+            <div class="bg-white/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <div class="text-sm font-semibold text-slate-200">Senior Product Manager</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Shopify · Ottawa, ON · Remote</div>
+              </div>
+              <div class="bg-primary/15 text-primary text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0">92</div>
+            </div>
+            <div class="bg-white/5 border border-sage/20 rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <div class="text-sm font-semibold text-slate-200">Lead Software Engineer</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Stripe · San Francisco · Hybrid</div>
+              </div>
+              <div class="bg-primary/15 text-primary text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0">88</div>
+            </div>
+            <div class="bg-white/5 border border-sage/10 rounded-xl p-3 flex items-center gap-2 opacity-60">
+              <div class="spinner"></div>
+              <span class="text-xs text-slate-500">Scanning 2,400 more roles…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-3">
+        <div class="flex -space-x-2">
+          <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-primary/40 flex items-center justify-center text-xs font-bold text-background-dark">A</div>
+          <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-sage/40 flex items-center justify-center text-xs font-bold text-slate-200">M</div>
+          <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-primary/30 flex items-center justify-center text-xs font-bold text-slate-200">J</div>
+        </div>
+        <p class="text-xs text-slate-300 font-medium">Join professionals who found their next role with JobPath AI</p>
+      </div>
+    </div>
   </div>
-  <div class="hero-stats">
-    <div><div class="hero-stat-num" data-target="9">0</div><div class="hero-stat-label">AI Tools</div></div>
-    <div><div class="hero-stat-num" data-target="15">0</div><div class="hero-stat-label">API Endpoints</div></div>
-    <div><div class="hero-stat-num" data-target="100">0</div><div class="hero-stat-label">% Private</div></div>
-    <div><div class="hero-stat-num" data-target="3">0</div><div class="hero-stat-label">Resume Tones</div></div>
+</main>
+
+<!-- STEP 1: THE PROBLEM -->
+<section class="py-20 bg-slate-100 dark:bg-primary/5 relative" id="how">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-12 space-y-4 reveal">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary text-background-dark font-bold mb-4 shadow-lg shadow-primary/20">1</div>
+      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">The Problem</h2>
+      <h3 class="text-3xl font-bold dark:text-slate-50">What's holding you back?</h3>
+      <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Every job seeker faces a different wall. JobPath AI tears them all down.</p>
+    </div>
+    <div class="grid grid-cols-1 gap-4 reveal">
+      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
+        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all">
+          <span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">mist</span>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold">The Black Hole</h4>
+          <p class="text-sm text-slate-500 dark:text-slate-400">"I apply to dozens of jobs but never hear anything back."</p>
+        </div>
+        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
+      </div>
+      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
+        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all">
+          <span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">description</span>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold">Generic Documents</h4>
+          <p class="text-sm text-slate-500 dark:text-slate-400">"My resume looks the same as everyone else's — I can't stand out."</p>
+        </div>
+        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
+      </div>
+      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
+        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all">
+          <span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">battery_low</span>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold">Application Chaos</h4>
+          <p class="text-sm text-slate-500 dark:text-slate-400">"I've lost track of where I applied and what stage each is at."</p>
+        </div>
+        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
+      </div>
+    </div>
   </div>
-  <div class="scroll-hint">↓ scroll</div>
 </section>
 
-<div style="padding:100px 48px;max-width:1140px;margin:0 auto" id="problems">
-  <div class="reveal">
-    <div class="section-label">The Problem</div>
-    <h2 class="section-title">Job searching<br/>is broken</h2>
-    <p class="section-sub">Hours wasted on generic applications that never stand out. JobPath AI fixes this.</p>
-    <div class="problems-grid">
-      <div class="problem-card"><div class="problem-num">01</div><div class="problem-title">Generic Applications</div><div class="problem-desc">Sending the same resume to every job yields the same result — silence. Every role deserves a tailored approach.</div></div>
-      <div class="problem-card"><div class="problem-num">02</div><div class="problem-title">Market Blindness</div><div class="problem-desc">You don't know what salaries to expect, which skills are in demand, or how to navigate regional hiring cultures.</div></div>
-      <div class="problem-card"><div class="problem-num">03</div><div class="problem-title">Application Chaos</div><div class="problem-desc">Spreadsheets, sticky notes, forgotten follow-ups. Tracking dozens of applications manually is a job in itself.</div></div>
+<!-- STEP 2: THE SOLUTION -->
+<section class="py-20 bg-background-light dark:bg-background-dark relative overflow-hidden">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-16 space-y-4 reveal">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sage text-white font-bold mb-4 shadow-lg shadow-sage/20 step-anchor relative">2</div>
+      <h2 class="text-sage font-bold uppercase tracking-[0.2em] text-xs">The Solution</h2>
+      <h3 class="text-3xl font-bold dark:text-slate-50">How JobPath AI bridges the gap</h3>
+      <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Six intelligent tools that cover every step of your job search.</p>
     </div>
-  </div>
-</div>
-
-<div class="pipeline-section" id="pipeline">
-  <div class="pipeline-inner">
-    <div class="reveal">
-      <div class="section-label">How It Works</div>
-      <h2 class="section-title" style="margin-bottom:44px">From search to offer,<br/>all in one place</h2>
-      <div class="pipeline-steps" id="pSteps">
-        <div class="pipe-step active" onclick="pStep(0)"><div class="pipe-icon">🔍</div><div class="pipe-label">Search</div></div>
-        <div class="pipe-step" onclick="pStep(1)"><div class="pipe-icon">🏆</div><div class="pipe-label">Score</div></div>
-        <div class="pipe-step" onclick="pStep(2)"><div class="pipe-icon">📄</div><div class="pipe-label">Generate</div></div>
-        <div class="pipe-step" onclick="pStep(3)"><div class="pipe-icon">📋</div><div class="pipe-label">Track</div></div>
-        <div class="pipe-step" onclick="pStep(4)"><div class="pipe-icon">📈</div><div class="pipe-label">Analyse</div></div>
+    <div class="flex flex-col gap-6 reveal">
+      <div class="bg-sage/5 border-l-4 border-sage p-8 rounded-r-2xl">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-sage">search</span>
+          <h4 class="text-xl font-bold">Intelligent Discovery</h4>
+        </div>
+        <div class="grid gap-5">
+          <div class="flex items-start gap-4">
+            <div class="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-sage text-sm">done_all</span>
+            </div>
+            <div>
+              <p class="font-bold">AI Job Search & Scoring</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Every result is scored 0–100 against your profile. Know exactly which roles to prioritise.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-sage text-sm">analytics</span>
+            </div>
+            <div>
+              <p class="font-bold">Market Intelligence</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Regional salary data, in-demand skills, and culturally-aware tips for any market worldwide.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="pDetail"></div>
+      <div class="bg-primary/5 border-l-4 border-primary p-8 rounded-r-2xl">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-primary">volunteer_activism</span>
+          <h4 class="text-xl font-bold">Tailored Applications</h4>
+        </div>
+        <div class="grid gap-5">
+          <div class="flex items-start gap-4">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-primary text-sm">description</span>
+            </div>
+            <div>
+              <p class="font-bold">Resume & Cover Letter Generator</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Custom documents for every role in seconds — professional, creative, or technical tone.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-primary text-sm">checklist</span>
+            </div>
+            <div>
+              <p class="font-bold">Application Tracker & Analytics</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Log every application. Claude analyses your history to surface patterns and sharpen strategy.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="roadmap-section" id="roadmap">
-  <div class="reveal">
-    <div class="section-label">Roadmap</div>
-    <h2 class="section-title" style="margin-bottom:32px">What's coming</h2>
-    <div class="roadmap-track">
-      <div class="roadmap-card has-live"><div class="rm-badge rm-live">● Live</div><div class="roadmap-title">Core Platform</div><ul class="roadmap-features"><li>AI job search &amp; scoring</li><li>Resume &amp; cover letter generation</li><li>Application tracker</li><li>Market intelligence reports</li><li>Employer feedback analysis</li></ul></div>
-      <div class="roadmap-card has-next"><div class="rm-badge rm-next">→ Next</div><div class="roadmap-title">Auto-Apply</div><ul class="roadmap-features"><li>Browser-based form automation</li><li>LinkedIn Easy Apply support</li><li>AI screening question answers</li><li>One-click apply queue</li></ul></div>
-      <div class="roadmap-card has-next"><div class="rm-badge rm-next">→ Next</div><div class="roadmap-title">Integrations</div><ul class="roadmap-features"><li>LinkedIn job board API</li><li>Indeed &amp; Glassdoor import</li><li>PDF resume upload &amp; parse</li><li>Email notifications</li></ul></div>
-      <div class="roadmap-card"><div class="rm-badge rm-future">◌ Future</div><div class="roadmap-title">Intelligence+</div><ul class="roadmap-features"><li>Interview prep coach</li><li>Salary negotiation advisor</li><li>Network outreach automation</li><li>Career path planning</li></ul></div>
+<!-- ROADMAP -->
+<section class="py-20 bg-slate-100 dark:bg-primary/5" id="roadmap">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-12 space-y-3 reveal">
+      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">Roadmap</h2>
+      <h3 class="text-3xl font-bold dark:text-slate-50">Built in public, shipping fast</h3>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 reveal">
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-sage/40 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-sage"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sage bg-sage/10 px-2.5 py-1 rounded-full mb-3">
+          <span class="w-1.5 h-1.5 bg-sage rounded-full"></span> Live Now
+        </div>
+        <div class="font-bold mb-3">Core Platform</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>AI job search &amp; scoring</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Resume &amp; cover letter gen</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Application tracker</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Market intelligence</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Feedback analysis</li>
+        </ul>
+      </div>
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/40 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-3">
+          <span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span> Coming Next
+        </div>
+        <div class="font-bold mb-3">Auto-Apply</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>Browser form automation</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>LinkedIn Easy Apply</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>AI screening answers</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>One-click apply queue</li>
+        </ul>
+      </div>
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-slate-700/40 relative overflow-hidden opacity-80">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-600"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-white/5 px-2.5 py-1 rounded-full mb-3">
+          <span class="w-1.5 h-1.5 bg-slate-600 rounded-full"></span> Next
+        </div>
+        <div class="font-bold mb-3">Integrations</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>LinkedIn &amp; Indeed APIs</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>PDF resume upload</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>Email notifications</li>
+        </ul>
+      </div>
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-slate-700/20 relative overflow-hidden opacity-50">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-700"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-white/5 px-2.5 py-1 rounded-full mb-3">
+          <span class="w-1.5 h-1.5 bg-slate-700 rounded-full"></span> Future
+        </div>
+        <div class="font-bold mb-3">Intelligence+</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Interview prep coach</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Salary negotiation</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Career path planning</li>
+        </ul>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="vision-section">
-  <div class="reveal">
-    <h2 class="vision-title">Every job seeker deserves<br/>an unfair advantage</h2>
-    <p class="vision-desc">JobPath AI levels the playing field — giving every candidate access to the same <span class="vision-hi">intelligent, personalised</span> support that used to require expensive career coaches.</p>
-    <button class="btn-hero-primary" onclick="openSetup()">Start for Free →</button>
+<!-- STEP 3: CTA BANNER -->
+<section class="py-20 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-primary rounded-[2.5rem] overflow-hidden relative shadow-2xl shadow-primary/20">
+      <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 2px 2px,black 1px,transparent 0);background-size:24px 24px;"></div>
+      <div class="relative z-10 p-8 md:p-16 flex flex-col items-center text-center gap-8">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-background-dark text-primary font-bold shadow-lg step-anchor relative">3</div>
+        <h2 class="text-3xl md:text-5xl font-bold text-background-dark leading-tight max-w-2xl">
+          Ready to reclaim your <span class="underline decoration-slate-900/20 italic">career narrative</span>?
+        </h2>
+        <div class="bg-background-dark/10 p-1 rounded-2xl w-full max-w-md backdrop-blur-sm">
+          <div class="bg-background-dark p-8 rounded-xl space-y-6">
+            <div class="text-center">
+              <p class="text-primary font-bold text-2xl">Start for Free</p>
+              <p class="text-slate-400 text-sm">Set up your profile in 2 minutes</p>
+            </div>
+            <ul class="space-y-3 text-left">
+              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>AI job search &amp; scoring</li>
+              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>Tailored resume &amp; cover letters</li>
+              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>Application tracker &amp; analytics</li>
+            </ul>
+            <button onclick="openSetup()" class="w-full bg-primary text-background-dark font-bold py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all text-lg shadow-lg">
+              Create Your Account
+            </button>
+            <p class="text-center text-slate-500 text-xs">No credit card required. Private by default.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<footer>
-  <div class="footer-logo">JobPath AI</div>
-  <div class="footer-txt">© 2026 Avien Solutions Inc · avien@aviensolutions.com · www.aviensolutions.com</div>
+<!-- FOOTER -->
+<footer class="border-t border-primary/10 py-16 bg-slate-50 dark:bg-slate-900/30">
+  <div class="max-w-4xl mx-auto px-4 flex flex-col items-center gap-10">
+    <div class="flex flex-col items-center text-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-4xl">route</span>
+        <h2 class="text-3xl font-bold tracking-tight">JobPath AI</h2>
+      </div>
+      <p class="text-slate-500 max-w-xs">Strategic career infrastructure for the empowered professional. Built by Avien Solutions.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-x-16 gap-y-6 text-center">
+      <div class="space-y-3">
+        <h5 class="font-bold text-sm">Platform</h5>
+        <ul class="space-y-2 text-slate-500 text-sm">
+          <li><a href="#how" class="hover:text-primary transition-colors">How It Works</a></li>
+          <li><a href="#roadmap" class="hover:text-primary transition-colors">Roadmap</a></li>
+        </ul>
+      </div>
+      <div class="space-y-3">
+        <h5 class="font-bold text-sm">Company</h5>
+        <ul class="space-y-2 text-slate-500 text-sm">
+          <li><a href="mailto:avien@aviensolutions.com" class="hover:text-primary transition-colors">Contact</a></li>
+          <li><a href="https://www.aviensolutions.com" class="hover:text-primary transition-colors">Avien Solutions</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-6 border-t border-slate-200 dark:border-slate-800 w-full text-center text-slate-500 text-xs">
+      © 2026 Avien Solutions Inc · avien@aviensolutions.com · www.aviensolutions.com
+    </div>
+  </div>
 </footer>
-</div>
+</div><!-- /landing -->
 
-<!-- SETUP MODAL -->
-<div class="modal-overlay hidden" id="setupModal">
-  <div class="modal">
-    <div class="modal-brand"><div class="logo-dot"></div>JobPath AI — Avien Solutions</div>
-    <div class="steps-bar"><div class="step-bar-item done" id="sb0"></div><div class="step-bar-item" id="sb1"></div><div class="step-bar-item" id="sb2"></div></div>
-    <h2 id="setupTitle">Create your profile</h2>
-    <p class="modal-sub" id="setupSub">Tell us about you so the AI can find and rank the best opportunities.</p>
+<!-- ════════════════════════════════
+     SETUP MODAL
+════════════════════════════════ -->
+<div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="setupModal">
+  <div class="bg-background-dark border border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
+    <div class="flex items-center gap-2 mb-5">
+      <span class="material-symbols-outlined text-primary">route</span>
+      <span class="text-xs font-bold uppercase tracking-widest text-sage">JobPath AI · Avien Solutions</span>
+    </div>
+    <!-- PROGRESS BAR -->
+    <div class="flex gap-1 mb-6">
+      <div class="h-1 flex-1 rounded-full bg-primary transition-all" id="sb0"></div>
+      <div class="h-1 flex-1 rounded-full bg-white/10 transition-all" id="sb1"></div>
+      <div class="h-1 flex-1 rounded-full bg-white/10 transition-all" id="sb2"></div>
+    </div>
+    <h2 class="text-xl font-bold mb-1" id="setupTitle">Create your profile</h2>
+    <p class="text-sm text-slate-500 mb-6" id="setupSub">Tell us about you so AI can find and rank the best opportunities.</p>
+
+    <!-- STEP 0 -->
     <div id="step0">
-      <div class="form-grid">
-        <div class="field full"><label>Full Name *</label><input id="pName" placeholder="Jane Doe"/></div>
-        <div class="field"><label>Email *</label><input id="pEmail" type="email" placeholder="jane@example.com"/></div>
-        <div class="field"><label>Phone</label><input id="pPhone" placeholder="+1 555 000 0000"/></div>
-        <div class="field full"><label>Location *</label><input id="pLocation" placeholder="City, Country"/></div>
-        <div class="field"><label>Experience Level</label><select id="pExpLevel"><option value="entry">Entry</option><option value="mid" selected>Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select></div>
-        <div class="field"><label>Years of Experience</label><input id="pYears" type="number" value="3" min="0"/></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Full Name *</label>
+          <input id="pName" placeholder="Jane Doe"/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Email *</label>
+          <input id="pEmail" type="email" placeholder="jane@example.com"/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Phone</label>
+          <input id="pPhone" placeholder="+1 555 000 0000"/>
+        </div>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Location *</label>
+          <input id="pLocation" placeholder="City, Country"/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Experience Level</label>
+          <select id="pExpLevel"><option value="entry">Entry</option><option value="mid" selected>Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Years of Experience</label>
+          <input id="pYears" type="number" value="3" min="0"/>
+        </div>
       </div>
     </div>
+
+    <!-- STEP 1 -->
     <div id="step1" style="display:none">
-      <div class="form-grid">
-        <div class="field full"><label>Skills (Enter to add)</label><div class="tags-input" id="skillsTagsInput"><input id="skillsInput" placeholder="Python, React, SQL…"/></div></div>
-        <div class="field full"><label>Desired Roles (Enter to add)</label><div class="tags-input" id="rolesTagsInput"><input id="rolesInput" placeholder="Software Engineer…"/></div></div>
-        <div class="field full"><label>Job Types</label><div class="checkbox-group" id="jobTypesGroup"><label class="checkbox-item"><input type="checkbox" value="full_time" checked> Full Time</label><label class="checkbox-item"><input type="checkbox" value="part_time"> Part Time</label><label class="checkbox-item"><input type="checkbox" value="contract"> Contract</label><label class="checkbox-item"><input type="checkbox" value="remote"> Remote</label><label class="checkbox-item"><input type="checkbox" value="internship"> Internship</label></div></div>
-        <div class="field"><label>Min Salary (USD)</label><input id="pSalMin" type="number" placeholder="60000"/></div>
-        <div class="field"><label>Max Salary (USD)</label><input id="pSalMax" type="number" placeholder="120000"/></div>
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Skills (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="skillsTagsInput">
+            <input id="skillsInput" placeholder="Python, React, SQL…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Desired Roles (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="rolesTagsInput">
+            <input id="rolesInput" placeholder="Software Engineer…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Job Types</label>
+          <div class="flex flex-wrap gap-2" id="jobTypesGroup">
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="full_time" class="accent-primary" checked/> Full Time</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="part_time" class="accent-primary"/> Part Time</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="contract" class="accent-primary"/> Contract</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="remote" class="accent-primary"/> Remote</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="internship" class="accent-primary"/> Internship</label>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Min Salary (USD)</label>
+            <input id="pSalMin" type="number" placeholder="60000"/>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Max Salary (USD)</label>
+            <input id="pSalMax" type="number" placeholder="120000"/>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- STEP 2 -->
     <div id="step2" style="display:none">
-      <div class="form-grid">
-        <div class="field full"><label>LinkedIn URL</label><input id="pLinkedin" placeholder="https://linkedin.com/in/…"/></div>
-        <div class="field full"><label>Portfolio URL</label><input id="pPortfolio" placeholder="https://yoursite.com"/></div>
-        <div class="field full"><label>Certifications (Enter to add)</label><div class="tags-input" id="certsTagsInput"><input id="certsInput" placeholder="AWS Certified…"/></div></div>
-        <div class="field full"><label>Languages</label><div class="tags-input" id="langsTagsInput"><input id="langsInput" placeholder="English, French…"/></div></div>
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">LinkedIn URL</label>
+          <input id="pLinkedin" placeholder="https://linkedin.com/in/…"/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Portfolio URL</label>
+          <input id="pPortfolio" placeholder="https://yoursite.com"/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Certifications (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="certsTagsInput">
+            <input id="certsInput" placeholder="AWS Certified…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Languages</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="langsTagsInput">
+            <input id="langsInput" placeholder="English, French…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
+          </div>
+        </div>
       </div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:28px">
-      <button class="btn btn-ghost" id="setupBackBtn" onclick="setupPrev()" style="display:none">← Back</button>
-      <button class="btn btn-primary" id="setupNextBtn" onclick="setupNext()" style="margin-left:auto">Continue →</button>
+
+    <div class="flex gap-3 mt-7">
+      <button class="flex items-center gap-1 text-sm font-medium px-4 py-2.5 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all" id="setupBackBtn" onclick="setupPrev()" style="display:none">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back
+      </button>
+      <button class="ml-auto flex items-center gap-1 bg-primary text-background-dark font-bold py-2.5 px-6 rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm" id="setupNextBtn" onclick="setupNext()">
+        Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>
+      </button>
     </div>
   </div>
 </div>
 
-<!-- UPDATE MODAL -->
-<div class="mini-modal hidden" id="updateModal">
-  <div class="mini-modal-box">
-    <h3>Update Application</h3>
-    <div class="field" style="margin-bottom:12px"><label>New Status</label><select id="updateStatus"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select></div>
-    <div class="field" style="margin-bottom:12px"><label>Employer Feedback</label><textarea id="updateFeedback" placeholder="What did they say?"></textarea></div>
-    <div class="field" style="margin-bottom:20px"><label>Notes</label><textarea id="updateNotes" placeholder="Additional notes…"></textarea></div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-ghost btn-sm" onclick="closeUpdateModal()">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="submitUpdate()">Update</button>
+<!-- UPDATE STATUS MODAL -->
+<div class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4" id="updateModal">
+  <div class="bg-background-dark border border-sage/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <h3 class="font-bold text-base mb-4">Update Application</h3>
+    <div class="flex flex-col gap-1.5 mb-3">
+      <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">New Status</label>
+      <select id="updateStatus"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select>
+    </div>
+    <div class="flex flex-col gap-1.5 mb-3">
+      <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Employer Feedback</label>
+      <textarea id="updateFeedback" placeholder="What did they say?" rows="3"></textarea>
+    </div>
+    <div class="flex flex-col gap-1.5 mb-5">
+      <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Notes</label>
+      <textarea id="updateNotes" placeholder="Additional notes…" rows="2"></textarea>
+    </div>
+    <div class="flex gap-2 justify-end">
+      <button onclick="closeUpdateModal()" class="text-sm font-medium px-4 py-2 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all">Cancel</button>
+      <button onclick="submitUpdate()" class="bg-primary text-background-dark font-bold py-2 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">
+        Update <span class="material-symbols-outlined text-sm">check</span>
+      </button>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="app">
-  <div class="app-layout">
-    <aside class="sidebar">
-      <div class="sidebar-logo"><div class="logo-dot"></div>JobPath AI</div>
-      <div class="nav-group"><div class="nav-group-label">Discover</div>
-        <div class="nav-item active" onclick="nav('jobs')" id="nav-jobs"><span class="ni">🔍</span>Job Search</div>
-        <div class="nav-item" onclick="nav('market')" id="nav-market"><span class="ni">📊</span>Market Intel</div>
+<!-- ════════════════════════════════
+     DASHBOARD
+════════════════════════════════ -->
+<div id="app" style="display:none">
+  <div class="flex h-screen">
+    <!-- SIDEBAR -->
+    <aside class="w-56 min-w-56 bg-background-dark border-r border-primary/10 flex flex-col p-3">
+      <div class="flex items-center gap-2 px-2 py-3 mb-3 border-b border-primary/10">
+        <span class="material-symbols-outlined text-primary">route</span>
+        <span class="font-bold tracking-tight text-sm">JobPath AI</span>
       </div>
-      <div class="nav-group"><div class="nav-group-label">Apply</div>
-        <div class="nav-item" onclick="nav('docs')" id="nav-docs"><span class="ni">📄</span>Documents</div>
-        <div class="nav-item" onclick="nav('tracker')" id="nav-tracker"><span class="ni">📋</span>Tracker</div>
+      <div class="mb-4">
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1">Discover</div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer active-nav" onclick="nav('jobs')" id="nav-jobs">
+          <span class="material-symbols-outlined text-base">search</span>Job Search
+        </div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('market')" id="nav-market">
+          <span class="material-symbols-outlined text-base">bar_chart</span>Market Intel
+        </div>
       </div>
-      <div class="nav-group"><div class="nav-group-label">Insights</div>
-        <div class="nav-item" onclick="nav('analytics')" id="nav-analytics"><span class="ni">📈</span>Analytics</div>
-        <div class="nav-item" onclick="nav('feedback')" id="nav-feedback"><span class="ni">💬</span>Feedback</div>
+      <div class="mb-4">
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1">Apply</div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('docs')" id="nav-docs">
+          <span class="material-symbols-outlined text-base">description</span>Documents
+        </div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('tracker')" id="nav-tracker">
+          <span class="material-symbols-outlined text-base">checklist</span>Tracker
+        </div>
       </div>
-      <div class="nav-group"><div class="nav-group-label">Assistant</div>
-        <div class="nav-item" onclick="nav('chat')" id="nav-chat"><span class="ni">🤖</span>AI Chat</div>
+      <div class="mb-4">
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1">Insights</div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('analytics')" id="nav-analytics">
+          <span class="material-symbols-outlined text-base">insights</span>Analytics
+        </div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('feedback')" id="nav-feedback">
+          <span class="material-symbols-outlined text-base">chat_bubble</span>Feedback
+        </div>
       </div>
-      <div class="sidebar-footer">
-        <div class="user-card">
-          <div class="avatar" id="sidebarAvatar">?</div>
-          <div><div class="user-name" id="sidebarName">Loading…</div><div class="user-role" id="sidebarRole">—</div></div>
+      <div class="mb-4">
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1">Assistant</div>
+        <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('chat')" id="nav-chat">
+          <span class="material-symbols-outlined text-base">smart_toy</span>AI Chat
+        </div>
+      </div>
+      <div class="mt-auto border-t border-primary/10 pt-3">
+        <div class="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 cursor-pointer transition-all">
+          <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0" id="sidebarAvatar">?</div>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold truncate" id="sidebarName">Loading…</div>
+            <div class="text-[10px] text-slate-500 truncate" id="sidebarRole">—</div>
+          </div>
         </div>
       </div>
     </aside>
-    <main class="main">
-      <div class="topbar">
-        <div class="page-title" id="pageTitle">Job Search</div>
-        <div class="status-badge connecting" id="statusBadge">● Connecting…</div>
+
+    <!-- MAIN AREA -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <!-- TOPBAR -->
+      <div class="bg-background-dark border-b border-primary/10 px-6 h-14 flex items-center justify-between flex-shrink-0">
+        <div class="font-bold text-sm tracking-tight" id="pageTitle">Job Search</div>
+        <div class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20" id="statusBadge">● Connecting…</div>
       </div>
-      <div class="content">
-        <div class="view active" id="view-jobs">
-          <div class="card">
-            <div class="card-title">Find Jobs</div>
-            <div class="card-sub">AI scores and ranks results against your profile</div>
-            <div class="input-row">
-              <input id="jobLocation" placeholder="Location (e.g. Ottawa, Remote)"/>
-              <select id="jobRemote"><option value="true">Include Remote</option><option value="false">On-site Only</option></select>
-              <input id="jobMax" type="number" value="10" min="1" max="50" style="max-width:80px"/>
-              <button class="btn btn-primary" onclick="searchJobs()">Search Jobs</button>
+      <!-- CONTENT -->
+      <div class="flex-1 overflow-y-auto p-5 bg-[#1a1810]">
+
+        <!-- JOB SEARCH -->
+        <div id="view-jobs" class="view-active">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5 mb-4">
+            <div class="text-base font-bold mb-0.5">Find Jobs</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">AI scores and ranks results against your profile</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="jobLocation" placeholder="Location (e.g. Ottawa, Remote)" style="flex:1;min-width:140px;"/>
+              <select id="jobRemote" style="flex:1;min-width:140px;"><option value="true">Include Remote</option><option value="false">On-site Only</option></select>
+              <input id="jobMax" type="number" value="10" min="1" max="50" style="max-width:72px;"/>
+              <button onclick="searchJobs()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">search</span> Search
+              </button>
             </div>
-            <div class="response-box empty" id="jobsResult"><span>Search for jobs to see AI-ranked results</span></div>
-            <div id="jobIdsBox" style="display:none" class="job-ids-box"><strong>📋 Job IDs — copy to use in Documents &amp; Tracker</strong><div id="jobIdsList"></div></div>
-          </div>
-        </div>
-        <div class="view" id="view-market">
-          <div class="card"><div class="card-title">Market Intelligence</div><div class="card-sub">Regional reports on salaries, demand, and hiring culture</div>
-            <div class="input-row"><input id="mktRegion" placeholder="Region (e.g. North America)"/><input id="mktIndustry" placeholder="Industry (e.g. Technology)"/><button class="btn btn-primary" onclick="getMarket()">Get Report</button></div>
-            <div class="response-box empty" id="marketResult"><span>Enter a region and industry</span></div>
-          </div>
-          <div class="card"><div class="card-title">Application Tips by Region</div><div class="card-sub">Culturally-aware advice for specific markets</div>
-            <div class="input-row"><input id="tipsRegion" placeholder="Region (e.g. Japan, UK, Canada)"/><button class="btn btn-primary" onclick="getTips()">Get Tips</button></div>
-            <div class="response-box empty" id="tipsResult"><span>Get culturally-aware tips</span></div>
-          </div>
-        </div>
-        <div class="view" id="view-docs">
-          <div class="card"><div class="card-title">Resume Generator</div><div class="card-sub">Paste a Job ID from search results to generate a tailored resume</div>
-            <div class="input-row"><input id="resumeJobId" placeholder="Job ID from search results"/><select id="resumeTone"><option value="professional">Professional</option><option value="creative">Creative</option><option value="technical">Technical</option></select><button class="btn btn-primary" onclick="genResume()">Generate Resume</button></div>
-            <div class="response-box empty" id="resumeResult"><span>Your tailored resume will appear here</span></div>
-          </div>
-          <div class="card"><div class="card-title">Cover Letter Generator</div><div class="card-sub">Compelling, role-specific cover letters in seconds</div>
-            <div class="input-row"><input id="clJobId" placeholder="Job ID from search results"/><button class="btn btn-primary" onclick="genCoverLetter()">Generate Cover Letter</button></div>
-            <div class="response-box empty" id="coverResult"><span>Your tailored cover letter will appear here</span></div>
-          </div>
-        </div>
-        <div class="view" id="view-tracker">
-          <div class="card"><div class="card-title">Track New Application</div><div class="card-sub">Log a job application to start tracking its progress</div>
-            <div class="input-row"><input id="trackJobId" placeholder="Job ID to track"/><input id="trackNotes" placeholder="Notes (optional)"/><button class="btn btn-primary" onclick="trackApp()">Track Application</button></div>
-            <div class="response-box empty" id="trackResult"><span>Track a new application</span></div>
-          </div>
-          <div class="card"><div class="card-title">Update Application Status</div><div class="card-sub">Log interview outcomes, offers, or rejections</div>
-            <div class="input-row"><input id="updateAppId" placeholder="Application ID"/><button class="btn btn-primary" onclick="openUpdateModal()">Update Status</button></div>
-          </div>
-        </div>
-        <div class="view" id="view-analytics">
-          <div class="card"><div class="card-title">Analytics &amp; Insights</div><div class="card-sub">AI-generated career performance metrics</div>
-            <div style="margin-bottom:18px"><button class="btn btn-primary" onclick="loadAnalytics()">Load Analytics</button></div>
-            <div class="response-box empty" id="analyticsResult"><span>Click Load Analytics to see your metrics</span></div>
-          </div>
-        </div>
-        <div class="view" id="view-feedback">
-          <div class="card"><div class="card-title">Employer Feedback Analysis</div><div class="card-sub">Patterns and themes from your interview feedback</div>
-            <div style="margin-bottom:18px"><button class="btn btn-primary" onclick="loadFeedback()">Analyse Feedback</button></div>
-            <div class="response-box empty" id="feedbackResult"><span>Click Analyse to see feedback patterns</span></div>
-          </div>
-        </div>
-        <div class="view" id="view-chat">
-          <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-danger btn-sm" onclick="resetChat()">Reset Conversation</button></div>
-          <div class="chat-wrap">
-            <div class="chat-messages" id="chatMessages">
-              <div class="chat-msg agent"><div class="chat-avatar">🤖</div><div class="chat-bubble">Hi! I'm your AI job application assistant. I can search for jobs, generate tailored documents, track your applications, and provide career insights. What would you like to do?</div></div>
-            </div>
-            <div class="chat-input-row">
-              <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask me anything about your job search…" onkeydown="chatKeydown(event)"></textarea>
-              <button class="btn btn-primary" onclick="sendChat()">Send</button>
+            <div class="response-area empty" id="jobsResult"><span>Search for jobs to see AI-ranked results</span></div>
+            <div id="jobIdsBox" style="display:none" class="job-ids-box">
+              <div class="text-[10px] uppercase tracking-widest text-primary font-bold mb-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">content_copy</span> Job IDs — use in Documents &amp; Tracker
+              </div>
+              <div id="jobIdsList"></div>
             </div>
           </div>
         </div>
+
+        <!-- MARKET -->
+        <div id="view-market" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5 mb-4">
+            <div class="text-base font-bold mb-0.5">Market Intelligence</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Regional salary data, demand signals &amp; hiring culture</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="mktRegion" placeholder="Region (e.g. North America)" style="flex:1;min-width:140px;"/>
+              <input id="mktIndustry" placeholder="Industry (e.g. Technology)" style="flex:1;min-width:140px;"/>
+              <button onclick="getMarket()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">analytics</span> Get Report
+              </button>
+            </div>
+            <div class="response-area empty" id="marketResult"><span>Enter a region and industry</span></div>
+          </div>
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5">
+            <div class="text-base font-bold mb-0.5">Application Tips by Region</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Culturally-aware advice for any market</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="tipsRegion" placeholder="Region (e.g. Japan, UK, Canada)" style="flex:1;"/>
+              <button onclick="getTips()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">travel_explore</span> Get Tips
+              </button>
+            </div>
+            <div class="response-area empty" id="tipsResult"><span>Get culturally-aware tips</span></div>
+          </div>
+        </div>
+
+        <!-- DOCUMENTS -->
+        <div id="view-docs" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5 mb-4">
+            <div class="text-base font-bold mb-0.5">Resume Generator</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Tailored to each role in seconds</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="resumeJobId" placeholder="Job ID from search results" style="flex:1;min-width:140px;"/>
+              <select id="resumeTone" style="flex:1;min-width:140px;"><option value="professional">Professional</option><option value="creative">Creative</option><option value="technical">Technical</option></select>
+              <button onclick="genResume()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">description</span> Generate
+              </button>
+            </div>
+            <div class="response-area empty" id="resumeResult"><span>Your tailored resume will appear here</span></div>
+          </div>
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5">
+            <div class="text-base font-bold mb-0.5">Cover Letter Generator</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Compelling, role-specific cover letters</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="clJobId" placeholder="Job ID from search results" style="flex:1;"/>
+              <button onclick="genCoverLetter()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">mail</span> Generate
+              </button>
+            </div>
+            <div class="response-area empty" id="coverResult"><span>Your tailored cover letter will appear here</span></div>
+          </div>
+        </div>
+
+        <!-- TRACKER -->
+        <div id="view-tracker" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5 mb-4">
+            <div class="text-base font-bold mb-0.5">Track New Application</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Log a job application to start tracking progress</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="trackJobId" placeholder="Job ID to track" style="flex:1;min-width:140px;"/>
+              <input id="trackNotes" placeholder="Notes (optional)" style="flex:1;min-width:140px;"/>
+              <button onclick="trackApp()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">add_task</span> Track
+              </button>
+            </div>
+            <div class="response-area empty" id="trackResult"><span>Track a new application</span></div>
+          </div>
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5">
+            <div class="text-base font-bold mb-0.5">Update Application Status</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Log interviews, offers, or rejections</div>
+            <div class="flex gap-2 flex-wrap">
+              <input id="updateAppId" placeholder="Application ID" style="flex:1;"/>
+              <button onclick="openUpdateModal()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">edit</span> Update Status
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANALYTICS -->
+        <div id="view-analytics" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5">
+            <div class="text-base font-bold mb-0.5">Analytics &amp; Insights</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">AI-generated career performance metrics</div>
+            <div class="mb-4">
+              <button onclick="loadAnalytics()" class="bg-primary text-background-dark font-bold py-2.5 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">insights</span> Load Analytics
+              </button>
+            </div>
+            <div class="response-area empty" id="analyticsResult"><span>Click Load Analytics to see your metrics</span></div>
+          </div>
+        </div>
+
+        <!-- FEEDBACK -->
+        <div id="view-feedback" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5">
+            <div class="text-base font-bold mb-0.5">Employer Feedback Analysis</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Patterns and themes from your interview feedback</div>
+            <div class="mb-4">
+              <button onclick="loadFeedback()" class="bg-primary text-background-dark font-bold py-2.5 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">chat_bubble</span> Analyse Feedback
+              </button>
+            </div>
+            <div class="response-area empty" id="feedbackResult"><span>Click Analyse to see feedback patterns</span></div>
+          </div>
+        </div>
+
+        <!-- CHAT -->
+        <div id="view-chat" style="display:none">
+          <div class="flex justify-end mb-3">
+            <button onclick="resetChat()" class="bg-red-500/10 text-red-400 border border-red-500/20 py-2 px-4 rounded-xl hover:bg-red-500/20 transition-all text-xs flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">restart_alt</span> Reset Chat
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;height:calc(100vh - 112px)">
+            <div class="flex-1 overflow-y-auto flex flex-col gap-3 p-4 bg-background-dark border border-primary/10 rounded-2xl mb-3" id="chatMessages" style="scrollbar-width:none;">
+              <div class="flex gap-2">
+                <div class="w-7 h-7 rounded-lg bg-white/5 border border-sage/10 flex items-center justify-center text-sm flex-shrink-0">🤖</div>
+                <div class="max-w-[72%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed bg-white/5 border border-primary/10 text-slate-300">Hi! I'm your AI job application assistant. I can search for jobs, generate tailored documents, track your applications, and provide career insights. What would you like to do?</div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <textarea id="chatInput" rows="1" placeholder="Ask me anything about your job search…" onkeydown="chatKeydown(event)" style="flex:1;resize:none;border-radius:0.75rem;padding:12px 16px;font-size:0.875rem;min-height:44px;"></textarea>
+              <button onclick="sendChat()" class="bg-primary text-background-dark font-bold px-4 rounded-xl hover:brightness-110 transition-all flex items-center flex-shrink-0">
+                <span class="material-symbols-outlined">send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
 </div>
 
-<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Top</button>
 <div id="toast"></div>
+
+<style>
+  .active-nav { background: rgba(242,204,13,0.1); color: #f2cc0d; border-radius: 0.75rem; }
+  #nav-jobs.active-nav, #nav-market.active-nav, #nav-docs.active-nav, #nav-tracker.active-nav, #nav-analytics.active-nav, #nav-feedback.active-nav, #nav-chat.active-nav { background:rgba(242,204,13,0.1);color:#f2cc0d; }
+</style>
 
 <script>
 const API='http://localhost:8000';
@@ -475,13 +821,11 @@ let setupPage=0,updateTargetId=null;
 const skills=[],roles=[],certs=[],langs=['English'];
 
 async function api(method,path,body=null){
-  const headers={'Content-Type':'application/json'};
-  if(sessionId)headers['X-Session-ID']=sessionId;
-  const res=await fetch(API+path,{method,headers,body:body?JSON.stringify(body):undefined});
-  if(res.status===204)return null;
-  const data=await res.json();
-  if(!res.ok)throw new Error(data.detail||'API error');
-  return data;
+  const h={'Content-Type':'application/json'};
+  if(sessionId)h['X-Session-ID']=sessionId;
+  const r=await fetch(API+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+  if(r.status===204)return null;
+  const d=await r.json();if(!r.ok)throw new Error(d.detail||'API error');return d;
 }
 
 function toast(msg,type='info'){
@@ -490,29 +834,37 @@ function toast(msg,type='info'){
   setTimeout(()=>el.className='',3200);
 }
 
-function md(text){
-  if(!text)return '';
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/^### (.+)$/gm,'<h4>$1</h4>')
-    .replace(/^## (.+)$/gm,'<h3>$1</h3>')
-    .replace(/^# (.+)$/gm,'<h2>$1</h2>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+function md(t){
+  if(!t)return'';
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^# (.+)$/gm,'<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
     .replace(/^---+$/gm,'<hr/>')
     .replace(/^[*-] (.+)$/gm,'<div class="md-bullet"><span class="md-bullet-dot">•</span><span>$1</span></div>')
     .replace(/^(\d+)\. (.+)$/gm,'<div class="md-num"><span class="md-num-n">$1.</span><span>$2</span></div>')
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/\n/g,'<br/>');
+    .replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br/>');
 }
 
-function setLoading(id){const el=document.getElementById(id);if(!el)return;el.className='response-box';el.style.whiteSpace='normal';el.innerHTML='<div class="loading"><div class="spinner"></div>Thinking…</div>';}
-function setResult(id,text){const el=document.getElementById(id);if(!el)return;el.className='response-box';el.style.whiteSpace='normal';el.innerHTML=md(text);}
+function setLoading(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.className='response-area';
+  el.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>';
+}
+function setResult(id,t){
+  const el=document.getElementById(id);if(!el)return;
+  el.className='response-area';el.innerHTML=md(t);
+}
 
 async function checkHealth(){
   const b=document.getElementById('statusBadge');
-  try{const d=await api('GET','/api/health');b.textContent='● Online · '+d.sessions+' session'+(d.sessions!==1?'s':'');b.className='status-badge';}
-  catch{b.textContent='● Backend Offline';b.className='status-badge offline';}
+  try{
+    const d=await api('GET','/api/health');
+    b.textContent='● Online · '+d.sessions+' session'+(d.sessions!==1?'s':'');
+    b.className='text-[11px] font-bold px-3 py-1.5 rounded-full bg-sage/10 text-sage border border-sage/20';
+  }catch{
+    b.textContent='● Backend Offline';
+    b.className='text-[11px] font-bold px-3 py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20';
+  }
 }
 
 async function initSession(){
@@ -520,88 +872,72 @@ async function initSession(){
   catch{return false;}
 }
 
-// PIPELINE
-const pData=[
-  {title:'Intelligent Job Discovery',desc:'The AI scans opportunities and matches them against your skills, experience, and preferences. Every result is scored 0–100.',tags:['Profile Matching','Skill Analysis','Location Filter','Remote Options'],kv:[['Results','Up to 50 jobs'],['Scoring','0–100 match'],['Speed','< 3 seconds']]},
-  {title:'AI-Powered Match Scoring',desc:'Each job receives a detailed score. Claude explains exactly why a role is a strong match or a stretch — no more guessing.',tags:['Claude AI','Transparent Scoring','Fit Rationale','Salary Match'],kv:[['Model','Claude 3.5 Sonnet'],['Factors','8 dimensions'],['Output','Score + rationale']]},
-  {title:'Tailored Documents in Seconds',desc:'Select a job and a tone — professional, creative, or technical — and the AI generates a fully customised resume and cover letter.',tags:['Resume','Cover Letter','3 Tones','ATS-Optimised'],kv:[['Tones','3 options'],['Time','< 10 seconds'],['Privacy','PII protected']]},
-  {title:'Application Pipeline Manager',desc:'Every application is logged with its status, notes, and employer feedback. Update statuses as you progress.',tags:['Status Tracking','Feedback Logging','Notes','History'],kv:[['Statuses','6 stages'],['Storage','Per session'],['Updates','Real-time']]},
-  {title:'Career Intelligence & Insights',desc:'Claude analyses your entire application history — response rates, interview conversion, feedback themes — and generates actionable insights.',tags:['Success Metrics','Feedback Patterns','AI Insights','Career Strategy'],kv:[['Metrics','Response · Interview · Offer'],['Analysis','AI-generated'],['Output','Actionable advice']]},
-];
-function pStep(i){
-  document.querySelectorAll('.pipe-step').forEach((s,idx)=>s.classList.toggle('active',idx<=i));
-  const d=pData[i];
-  document.getElementById('pDetail').innerHTML='<div class="pipe-detail"><div><div class="pipe-detail-title">'+d.title+'</div><div class="pipe-detail-desc">'+d.desc+'</div><div class="pipe-tags">'+d.tags.map(t=>'<span class="pipe-tag">'+t+'</span>').join('')+'</div></div><div class="pipe-data">'+d.kv.map(([k,v])=>'<div class="pipe-kv"><span class="pipe-kv-k">'+k+'</span><span class="pipe-kv-v">'+v+'</span></div>').join('')+'</div></div>';
-}
-pStep(0);
-
-// HERO COUNTER
+// COUNTERS
 function animateCounters(){
   document.querySelectorAll('[data-target]').forEach(el=>{
-    const target=parseInt(el.dataset.target);let cur=0;
-    const step=target/40;
-    const t=setInterval(()=>{cur=Math.min(cur+step,target);el.textContent=Math.floor(cur)+(target===100?'%':'');if(cur>=target)clearInterval(t);},30);
+    const t=parseInt(el.dataset.target);let c=0;
+    const x=setInterval(()=>{c=Math.min(c+t/40,t);el.textContent=Math.floor(c);if(c>=t)clearInterval(x);},30);
   });
 }
-const hObs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();hObs.disconnect();}},{threshold:0.3});
-const hs=document.querySelector('.hero-stats');if(hs)hObs.observe(hs);
+const hObs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();hObs.disconnect();}},{threshold:0.5});
+const hs=document.querySelector('[data-target]');if(hs)hObs.observe(hs);
 
-// SCROLL REVEAL
+// REVEAL
 const rObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
 
-// BACK TO TOP
-window.addEventListener('scroll',()=>document.getElementById('btt').classList.toggle('show',window.scrollY>500));
-
 function openSetup(){document.getElementById('setupModal').classList.remove('hidden');}
 
-function setupTags(inputId,containerId,arr){
-  const input=document.getElementById(inputId);if(!input)return;
-  input.addEventListener('keydown',e=>{
-    if((e.key==='Enter'||e.key===',')&&input.value.trim()){
-      e.preventDefault();const val=input.value.trim().replace(/,$/,'');
-      if(val&&!arr.includes(val)){arr.push(val);addTag(containerId,arr,val,inputId);}
-      input.value='';
+function setupTags(inp,con,arr){
+  const i=document.getElementById(inp);if(!i)return;
+  i.addEventListener('keydown',e=>{
+    if((e.key==='Enter'||e.key===',')&&i.value.trim()){
+      e.preventDefault();const v=i.value.trim().replace(/,$/,'');
+      if(v&&!arr.includes(v)){arr.push(v);addTag(con,arr,v,inp);}
+      i.value='';
     }
   });
 }
-function addTag(containerId,arr,val,inputId){
-  const c=document.getElementById(containerId);const inp=document.getElementById(inputId);
-  const tag=document.createElement('div');tag.className='tag';
-  tag.innerHTML=val+'<span class="remove">×</span>';
-  tag.querySelector('.remove').addEventListener('click',()=>{const idx=arr.indexOf(val);if(idx>-1)arr.splice(idx,1);tag.remove();});
-  c.insertBefore(tag,inp);
+function addTag(con,arr,val,inp){
+  const c=document.getElementById(con);const i=document.getElementById(inp);
+  const t=document.createElement('div');
+  t.style.cssText='display:inline-flex;align-items:center;gap:4px;background:rgba(242,204,13,0.1);color:#f2cc0d;border:1px solid rgba(242,204,13,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:500;';
+  t.innerHTML=val+'<span style="cursor:pointer;opacity:0.6;margin-left:2px;font-size:12px;">×</span>';
+  t.querySelector('span').addEventListener('click',()=>{const idx=arr.indexOf(val);if(idx>-1)arr.splice(idx,1);t.remove();});
+  c.insertBefore(t,i);
 }
 
 function setupNext(){
   if(setupPage===0){
-    if(!document.getElementById('pName').value.trim()||!document.getElementById('pEmail').value.trim()||!document.getElementById('pLocation').value.trim()){toast('Please fill in name, email, and location.','error');return;}
+    if(!document.getElementById('pName').value.trim()||!document.getElementById('pEmail').value.trim()||!document.getElementById('pLocation').value.trim()){toast('Fill in name, email, and location','error');return;}
     document.getElementById('step0').style.display='none';document.getElementById('step1').style.display='';
-    document.getElementById('sb1').classList.add('done');
+    document.getElementById('sb1').className='h-1 flex-1 rounded-full bg-primary transition-all';
     document.getElementById('setupTitle').textContent='Skills & Preferences';
     document.getElementById('setupSub').textContent='What are you looking for and what do you bring?';
     document.getElementById('setupBackBtn').style.display='';setupPage=1;
   }else if(setupPage===1){
     document.getElementById('step1').style.display='none';document.getElementById('step2').style.display='';
-    document.getElementById('sb2').classList.add('done');
+    document.getElementById('sb2').className='h-1 flex-1 rounded-full bg-primary transition-all';
     document.getElementById('setupTitle').textContent='Final Details';
     document.getElementById('setupSub').textContent='Add your links and certifications (optional).';
-    document.getElementById('setupNextBtn').textContent='Create Profile →';setupPage=2;
+    document.getElementById('setupNextBtn').innerHTML='Create Profile <span class="material-symbols-outlined text-sm">check</span>';
+    setupPage=2;
   }else{submitProfile();}
 }
 function setupPrev(){
   if(setupPage===1){
     document.getElementById('step1').style.display='none';document.getElementById('step0').style.display='';
-    document.getElementById('sb1').classList.remove('done');
+    document.getElementById('sb1').className='h-1 flex-1 rounded-full bg-white/10 transition-all';
     document.getElementById('setupTitle').textContent='Create your profile';
-    document.getElementById('setupSub').textContent='Tell us about you so the AI can find and rank the best opportunities.';
+    document.getElementById('setupSub').textContent='Tell us about you so AI can find the best opportunities.';
     document.getElementById('setupBackBtn').style.display='none';setupPage=0;
   }else if(setupPage===2){
     document.getElementById('step2').style.display='none';document.getElementById('step1').style.display='';
-    document.getElementById('sb2').classList.remove('done');
+    document.getElementById('sb2').className='h-1 flex-1 rounded-full bg-white/10 transition-all';
     document.getElementById('setupTitle').textContent='Skills & Preferences';
     document.getElementById('setupSub').textContent='What are you looking for and what do you bring?';
-    document.getElementById('setupNextBtn').textContent='Continue →';setupPage=1;
+    document.getElementById('setupNextBtn').innerHTML='Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>';
+    setupPage=1;
   }
 }
 
@@ -610,47 +946,48 @@ async function submitProfile(){
   const jobTypes=Array.from(document.querySelectorAll('#jobTypesGroup input:checked')).map(i=>i.value);
   try{
     if(!sessionId)await initSession();
-    const profile={name:document.getElementById('pName').value.trim(),email:document.getElementById('pEmail').value.trim(),phone:document.getElementById('pPhone').value.trim()||null,location:document.getElementById('pLocation').value.trim(),experience_level:document.getElementById('pExpLevel').value,years_of_experience:parseInt(document.getElementById('pYears').value)||0,skills,desired_roles:roles,desired_job_types:jobTypes,desired_salary_min:parseInt(document.getElementById('pSalMin').value)||null,desired_salary_max:parseInt(document.getElementById('pSalMax').value)||null,certifications:certs,languages:langs.length?langs:['English'],linkedin_url:document.getElementById('pLinkedin').value.trim()||null,portfolio_url:document.getElementById('pPortfolio').value.trim()||null};
-    await api('POST','/api/profile',profile);
-    launchDashboard(profile);
+    const p={name:document.getElementById('pName').value.trim(),email:document.getElementById('pEmail').value.trim(),phone:document.getElementById('pPhone').value.trim()||null,location:document.getElementById('pLocation').value.trim(),experience_level:document.getElementById('pExpLevel').value,years_of_experience:parseInt(document.getElementById('pYears').value)||0,skills,desired_roles:roles,desired_job_types:jobTypes,desired_salary_min:parseInt(document.getElementById('pSalMin').value)||null,desired_salary_max:parseInt(document.getElementById('pSalMax').value)||null,certifications:certs,languages:langs.length?langs:['English'],linkedin_url:document.getElementById('pLinkedin').value.trim()||null,portfolio_url:document.getElementById('pPortfolio').value.trim()||null};
+    await api('POST','/api/profile',p);
+    launchDashboard(p);
     document.getElementById('setupModal').classList.add('hidden');
-    toast('Welcome, '+profile.name.split(' ')[0]+'!','success');
-  }catch(err){toast('Failed: '+err.message,'error');btn.disabled=false;btn.textContent='Create Profile →';}
+    toast('Welcome, '+p.name.split(' ')[0]+'!','success');
+  }catch(err){toast('Failed: '+err.message,'error');btn.disabled=false;btn.innerHTML='Create Profile <span class="material-symbols-outlined text-sm">check</span>';}
 }
 
-function launchDashboard(profile){
+function launchDashboard(p){
   document.getElementById('landing').style.display='none';
   document.getElementById('app').style.display='block';
-  document.getElementById('btt').style.display='none';
-  document.getElementById('sidebarName').textContent=profile.name;
-  document.getElementById('sidebarRole').textContent=(profile.desired_roles&&profile.desired_roles[0])||profile.experience_level;
-  document.getElementById('sidebarAvatar').textContent=profile.name.charAt(0).toUpperCase();
+  document.getElementById('sidebarName').textContent=p.name;
+  document.getElementById('sidebarRole').textContent=(p.desired_roles&&p.desired_roles[0])||p.experience_level;
+  document.getElementById('sidebarAvatar').textContent=p.name.charAt(0).toUpperCase();
   checkHealth();
 }
 
-const titles={jobs:'Job Search',market:'Market Intelligence',docs:'Documents',tracker:'Application Tracker',analytics:'Analytics',feedback:'Feedback Analysis',chat:'AI Chat'};
+const VIEWS=['jobs','market','docs','tracker','analytics','feedback','chat'];
+const TITLES={jobs:'Job Search',market:'Market Intelligence',docs:'Documents',tracker:'Application Tracker',analytics:'Analytics',feedback:'Feedback Analysis',chat:'AI Chat'};
 function nav(page){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('view-'+page).classList.add('active');
-  const ni=document.getElementById('nav-'+page);if(ni)ni.classList.add('active');
-  document.getElementById('pageTitle').textContent=titles[page]||page;
+  VIEWS.forEach(v=>{
+    const el=document.getElementById('view-'+v);
+    if(el)el.style.display=v===page?'block':'none';
+    const ni=document.getElementById('nav-'+v);
+    if(ni)ni.className=ni.className.replace(' active-nav','')+( v===page?' active-nav':'');
+  });
+  document.getElementById('pageTitle').textContent=TITLES[page]||page;
 }
 
 async function searchJobs(){
   setLoading('jobsResult');document.getElementById('jobIdsBox').style.display='none';
   try{
-    const data=await api('POST','/api/jobs/search',{location_filter:document.getElementById('jobLocation').value.trim(),include_remote:document.getElementById('jobRemote').value==='true',max_results:parseInt(document.getElementById('jobMax').value)||10});
-    setResult('jobsResult',data.response);
-    if(data.job_ids&&data.job_ids.length){
-      document.getElementById('jobIdsList').innerHTML=data.job_ids.map((id,i)=>'<div class="job-id-item"><span>'+(i+1)+'. '+id+'</span><span class="job-id-copy" onclick="copyId(\''+id+'\')">Copy</span></div>').join('');
+    const d=await api('POST','/api/jobs/search',{location_filter:document.getElementById('jobLocation').value.trim(),include_remote:document.getElementById('jobRemote').value==='true',max_results:parseInt(document.getElementById('jobMax').value)||10});
+    setResult('jobsResult',d.response);
+    if(d.job_ids&&d.job_ids.length){
+      document.getElementById('jobIdsList').innerHTML=d.job_ids.map((id,i)=>'<div class="job-id-item"><span>'+(i+1)+'. '+id+'</span><span class="job-id-copy" onclick="copyId(\''+ id +'\')">Copy</span></div>').join('');
       document.getElementById('jobIdsBox').style.display='block';
-      toast('Found '+data.job_ids.length+' jobs','success');
+      toast('Found '+d.job_ids.length+' jobs','success');
     }
   }catch(err){setResult('jobsResult','⚠ '+err.message);toast(err.message,'error');}
 }
 function copyId(id){navigator.clipboard.writeText(id).then(()=>toast('Copied!','success'));}
-
 async function getMarket(){
   const r=document.getElementById('mktRegion').value.trim(),i=document.getElementById('mktIndustry').value.trim();
   if(!r||!i){toast('Enter both region and industry','error');return;}
@@ -682,7 +1019,11 @@ async function trackApp(){
   try{const d=await api('POST','/api/applications',{job_id:id,notes:document.getElementById('trackNotes').value.trim()});setResult('trackResult',d.response);toast('Application tracked!','success');}
   catch(err){setResult('trackResult','⚠ '+err.message);toast(err.message,'error');}
 }
-function openUpdateModal(){const id=document.getElementById('updateAppId').value.trim();if(!id){toast('Enter an Application ID','error');return;}updateTargetId=id;document.getElementById('updateModal').classList.remove('hidden');}
+function openUpdateModal(){
+  const id=document.getElementById('updateAppId').value.trim();
+  if(!id){toast('Enter an Application ID','error');return;}
+  updateTargetId=id;document.getElementById('updateModal').classList.remove('hidden');
+}
 function closeUpdateModal(){document.getElementById('updateModal').classList.add('hidden');updateTargetId=null;}
 async function submitUpdate(){
   if(!updateTargetId)return;
@@ -692,23 +1033,29 @@ async function submitUpdate(){
 async function loadAnalytics(){setLoading('analyticsResult');try{const d=await api('GET','/api/analytics');setResult('analyticsResult',d.response);}catch(err){setResult('analyticsResult','⚠ '+err.message);toast(err.message,'error');}}
 async function loadFeedback(){setLoading('feedbackResult');try{const d=await api('GET','/api/feedback');setResult('feedbackResult',d.response);}catch(err){setResult('feedbackResult','⚠ '+err.message);toast(err.message,'error');}}
 
-function appendMsg(role,html){
-  const wrap=document.getElementById('chatMessages');
+function appendChatMsg(role,html){
+  const w=document.getElementById('chatMessages');
   const init=document.getElementById('sidebarAvatar').textContent||'?';
-  const div=document.createElement('div');div.className='chat-msg '+role;
-  div.innerHTML='<div class="chat-avatar">'+(role==='user'?init:'🤖')+'</div><div class="chat-bubble">'+html+'</div>';
-  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;return div;
+  const d=document.createElement('div');d.style.cssText='display:flex;gap:8px;'+(role==='user'?'flex-direction:row-reverse;':'flex-direction:row;');
+  const avatarStyle=role==='user'?'width:28px;height:28px;border-radius:8px;background:rgba(242,204,13,0.2);display:flex;align-items:center;justify-content:center;color:#f2cc0d;font-weight:700;font-size:12px;flex-shrink:0;':'width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(141,163,153,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;';
+  const bubbleStyle=role==='user'?'max-width:72%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#f2cc0d;color:#221f10;font-weight:500;':'max-width:72%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:rgba(255,255,255,0.05);border:1px solid rgba(242,204,13,0.08);color:#cbd5e1;';
+  d.innerHTML='<div style="'+avatarStyle+'">'+( role==='user'?init:'🤖')+'</div><div style="'+bubbleStyle+'">'+html+'</div>';
+  w.appendChild(d);w.scrollTop=w.scrollHeight;return d;
 }
 async function sendChat(){
-  const inp=document.getElementById('chatInput');const msg=inp.value.trim();if(!msg)return;inp.value='';
-  appendMsg('user',msg.replace(/</g,'&lt;'));
-  const el=appendMsg('agent','<div class="loading"><div class="spinner"></div>Thinking…</div>');
-  try{const d=await api('POST','/api/chat',{message:msg});el.querySelector('.chat-bubble').innerHTML=md(d.response);}
-  catch(err){el.querySelector('.chat-bubble').textContent='⚠ '+err.message;toast(err.message,'error');}
+  const i=document.getElementById('chatInput');const m=i.value.trim();if(!m)return;i.value='';
+  appendChatMsg('user',m.replace(/</g,'&lt;'));
+  const el=appendChatMsg('agent','<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>');
+  try{const d=await api('POST','/api/chat',{message:m});el.querySelectorAll('div')[1].innerHTML=md(d.response);}
+  catch(err){el.querySelectorAll('div')[1].textContent='⚠ '+err.message;toast(err.message,'error');}
 }
 async function resetChat(){
-  try{await api('DELETE','/api/chat/reset');document.getElementById('chatMessages').innerHTML='<div class="chat-msg agent"><div class="chat-avatar">🤖</div><div class="chat-bubble">Conversation reset. How can I help you?</div></div>';toast('Chat reset','info');}
-  catch(err){toast(err.message,'error');}
+  try{
+    await api('DELETE','/api/chat/reset');
+    const w=document.getElementById('chatMessages');w.innerHTML='';
+    appendChatMsg('agent','Conversation reset. How can I help you?');
+    toast('Chat reset','info');
+  }catch(err){toast(err.message,'error');}
 }
 function chatKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
 
