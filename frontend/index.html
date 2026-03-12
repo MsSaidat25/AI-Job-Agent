@@ -457,28 +457,28 @@ textarea { resize: vertical; }
     <div id="step0">
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2 flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Full Name *</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Full Name *</label>
           <input id="pName" placeholder="Jane Doe"/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Email *</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Email *</label>
           <input id="pEmail" type="email" placeholder="jane@example.com"/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Phone</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Phone</label>
           <input id="pPhone" placeholder="+1 555 000 0000"/>
         </div>
         <div class="col-span-2 flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Location *</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Location *</label>
           <input id="pLocation" placeholder="City, Country"/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Experience Level</label>
-          <select id="pExpLevel"><option value="entry">Entry</option><option value="mid" selected>Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Experience Level *</label>
+          <select id="pExpLevel" required><option value="">Select level…</option><option value="entry">Entry</option><option value="mid">Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Years of Experience</label>
-          <input id="pYears" type="number" value="3" min="0"/>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Years of Experience *</label>
+          <input id="pYears" type="number" placeholder="e.g. 3" min="0" required/>
         </div>
       </div>
     </div>
@@ -487,19 +487,19 @@ textarea { resize: vertical; }
     <div id="step1" style="display:none">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Skills (Enter to add)</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Skills (Enter to add)</label>
           <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="skillsTagsInput">
             <input id="skillsInput" placeholder="Python, React, SQL…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Desired Roles (Enter to add)</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Desired Roles (Enter to add)</label>
           <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="rolesTagsInput">
             <input id="rolesInput" placeholder="Software Engineer…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Job Types</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Job Types</label>
           <div class="flex flex-wrap gap-2" id="jobTypesGroup">
             <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="full_time" class="accent-primary" checked/> Full Time</label>
             <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="part_time" class="accent-primary"/> Part Time</label>
@@ -508,14 +508,23 @@ textarea { resize: vertical; }
             <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="internship" class="accent-primary"/> Internship</label>
           </div>
         </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Preferred Currency</label>
+          <select id="pCurrency">
+            <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+            <option value="USD">🇺🇸 USD — US Dollar</option>
+            <option value="GBP">🇬🇧 GBP — British Pound</option>
+            <option value="EUR">🇪🇺 EUR — Euro</option>
+          </select>
+        </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="flex flex-col gap-1.5">
-            <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Min Salary (USD)</label>
-            <input id="pSalMin" type="number" placeholder="60000"/>
+            <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Min Salary</label>
+            <input id="pSalMin" type="number" placeholder="e.g. 60000"/>
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Max Salary (USD)</label>
-            <input id="pSalMax" type="number" placeholder="120000"/>
+            <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Max Salary</label>
+            <input id="pSalMax" type="number" placeholder="e.g. 120000"/>
           </div>
         </div>
       </div>
@@ -525,21 +534,21 @@ textarea { resize: vertical; }
     <div id="step2" style="display:none">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">LinkedIn URL</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">LinkedIn URL</label>
           <input id="pLinkedin" placeholder="https://linkedin.com/in/…"/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Portfolio URL</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Portfolio URL</label>
           <input id="pPortfolio" placeholder="https://yoursite.com"/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Certifications (Enter to add)</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Certifications (Enter to add)</label>
           <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="certsTagsInput">
             <input id="certsInput" placeholder="AWS Certified…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Languages</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Languages</label>
           <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="langsTagsInput">
             <input id="langsInput" placeholder="English, French…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;"/>
           </div>
@@ -563,15 +572,15 @@ textarea { resize: vertical; }
   <div class="bg-background-dark border border-sage/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
     <h3 class="font-bold text-base mb-4">Update Application</h3>
     <div class="flex flex-col gap-1.5 mb-3">
-      <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">New Status</label>
+      <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">New Status</label>
       <select id="updateStatus"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select>
     </div>
     <div class="flex flex-col gap-1.5 mb-3">
-      <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Employer Feedback</label>
+      <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Employer Feedback</label>
       <textarea id="updateFeedback" placeholder="What did they say?" rows="3"></textarea>
     </div>
     <div class="flex flex-col gap-1.5 mb-5">
-      <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Notes</label>
+      <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Notes</label>
       <textarea id="updateNotes" placeholder="Additional notes…" rows="2"></textarea>
     </div>
     <div class="flex gap-2 justify-end">
@@ -815,7 +824,7 @@ textarea { resize: vertical; }
 </style>
 
 <script>
-const API='http://localhost:8000';
+const API=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8000':'';
 let sessionId=localStorage.getItem('jpai_session');
 let setupPage=0,updateTargetId=null;
 const skills=[],roles=[],certs=[],langs=['English'];
@@ -910,6 +919,8 @@ function addTag(con,arr,val,inp){
 function setupNext(){
   if(setupPage===0){
     if(!document.getElementById('pName').value.trim()||!document.getElementById('pEmail').value.trim()||!document.getElementById('pLocation').value.trim()){toast('Fill in name, email, and location','error');return;}
+    if(!document.getElementById('pExpLevel').value){toast('Please select your experience level','error');return;}
+    if(!document.getElementById('pYears').value||parseInt(document.getElementById('pYears').value)<0){toast('Please enter your years of experience','error');return;}
     document.getElementById('step0').style.display='none';document.getElementById('step1').style.display='';
     document.getElementById('sb1').className='h-1 flex-1 rounded-full bg-primary transition-all';
     document.getElementById('setupTitle').textContent='Skills & Preferences';
@@ -946,7 +957,7 @@ async function submitProfile(){
   const jobTypes=Array.from(document.querySelectorAll('#jobTypesGroup input:checked')).map(i=>i.value);
   try{
     if(!sessionId)await initSession();
-    const p={name:document.getElementById('pName').value.trim(),email:document.getElementById('pEmail').value.trim(),phone:document.getElementById('pPhone').value.trim()||null,location:document.getElementById('pLocation').value.trim(),experience_level:document.getElementById('pExpLevel').value,years_of_experience:parseInt(document.getElementById('pYears').value)||0,skills,desired_roles:roles,desired_job_types:jobTypes,desired_salary_min:parseInt(document.getElementById('pSalMin').value)||null,desired_salary_max:parseInt(document.getElementById('pSalMax').value)||null,certifications:certs,languages:langs.length?langs:['English'],linkedin_url:document.getElementById('pLinkedin').value.trim()||null,portfolio_url:document.getElementById('pPortfolio').value.trim()||null};
+    const p={name:document.getElementById('pName').value.trim(),email:document.getElementById('pEmail').value.trim(),phone:document.getElementById('pPhone').value.trim()||null,location:document.getElementById('pLocation').value.trim(),experience_level:document.getElementById('pExpLevel').value,years_of_experience:parseInt(document.getElementById('pYears').value)||0,skills,desired_roles:roles,desired_job_types:jobTypes,preferred_currency:document.getElementById('pCurrency').value,desired_salary_min:parseInt(document.getElementById('pSalMin').value)||null,desired_salary_max:parseInt(document.getElementById('pSalMax').value)||null,certifications:certs,languages:langs.length?langs:['English'],linkedin_url:document.getElementById('pLinkedin').value.trim()||null,portfolio_url:document.getElementById('pPortfolio').value.trim()||null};
     await api('POST','/api/profile',p);
     launchDashboard(p);
     document.getElementById('setupModal').classList.add('hidden');
