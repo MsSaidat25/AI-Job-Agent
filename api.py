@@ -1,3 +1,5 @@
+# Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com). All Rights Reserved.
+# avien@aviensolutions.com
 """
 AI Job Agent — FastAPI REST Server.
 
@@ -13,27 +15,31 @@ conversation history) in the `_sessions` dict.
 
 Endpoints
 ─────────
-POST  /api/session            — create a new session (returns session_id)
-POST  /api/profile            — set/update user profile for a session
-GET   /api/profile            — retrieve profile for a session
-POST  /api/jobs/search        — search jobs
-POST  /api/market-insights    — get regional market report
-POST  /api/application-tips   — get culturally-aware tips
-POST  /api/documents/resume   — generate tailored resume
+POST  /api/session                — create a new session (returns session_id)
+POST  /api/profile                — set/update user profile for a session
+GET   /api/profile                — retrieve profile for a session
+POST  /api/jobs/search            — search real jobs via JSearch API
+POST  /api/market-insights        — get regional market report
+POST  /api/application-tips       — get culturally-aware tips
+POST  /api/documents/resume       — generate tailored resume
 POST  /api/documents/cover-letter — generate cover letter
-POST  /api/applications       — track a new application
-PUT   /api/applications/{id}  — update an existing application
-GET   /api/analytics          — compute metrics + AI insights
-GET   /api/feedback           — employer feedback analysis
-POST  /api/chat               — free-form chat with agent
-DELETE /api/chat/reset        — clear conversation history
-GET   /api/health             — liveness check
+POST  /api/applications           — track a new application
+PUT   /api/applications/{id}      — update an existing application
+GET   /api/analytics              — compute metrics + AI insights
+GET   /api/feedback               — employer feedback analysis
+POST  /api/chat                   — free-form chat with agent
+DELETE /api/chat/reset            — clear conversation history
+GET   /api/health                 — liveness check
 """
 
 from __future__ import annotations
 
 import uuid
 from typing import Any, Optional
+
+# Auto-load .env file so you never have to manually set environment variables
+from dotenv import load_dotenv
+load_dotenv()
 
 from fastapi import FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,6 +54,7 @@ from src.models import (
     JobType,
     UserProfile,
 )
+from src.job_search import search_jobs_live
 
 
 # ── App setup ────────────────────────────────────────────────────────────────
@@ -55,7 +62,7 @@ from src.models import (
 app = FastAPI(
     title="AI Job Agent API",
     description="REST interface for the AI-powered job application assistant.",
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -66,7 +73,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount the frontend directory so index.html is served at /
+# Serve frontend at /
 app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
@@ -79,10 +86,10 @@ _sessions: dict[str, dict[str, Any]] = {}
 def _get_agent(session_id: str) -> JobAgent:
     """Return the JobAgent for a session, or raise 404."""
     sess = _sessions.get(session_id)
-    if not sess:
+    if not sess or not sess.get("agent"):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Session not found. POST /api/profile first.",
+            detail="Session not found or profile not set up. POST /api/profile first.",
         )
     return sess["agent"]
 
@@ -98,21 +105,6 @@ def _require_session_header(x_session_id: Optional[str]) -> str:
 
 # ── Request / Response schemas ───────────────────────────────────────────────
 
-class EducationEntry(BaseModel):
-    degree: str = ""
-    institution: str = ""
-    year: Optional[int] = None
-    field: str = ""
-
-
-class WorkEntry(BaseModel):
-    title: str = ""
-    company: str = ""
-    start_year: Optional[int] = None
-    end_year: Optional[int] = None
-    description: str = ""
-
-
 class ProfileRequest(BaseModel):
     name: str
     email: str
@@ -125,6 +117,7 @@ class ProfileRequest(BaseModel):
     work_history: list[dict[str, Any]] = []
     desired_roles: list[str] = []
     desired_job_types: list[JobType] = []
+    preferred_currency: str = "USD"          # NEW — CAD / USD / GBP / EUR
     desired_salary_min: Optional[int] = None
     desired_salary_max: Optional[int] = None
     languages: list[str] = ["English"]
@@ -187,7 +180,7 @@ async def health():
 
 @app.post("/api/session", status_code=status.HTTP_201_CREATED)
 async def create_session():
-    """Create a new anonymous session.  Returns a session_id to use in headers."""
+    """Create a new anonymous session. Returns a session_id to use in headers."""
     session_id = str(uuid.uuid4())
     _sessions[session_id] = {"agent": None, "profile": None}
     return {"session_id": session_id}
@@ -198,7 +191,7 @@ async def set_profile(
     body: ProfileRequest,
     x_session_id: Optional[str] = Header(default=None),
 ):
-    """Set or replace the user profile for a session.  Initialises the JobAgent."""
+    """Set or replace the user profile for a session. Initialises the JobAgent."""
     session_id = _require_session_header(x_session_id)
 
     profile = UserProfile(
@@ -221,10 +214,17 @@ async def set_profile(
         linkedin_url=body.linkedin_url,
     )
 
+    # Store preferred_currency directly on the profile object
+    profile.preferred_currency = body.preferred_currency
+
     agent = JobAgent(profile=profile)
     _sessions[session_id] = {"agent": agent, "profile": profile}
 
-    return {"profile_id": profile.id, "message": "Profile saved and agent initialised."}
+    return {
+        "profile_id": profile.id,
+        "message": "Profile saved and agent initialised.",
+        "currency": body.preferred_currency,
+    }
 
 
 @app.get("/api/profile")
@@ -235,7 +235,6 @@ async def get_profile(x_session_id: Optional[str] = Header(default=None)):
     if not sess or not sess.get("profile"):
         raise HTTPException(status_code=404, detail="No profile found for this session.")
     profile: UserProfile = sess["profile"]
-    # Return safe subset (omit encrypted PII fields from wire if desired)
     return profile.model_dump(mode="json")
 
 
@@ -244,20 +243,32 @@ async def search_jobs(
     body: JobSearchRequest,
     x_session_id: Optional[str] = Header(default=None),
 ):
-    """Search for jobs matching the user profile."""
+    """
+    Search for REAL jobs using the JSearch API (pulls from Indeed, LinkedIn,
+    Glassdoor, ZipRecruiter). Results are scored 0-100 against the user profile
+    and cached in the session for use in Documents and Tracker.
+    """
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
 
-    # Call through agent chat so the agentic loop runs and caches jobs
-    query_parts = ["Search for jobs"]
-    if body.location_filter:
-        query_parts.append(f"in {body.location_filter}")
-    if body.include_remote:
-        query_parts.append("including remote opportunities")
-    query_parts.append(f"and show me up to {body.max_results} results")
+    response_text, job_ids, raw_jobs = await search_jobs_live(
+        profile=agent.profile,
+        location_filter=body.location_filter,
+        include_remote=body.include_remote,
+        max_results=body.max_results,
+    )
 
-    response = agent.chat(" ".join(query_parts))
-    return {"response": response, "job_cache_size": len(agent._job_cache)}
+    # Cache raw jobs so Documents / Tracker can reference them by job_id
+    if not hasattr(agent, "_job_cache"):
+        agent._job_cache = {}
+    for job_id, job in zip(job_ids, raw_jobs):
+        agent._job_cache[job_id] = job
+
+    return {
+        "response": response_text,
+        "job_ids": job_ids,
+        "job_cache_size": len(agent._job_cache),
+    }
 
 
 @app.post("/api/market-insights")
@@ -269,7 +280,8 @@ async def market_insights(
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
     response = agent.chat(
-        f"Give me a detailed job market report for the {body.industry} industry in {body.region}."
+        f"Give me a detailed job market report for the {body.industry} industry in {body.region}. "
+        "Include salary ranges, in-demand skills, top employers, and hiring trends."
     )
     return {"response": response}
 
@@ -284,7 +296,7 @@ async def application_tips(
     agent = _get_agent(session_id)
     response = agent.chat(
         f"What are the best job application tips for applying in {body.region}? "
-        "Include cultural nuances and local norms."
+        "Include cultural nuances, CV vs resume norms, interview etiquette, and local expectations."
     )
     return {"response": response}
 
@@ -298,14 +310,21 @@ async def generate_resume(
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
 
-    if body.job_id not in agent._job_cache:
+    if not hasattr(agent, "_job_cache") or body.job_id not in agent._job_cache:
         raise HTTPException(
             status_code=400,
-            detail="Job ID not found in session cache. Run a job search first.",
+            detail="Job ID not found in session cache. Run a job search first, then copy a Job ID.",
         )
 
+    job = agent._job_cache[body.job_id]
+    job_title = job.get("job_title", "the role")
+    company = job.get("employer_name", "the company")
+    description = (job.get("job_description") or "")[:1500]
+
     response = agent.chat(
-        f"Generate a {body.tone} resume tailored for job ID {body.job_id}."
+        f"Generate a {body.tone} resume tailored for the '{job_title}' role at {company}. "
+        f"Here is the job description:\n\n{description}\n\n"
+        "Tailor my skills, experience, and achievements to match this specific role."
     )
     return {"response": response}
 
@@ -319,14 +338,23 @@ async def generate_cover_letter(
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
 
-    if body.job_id not in agent._job_cache:
+    if not hasattr(agent, "_job_cache") or body.job_id not in agent._job_cache:
         raise HTTPException(
             status_code=400,
-            detail="Job ID not found in session cache. Run a job search first.",
+            detail="Job ID not found in session cache. Run a job search first, then copy a Job ID.",
         )
 
+    job = agent._job_cache[body.job_id]
+    job_title = job.get("job_title", "the role")
+    company = job.get("employer_name", "the company")
+    description = (job.get("job_description") or "")[:1500]
+    apply_link = job.get("job_apply_link", "")
+
     response = agent.chat(
-        f"Generate a compelling cover letter for job ID {body.job_id}."
+        f"Generate a compelling cover letter for the '{job_title}' position at {company}. "
+        f"Job description:\n\n{description}\n\n"
+        "Make it personal, confident, and specific to this role and company."
+        + (f"\nApplication link for reference: {apply_link}" if apply_link else "")
     )
     return {"response": response}
 
@@ -340,9 +368,18 @@ async def track_application(
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
 
+    # Enrich with real job data if available
+    job_info = ""
+    if hasattr(agent, "_job_cache") and body.job_id in agent._job_cache:
+        job = agent._job_cache[body.job_id]
+        title = job.get("job_title", "")
+        company = job.get("employer_name", "")
+        job_info = f" ('{title}' at {company})"
+
     note_part = f" Notes: {body.notes}" if body.notes else ""
     response = agent.chat(
-        f"Track my application for job ID {body.job_id}.{note_part}"
+        f"Track my application for job ID {body.job_id}{job_info}.{note_part} "
+        "Log it as 'applied' status."
     )
     return {"response": response}
 
@@ -373,7 +410,8 @@ async def get_analytics(x_session_id: Optional[str] = Header(default=None)):
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
     response = agent.chat(
-        "Show me my application analytics, success metrics, and career insights."
+        "Show me my application analytics — response rates, interview conversions, "
+        "top performing roles, and actionable career insights based on my history."
     )
     return {"response": response}
 
@@ -384,7 +422,8 @@ async def get_feedback_analysis(x_session_id: Optional[str] = Header(default=Non
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
     response = agent.chat(
-        "Analyse the patterns in the employer feedback I have received so far."
+        "Analyse the patterns in the employer feedback I have received. "
+        "What recurring themes are there? What should I improve?"
     )
     return {"response": response}
 
@@ -403,7 +442,7 @@ async def chat(
 
 @app.delete("/api/chat/reset", status_code=status.HTTP_204_NO_CONTENT)
 async def reset_chat(x_session_id: Optional[str] = Header(default=None)):
-    """Clear the conversation history for the session (profile and job cache persist)."""
+    """Clear conversation history for the session (profile and job cache persist)."""
     session_id = _require_session_header(x_session_id)
     agent = _get_agent(session_id)
     agent.reset_conversation()
@@ -413,5 +452,4 @@ async def reset_chat(x_session_id: Optional[str] = Header(default=None)):
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
