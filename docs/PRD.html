@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Agent: Product Requirements Document v2.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #ffffff;
+            color: #1a1a2e;
+            line-height: 1.7;
+        }
+
+        /* Nav */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0 24px;
+        }
+        nav .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        nav .nav-inner::-webkit-scrollbar { display: none; }
+        nav a {
+            display: block;
+            padding: 14px 10px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        nav a:hover { color: #7c3aed; border-bottom-color: #7c3aed; }
+        nav .nav-logo {
+            font-weight: 700;
+            color: #7c3aed;
+            font-size: 0.85rem;
+            padding-right: 10px;
+            margin-right: 4px;
+            border-right: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        /* Layout */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        section { padding: 56px 0; }
+        section + section { border-top: 1px solid #f1f5f9; }
+        h2 { font-size: 1.6rem; color: #1a1a2e; margin-bottom: 4px; }
+        h3 { font-size: 1.15rem; color: #1e293b; margin: 24px 0 8px; }
+        .section-sub { color: #64748b; margin-bottom: 32px; font-size: 0.92rem; }
+        code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; color: #7c3aed; }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%);
+            padding: 72px 40px 64px;
+            text-align: center;
+            color: #fff;
+        }
+        .hero h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 12px; }
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.85);
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .hero .meta {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .hero .meta-item {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.95);
+        }
+
+        /* Persona cards */
+        .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .persona-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+        .persona-card h3 { color: #7c3aed; font-size: 1.05rem; margin: 0 0 2px; }
+        .persona-card .role { color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px; }
+        .persona-card p { font-size: 0.88rem; color: #475569; }
+        .persona-card .pain { font-size: 0.82rem; color: #64748b; margin-top: 8px; }
+        .persona-card .quote { margin-top: 12px; padding-left: 12px; border-left: 3px solid #7c3aed; color: #6d28d9; font-style: italic; font-size: 0.85rem; }
+
+        /* Collapsible details (journey steps) */
+        details { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; transition: all 0.2s; }
+        details[open] { background: #fff; border-color: #c4b5fd; box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06); }
+        details summary {
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: #1e293b;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        details summary::-webkit-details-marker { display: none; }
+        details summary::before { content: '\25B6'; font-size: 0.6rem; color: #7c3aed; transition: transform 0.2s; }
+        details[open] summary::before { transform: rotate(90deg); }
+        details .detail-body { padding: 0 24px 20px 48px; }
+        details .detail-body p { color: #475569; font-size: 0.9rem; margin-bottom: 10px; }
+        details .detail-body ul { padding-left: 18px; margin-bottom: 12px; }
+        details .detail-body li { color: #475569; font-size: 0.88rem; margin-bottom: 4px; }
+        details .detail-body li strong { color: #1e293b; }
+        .step-num {
+            background: #7c3aed;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tag-inline {
+            margin-left: auto;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        /* Callouts */
+        .callout { border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 0.85rem; }
+        .callout-purple { background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; }
+        .callout-blue { background: #f0f9ff; border: 1px solid #bae6fd; color: #0369a1; }
+        .callout-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .callout-amber { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+
+        /* Badges */
+        .status-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 8px; white-space: nowrap; }
+        .badge-built { background: #dcfce7; color: #166534; }
+        .badge-progress { background: #fef3c7; color: #92400e; }
+        .badge-planned { background: #dbeafe; color: #1d4ed8; }
+
+        /* Feature groups */
+        .feature-tree { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .feature-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; }
+        .feature-group h4 { color: #7c3aed; font-size: 0.95rem; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+        .feature-group ul { list-style: none; padding: 0; }
+        .feature-group li { padding: 5px 0; font-size: 0.85rem; color: #475569; display: flex; align-items: center; gap: 8px; }
+
+        /* Legend */
+        .legend { display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #64748b; }
+
+        /* Tables */
+        .table-wrap { overflow-x: auto; }
+        .feature-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .feature-table th { background: #f8fafc; color: #7c3aed; padding: 12px 14px; text-align: left; border-bottom: 2px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; }
+        .feature-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #475569; vertical-align: top; }
+        .feature-table tr:hover td { background: #faf5ff; }
+        .feature-table .cat-cell { font-weight: 600; color: #1e293b; }
+        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .perf-table th { background: #f8fafc; color: #7c3aed; padding: 10px 14px; text-align: left; border-bottom: 2px solid #e2e8f0; font-size: 0.8rem; }
+        .perf-table td { padding: 8px 14px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+        .perf-table .target-val { color: #059669; font-weight: 600; }
+
+        /* Data source cards */
+        .ds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .ds-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+        .ds-card h4 { color: #7c3aed; font-size: 0.92rem; margin-bottom: 6px; }
+        .ds-card p { color: #475569; font-size: 0.85rem; margin-bottom: 4px; }
+        .ds-card .ds-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 8px; margin-top: 6px; }
+        .ds-card.tier1 { border-left: 4px solid #10b981; }
+        .ds-card.tier2 { border-left: 4px solid #f59e0b; }
+        .ds-card.tier3 { border-left: 4px solid #ef4444; opacity: 0.6; }
+        .ds-tag-free { background: #dcfce7; color: #166534; }
+        .ds-tag-paid { background: #fef3c7; color: #92400e; }
+        .ds-tag-dead { background: #fee2e2; color: #991b1b; }
+
+        /* Agent architecture */
+        .agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .agent-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; text-align: center; }
+        .agent-card .icon { display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; color: #7c3aed; font-size: 1.3rem; }
+        .agent-card h4 { color: #7c3aed; font-size: 0.88rem; margin-bottom: 4px; }
+        .agent-card p { color: #64748b; font-size: 0.78rem; }
+        .agent-card .model-tag { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 8px; font-size: 0.68rem; font-weight: 600; }
+        .model-gemini { background: #eff6ff; color: #3b82f6; }
+        .model-claude { background: #f5f3ff; color: #7c3aed; }
+        .model-haiku { background: #f0f9ff; color: #0891b2; }
+
+        /* Flow lists */
+        .flow-list { padding: 0; list-style: none; }
+        .flow-list li { display: flex; align-items: flex-start; gap: 14px; padding: 10px 0; font-size: 0.88rem; color: #475569; border-bottom: 1px solid #f1f5f9; }
+        .flow-list li:last-child { border-bottom: none; }
+        .flow-num { background: #7c3aed; color: #fff; font-size: 0.7rem; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .flow-list .participant { font-weight: 600; color: #7c3aed; font-size: 0.78rem; }
+
+        /* ERD entities */
+        .erd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        .erd-entity { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+        .erd-entity h4 { background: #7c3aed; color: #fff; padding: 10px 16px; font-size: 0.88rem; font-weight: 600; }
+        .erd-entity.new-entity h4 { background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); }
+        .erd-entity ul { list-style: none; padding: 12px 16px; }
+        .erd-entity li { font-size: 0.8rem; color: #475569; padding: 3px 0; display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; }
+        .erd-entity li:last-child { border-bottom: none; }
+        .erd-entity .field-name { font-weight: 500; color: #1e293b; }
+        .erd-entity .field-type { color: #94a3b8; font-size: 0.75rem; }
+        .erd-key { color: #7c3aed; font-weight: 700; font-size: 0.7rem; margin-left: 4px; }
+        .erd-new { color: #059669; font-weight: 600; font-size: 0.68rem; margin-left: 4px; }
+
+        /* Relationship list */
+        .rel-list { margin-top: 20px; padding: 16px 20px; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; }
+        .rel-list h4 { color: #7c3aed; font-size: 0.9rem; margin-bottom: 10px; }
+        .rel-list ul { list-style: none; padding: 0; }
+        .rel-list li { font-size: 0.85rem; color: #475569; padding: 4px 0; }
+        .rel-list li strong { color: #1e293b; }
+
+        /* NFR cards */
+        .nfr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .nfr-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; }
+        .nfr-card h4 { color: #7c3aed; font-size: 0.95rem; margin-bottom: 12px; }
+        .nfr-card ul { padding-left: 18px; }
+        .nfr-card li { font-size: 0.85rem; color: #475569; margin-bottom: 5px; }
+        .nfr-card li strong { color: #1e293b; }
+
+        /* Risk table */
+        .risk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .risk-card { background: #fff; border-radius: 12px; padding: 20px; }
+        .risk-card.critical { border: 1px solid #fca5a5; }
+        .risk-card.high { border: 1px solid #fde68a; }
+        .risk-card.medium { border: 1px solid #bae6fd; }
+        .risk-card h4 { color: #1e293b; font-size: 0.9rem; margin-bottom: 6px; }
+        .risk-card .severity { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .sev-critical { color: #dc2626; }
+        .sev-high { color: #d97706; }
+        .sev-medium { color: #0284c7; }
+        .risk-card p { color: #64748b; font-size: 0.85rem; }
+        .risk-card .mitigation { margin-top: 8px; padding-left: 12px; border-left: 2px solid #10b981; color: #166534; font-size: 0.82rem; }
+
+        /* Milestones */
+        .milestone { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .milestone.complete { border-left: 4px solid #10b981; }
+        .milestone.upcoming { border-left: 4px solid #7c3aed; }
+        .milestone h4 { font-size: 1rem; color: #1e293b; margin-bottom: 4px; }
+        .milestone .goal { font-size: 0.85rem; color: #64748b; font-style: italic; margin-bottom: 14px; }
+        .milestone ul { list-style: none; padding: 0; columns: 2; column-gap: 24px; }
+        .milestone li { font-size: 0.84rem; color: #475569; padding: 4px 0; break-inside: avoid; }
+        .milestone li::before { margin-right: 6px; font-size: 0.8rem; }
+        .milestone.complete li::before { content: '\2713'; color: #10b981; font-weight: 700; }
+        .milestone.upcoming li::before { content: '\25CB'; color: #c4b5fd; }
+
+        /* Pricing */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        .pricing-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; text-align: center; }
+        .pricing-card.featured { border-color: #7c3aed; box-shadow: 0 4px 24px rgba(124, 58, 237, 0.1); background: #faf5ff; }
+        .pricing-card h3 { color: #1e293b; margin-bottom: 2px; font-size: 1.05rem; }
+        .pricing-card .price { font-size: 2.2rem; color: #7c3aed; font-weight: 700; margin: 10px 0; }
+        .pricing-card .price span { font-size: 0.85rem; color: #94a3b8; }
+        .pricing-card ul { list-style: none; text-align: left; margin-top: 14px; }
+        .pricing-card li { padding: 5px 0; font-size: 0.85rem; color: #475569; border-bottom: 1px solid #f1f5f9; }
+        .pricing-card li::before { content: '\2713  '; color: #059669; }
+
+        /* Confidence tiers */
+        .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+        .tier-card { border-radius: 10px; padding: 14px 16px; text-align: center; }
+        .tier-card.auto { background: #dcfce7; border: 1px solid #86efac; }
+        .tier-card.auto h5 { color: #166534; }
+        .tier-card.review { background: #fef3c7; border: 1px solid #fde68a; }
+        .tier-card.review h5 { color: #92400e; }
+        .tier-card.skip { background: #fee2e2; border: 1px solid #fca5a5; }
+        .tier-card.skip h5 { color: #991b1b; }
+        .tier-card h5 { font-size: 0.82rem; margin-bottom: 4px; }
+        .tier-card p { font-size: 0.78rem; color: #475569; }
+        .tier-card .score { font-size: 1.1rem; font-weight: 700; }
+
+        /* Channel cards */
+        .channel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+        .channel-card { border-radius: 10px; padding: 16px; }
+        .channel-card.safe { background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .channel-card.caution { background: #fffbeb; border: 1px solid #fde68a; }
+        .channel-card h5 { font-size: 0.85rem; margin-bottom: 6px; }
+        .channel-card h5.safe-title { color: #166534; }
+        .channel-card h5.caution-title { color: #92400e; }
+        .channel-card p { color: #475569; font-size: 0.82rem; }
+
+        /* Morning briefing mock */
+        .briefing-mock { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 20px; margin-top: 14px; }
+        .briefing-mock .notif-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+        .briefing-mock .notif-title { color: #1e293b; font-weight: 600; font-size: 0.88rem; }
+        .briefing-mock .notif-time { color: #94a3b8; font-size: 0.75rem; margin-left: auto; }
+        .briefing-mock .notif-line { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.82rem; color: #475569; }
+        .briefing-mock .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot-green { background: #10b981; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-blue { background: #3b82f6; }
+
+        /* Salary pipeline visual */
+        .pipeline { display: flex; align-items: stretch; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+        .pipe-stage { flex: 1; min-width: 180px; padding: 16px; text-align: center; position: relative; }
+        .pipe-stage.sources { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px 0 0 12px; }
+        .pipe-stage.processing { background: #f5f3ff; border: 1px solid #ddd6fe; }
+        .pipe-stage.output { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0 12px 12px 0; }
+        .pipe-stage h5 { font-size: 0.82rem; margin-bottom: 8px; }
+        .pipe-stage.sources h5 { color: #0369a1; }
+        .pipe-stage.processing h5 { color: #7c3aed; }
+        .pipe-stage.output h5 { color: #166534; }
+        .pipe-stage ul { list-style: none; padding: 0; }
+        .pipe-stage li { font-size: 0.78rem; color: #475569; padding: 2px 0; }
+        .pipe-arrow { display: flex; align-items: center; color: #c4b5fd; font-size: 1.5rem; padding: 0 4px; }
+
+        /* Tech stack */
+        .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .stack-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; }
+        .stack-item .stack-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #7c3aed; margin-bottom: 4px; }
+        .stack-item .stack-value { font-size: 0.88rem; color: #1e293b; font-weight: 500; }
+
+        /* Status workflow */
+        .workflow-container { overflow-x: auto; padding: 20px 0; }
+        .workflow { display: flex; align-items: center; gap: 0; min-width: fit-content; justify-content: center; flex-wrap: wrap; row-gap: 12px; }
+        .wf-node { padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+        .wf-node.draft { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .wf-node.submitted { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+        .wf-node.review { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .wf-node.interview { background: #e0e7ff; color: #4338ca; border: 1px solid #a5b4fc; }
+        .wf-node.offer { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .wf-node.rejected { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .wf-node.withdrawn { background: #f5f3ff; color: #6d28d9; border: 1px solid #c4b5fd; }
+        .wf-arrow { font-size: 1.2rem; color: #c4b5fd; padding: 0 8px; }
+        .wf-branch { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .wf-branch-label { font-size: 0.68rem; color: #94a3b8; }
+
+        /* Decision tree visual */
+        .decision-tree { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-top: 16px; }
+        .decision-tree h4 { color: #7c3aed; font-size: 0.95rem; margin-bottom: 16px; }
+        .dt-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+        .dt-row:last-child { border-bottom: none; }
+        .dt-score { font-weight: 700; font-size: 0.85rem; min-width: 70px; }
+        .dt-score.high { color: #059669; }
+        .dt-score.mid { color: #d97706; }
+        .dt-score.low { color: #dc2626; }
+        .dt-arrow { color: #c4b5fd; font-size: 1rem; }
+        .dt-channel { font-size: 0.82rem; color: #475569; flex: 1; }
+        .dt-action { font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+        .dt-action.auto { background: #dcfce7; color: #166534; }
+        .dt-action.queued { background: #fef3c7; color: #92400e; }
+        .dt-action.review { background: #dbeafe; color: #1d4ed8; }
+        .dt-action.skip { background: #fee2e2; color: #991b1b; }
+
+        footer { padding: 32px 0; text-align: center; border-top: 1px solid #e2e8f0; }
+        footer p { color: #94a3b8; font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .hero { padding: 48px 20px; }
+            .hero h1 { font-size: 1.8rem; }
+            section { padding: 36px 0; }
+            .milestone ul { columns: 1; }
+            .feature-tree, .erd-grid, .nfr-grid, .ds-grid, .risk-grid { grid-template-columns: 1fr; }
+            .stack-grid { grid-template-columns: 1fr 1fr; }
+            .tier-grid { grid-template-columns: 1fr; }
+            .pipeline { flex-direction: column; }
+            .pipe-stage { border-radius: 12px !important; }
+            .pipe-arrow { transform: rotate(90deg); justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <span class="nav-logo">AI Job Agent PRD</span>
+        <a href="#overview">Overview</a>
+        <a href="#personas">Personas</a>
+        <a href="#journey">Journey</a>
+        <a href="#features">Features</a>
+        <a href="#salary-data">Salary Data</a>
+        <a href="#agents">Architecture</a>
+        <a href="#flows">Flows</a>
+        <a href="#data-model">Data Model</a>
+        <a href="#nfr">Requirements</a>
+        <a href="#risks">Risks</a>
+        <a href="#milestones">Milestones</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#stack">Stack</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <h1>AI Job Agent</h1>
+    <p class="subtitle">An AI-powered career strategist that finds jobs, tailors resumes, applies autonomously, and provides location-aware salary intelligence, all while protecting user privacy.</p>
+    <div class="meta">
+        <span class="meta-item">PRD v2.0</span>
+        <span class="meta-item">March 15, 2026</span>
+        <span class="meta-item">AVIEN SOLUTIONS</span>
+    </div>
+</header>
+
+<!-- ─── OVERVIEW ─── -->
+<section id="overview">
+    <div class="container">
+        <h2>Overview</h2>
+        <p class="section-sub">Why this product exists and who it serves.</p>
+        <div class="nfr-grid">
+            <div class="nfr-card">
+                <h4>Problem Statement</h4>
+                <p style="font-size: 0.88rem; color: #475569;">Job seekers spend hours daily copying the same resume into different portals, get ghosted on the majority of applications, lack market salary data, and have no systematic way to track progress or learn from rejections. Career changers and international seekers face additional challenges: they don't know which skills transfer, what salary to expect in different markets, or how to tailor applications for regional norms.</p>
+            </div>
+            <div class="nfr-card">
+                <h4>Target Users</h4>
+                <ul>
+                    <li>Mid-level professionals seeking remote/international roles</li>
+                    <li>Senior engineers exploring relocation opportunities</li>
+                    <li>Career changers pivoting to new fields</li>
+                    <li>Fresh graduates entering the job market</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── PERSONAS ─── -->
+<section id="personas">
+    <div class="container">
+        <h2>User Personas</h2>
+        <p class="section-sub">Four people, four problems, one tool.</p>
+        <div class="persona-grid">
+            <div class="persona-card">
+                <h3>Amara</h3>
+                <div class="role">Mid-level Data Analyst &middot; Lagos &middot; Wants remote EU/US roles</div>
+                <p>Spends 3+ hours daily pasting the same resume into portals. Gets ghosted on 90% of applications.</p>
+                <p class="pain"><strong>Pain:</strong> Resume fatigue, no cross-border salary data</p>
+                <div class="quote">"I want to wake up and see that my agent already applied to 10 jobs while I slept."</div>
+            </div>
+            <div class="persona-card">
+                <h3>Marcus</h3>
+                <div class="role">Senior DevOps Engineer &middot; Berlin &middot; Exploring US relocation</div>
+                <p>Knows he's underpaid but has no idea by how much. Previous automation tools got his LinkedIn flagged.</p>
+                <p class="pain"><strong>Pain:</strong> No salary visibility, risky automation tools</p>
+                <div class="quote">"I need something smart enough to apply for me without getting my accounts banned."</div>
+            </div>
+            <div class="persona-card">
+                <h3>Priya</h3>
+                <div class="role">Career Changer &middot; Mumbai &middot; Marketing &rarr; Product Management</div>
+                <p>Switching fields. No idea which of her skills transfer, which ones she needs, or what salary to expect.</p>
+                <p class="pain"><strong>Pain:</strong> Skill uncertainty, unknown salary expectations</p>
+                <div class="quote">"I need something that gets where I am and where I'm trying to go."</div>
+            </div>
+            <div class="persona-card">
+                <h3>David</h3>
+                <div class="role">Fresh Graduate &middot; Toronto &middot; First job search</div>
+                <p>Doesn't have a resume. Doesn't know what roles fit his CS degree. Drowning in job boards.</p>
+                <p class="pain"><strong>Pain:</strong> No resume, overwhelmed by choice</p>
+                <div class="quote">"Can this thing just tell me what to apply for and do it?"</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── USER JOURNEY ─── -->
+<section id="journey">
+    <div class="container">
+        <h2>The User Journey</h2>
+        <p class="section-sub">From first visit to "9 jobs applied, 1 needs your tap." Click any step to expand.</p>
+
+        <details>
+            <summary><span class="step-num">0</span> Signup &amp; Onboarding</summary>
+            <div class="detail-body">
+                <p>Three ways in, nobody left behind:</p>
+                <ul>
+                    <li><strong>"I have a resume"</strong> &rarr; Upload it (Step 1)</li>
+                    <li><strong>"I don't have a resume"</strong> &rarr; The agent walks you through questions about your education, projects, and skills. Builds your first resume from the conversation.</li>
+                    <li><strong>"I just want to look around"</strong> &rarr; Jump straight to the job feed with a bare-bones profile. Fill it in before applying.</li>
+                </ul>
+                <div class="callout callout-purple">Connect your email (Gmail or Outlook, via OAuth) during signup. This powers autonomous apply and response tracking. Use your main address or set up a +jobs alias for separation.</div>
+                <div class="callout callout-blue"><strong>Platform:</strong> Mobile-first web app, built as a PWA. Works on phone, tablet, or laptop. No app store, no install.</div>
+            </div>
+        </details>
+
+        <details open>
+            <summary><span class="step-num">1</span> Upload Resume &amp; Smart Parse</summary>
+            <div class="detail-body">
+                <p>Hand it a PDF, Word doc, or even a photo of a printed resume. The AI pulls out everything:</p>
+                <ul>
+                    <li>Contact info, location, languages</li>
+                    <li>Work history with dates, titles, and accomplishments</li>
+                    <li>Skills, mapped to O*NET and ESCO taxonomies</li>
+                    <li>Education and certifications</li>
+                </ul>
+                <div class="callout callout-purple">Everything's pre-filled but editable. Fields the parser isn't sure about get flagged with confidence indicators. Your profile sticks around across sessions and devices.</div>
+                <div class="callout callout-blue"><strong>Parsing stack:</strong> Claude Vision for the hard stuff (scanned pages, multi-column layouts, non-English resumes). Gemini Flash for clean text extraction.</div>
+            </div>
+        </details>
+
+        <details open>
+            <summary><span class="step-num">2</span> Know Your Worth (Location-Based Salary Calibration)</summary>
+            <div class="detail-body">
+                <p>Before applying anywhere, the agent compares the user's resume against real market data <strong>for their selected location(s)</strong>:</p>
+                <ul>
+                    <li><strong>Market arbitrage:</strong> "Your skills pull $95K remote from Lagos, $140K in Berlin, $180K in San Francisco"</li>
+                    <li><strong>Level calibration:</strong> "You qualify for Senior. You're searching Mid-level. Aim higher."</li>
+                    <li><strong>Salary range:</strong> Floor, target, and stretch numbers, broken out by user's chosen region(s)</li>
+                    <li><strong>Country opportunities:</strong> "The Netherlands has strong demand for your stack, good visa sponsorship, and pays 20% more"</li>
+                </ul>
+                <div class="callout callout-green"><strong>Location is the anchor.</strong> All salary recommendations, job matches, and market insights are filtered and calibrated to the location(s) the applicant selects. Users can add multiple target locations to compare.</div>
+                <div class="callout callout-blue"><strong>Data sources:</strong> BLS OEWS API (occupation-level wages by metro area), H-1B LCA disclosure data (company-specific salaries), salary ranges parsed from live job postings, plus LLM analysis layered on top. Every number shows its source and last-updated date.</div>
+            </div>
+        </details>
+
+        <details>
+            <summary><span class="step-num">3</span> Skill Gap Intelligence</summary>
+            <div class="detail-body">
+                <p>The agent analyzes live job postings for target roles <strong>in the user's chosen location</strong>:</p>
+                <ul>
+                    <li><strong>Must-have gaps:</strong> "85% of Senior Data Engineer roles in Berlin ask for Spark. You don't have it."</li>
+                    <li><strong>Nice-to-have gaps:</strong> "Kubernetes shows up in 40% of postings but almost never as a hard requirement."</li>
+                    <li><strong>Hidden strengths:</strong> "Only 12% of candidates in Toronto have Airflow experience. You do. Lead with that."</li>
+                    <li><strong>Upskill ROI:</strong> "Getting an AWS cert would bump your match rate by 30% and move you up ~$15K in SF. Takes ~6 weeks."</li>
+                    <li><strong>Learning paths:</strong> Specific courses, certs, and time estimates</li>
+                </ul>
+                <div class="callout callout-purple">Every recommendation comes with a dollar figure tied to the user's location: "Learning X is worth $Y more per year in [location]."</div>
+            </div>
+        </details>
+
+        <details>
+            <summary><span class="step-num">4</span> Job Discovery (All Sources, One Feed)</summary>
+            <div class="detail-body">
+                <p>Jobs from multiple sources, deduplicated into one feed:</p>
+                <ul>
+                    <li><strong>Aggregator APIs:</strong> Adzuna, JSearch, Jooble, Reed, Arbeitnow, Remotive, The Muse</li>
+                    <li><strong>Paste a URL:</strong> Found something on LinkedIn? Paste the link. The agent grabs the listing, scores it.</li>
+                    <li><strong>Company watchlist:</strong> Pick companies; the agent monitors their careers pages</li>
+                    <li>Same job on 3 boards? You see it once with all sources listed</li>
+                    <li>Every listing gets a 0-100 score with explanation + <strong>salary market context for your location</strong></li>
+                </ul>
+                <div class="callout callout-purple">"You're only looking at Data Analyst roles, but your profile is a really good fit for Analytics Engineer too. Want me to pull those in?"</div>
+            </div>
+        </details>
+
+        <details>
+            <summary><span class="step-num">5</span> Per-Job Tailored Documents</summary>
+            <div class="detail-body">
+                <p>Every application gets its own resume. Not one generic version sent to 50 companies:</p>
+                <ul>
+                    <li>Keywords pulled from the job description for ATS optimization</li>
+                    <li>Achievements reordered and reframed for the specific role</li>
+                    <li>Cover letter with a real hook about the company</li>
+                    <li>Export as <strong>PDF, DOCX, or Markdown</strong></li>
+                    <li>Tailoring notes show exactly what changed and why</li>
+                    <li><strong>Nothing gets fabricated.</strong> The agent only uses verified profile data.</li>
+                </ul>
+                <div class="callout callout-purple">Over time, the agent tracks which versions work: "Your technical-tone resumes get twice as many callbacks for backend roles."</div>
+            </div>
+        </details>
+
+        <details>
+            <summary><span class="step-num">6</span> Autonomous Apply (Works While You Sleep) <span class="tag-inline" style="background:#dbeafe;color:#1d4ed8;">V3 CORE</span></summary>
+            <div class="detail-body">
+                <p>Every matched job gets a confidence score. The agent knows which channels are safe vs. risky:</p>
+                <div class="tier-grid">
+                    <div class="tier-card auto">
+                        <h5>AUTO-APPLY</h5>
+                        <div class="score" style="color: #059669;">80-100%</div>
+                        <p>Sent automatically on safe channels</p>
+                    </div>
+                    <div class="tier-card review">
+                        <h5>REVIEW</h5>
+                        <div class="score" style="color: #d97706;">50-79%</div>
+                        <p>Docs drafted, held for user approval</p>
+                    </div>
+                    <div class="tier-card skip">
+                        <h5>SKIP</h5>
+                        <div class="score" style="color: #dc2626;">&lt;50%</div>
+                        <p>Not worth your time. Visible with reasons.</p>
+                    </div>
+                </div>
+
+                <div class="channel-grid">
+                    <div class="channel-card safe">
+                        <h5 class="safe-title">FULLY AUTONOMOUS</h5>
+                        <p><strong>Email applications:</strong> Agent writes the email, attaches tailored resume and cover letter, sends from your connected email. No platform ToS issues.</p>
+                        <p style="margin-top: 6px;"><strong>Company career pages:</strong> Submits directly through the company's own form.</p>
+                        <p style="margin-top: 6px;"><strong>Open API boards:</strong> Arbeitnow, Remotive, and others with proper submission APIs.</p>
+                    </div>
+                    <div class="channel-card caution">
+                        <h5 class="caution-title">QUEUED: One-Tap Approval</h5>
+                        <p><strong>LinkedIn, Indeed, Workday, Greenhouse:</strong> Agent builds tailored resume, fills form fields, saves as draft. You batch-approve in a few taps each morning.</p>
+                        <p style="margin-top: 6px;">Why not auto-submit? These platforms detect bots. CAPTCHAs, 2FA, ML detection. Your one tap keeps you safe.</p>
+                    </div>
+                </div>
+
+                <div class="briefing-mock">
+                    <div class="notif-header">
+                        <span style="font-size: 1.1rem;">&#9889;</span>
+                        <span class="notif-title">Your Morning Briefing</span>
+                        <span class="notif-time">Today, 7:02 AM</span>
+                    </div>
+                    <div class="notif-line"><span class="dot dot-green"></span><strong>6 email applications sent:</strong> tailored resume + cover letter each</div>
+                    <div class="notif-line"><span class="dot dot-green"></span><strong>3 career page applications sent:</strong> forms filled and submitted</div>
+                    <div class="notif-line"><span class="dot dot-yellow"></span><strong>2 LinkedIn Easy Apply queued:</strong> pre-filled, needs your tap</div>
+                    <div class="notif-line"><span class="dot dot-blue"></span><strong>1 new response:</strong> Stripe wants to set up an interview</div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary><span class="step-num">7</span> Response Tracking &amp; Pipeline</summary>
+            <div class="detail-body">
+                <ul>
+                    <li>Every application tracked: submitted &rarr; under review &rarr; interview &rarr; offer/rejected</li>
+                    <li><strong>Email monitoring via OAuth:</strong> Agent reads employer replies, classifies them (rejection, interview invite, offer), and auto-updates the pipeline</li>
+                    <li><strong>Interview detected?</strong> "You've got an interview at Stripe, Thursday 2pm. Want me to add it to your calendar? Here's a prep doc."</li>
+                    <li><strong>Ghosted for 7 days?</strong> Agent drafts a follow-up email for your review</li>
+                    <li>All employer feedback logged and analyzed across full history</li>
+                </ul>
+                <div class="callout callout-blue"><strong>How email works:</strong> Gmail API with gmail.readonly and gmail.labels scopes. Agent sets up a "Job Applications" label and only watches that label. Never touches personal inbox. Revocable anytime.</div>
+            </div>
+        </details>
+
+        <details>
+            <summary><span class="step-num">8</span> AI Career Advisor</summary>
+            <div class="detail-body">
+                <p>Not just a form filler, but a strategic advisor that improves with use:</p>
+                <ul>
+                    <li><strong>Weekly brief:</strong> "You applied to 34 jobs this week. Got 8 callbacks (24%, up from 15%). Fintech is your strongest sector. Technical-tone resumes outperform professional ones 2:1."</li>
+                    <li><strong>Pivot suggestions:</strong> "You keep getting turned down for Staff roles. Senior is a stronger fit right now. Want to adjust targets?"</li>
+                    <li><strong>Salary negotiation:</strong> "They offered $130K. For your profile in [your location], $145K is more in line. Here's a counter script with the numbers to back it up."</li>
+                    <li><strong>Interview prep:</strong> Mock interviews tailored to the role, common questions for the company, research brief</li>
+                    <li><strong>Honest assessment:</strong> "This one's a stretch. Here's what you'd need to close the gap. But also, here's a closer match you missed."</li>
+                </ul>
+                <div class="callout callout-purple">The more you use it, the better it gets. It learns which roles you skip, which companies excite you, and what feedback you're getting. Recommendations sharpen over time.</div>
+            </div>
+        </details>
+    </div>
+</section>
+
+<!-- ─── FEATURE MAP ─── -->
+<section id="features">
+    <div class="container">
+        <h2>Feature Map</h2>
+        <p class="section-sub">What's built, in progress, and planned, across 8 categories and 50+ features.</p>
+
+        <div class="legend">
+            <div class="legend-item"><span class="status-badge badge-built">BUILT</span> Fully implemented &amp; tested</div>
+            <div class="legend-item"><span class="status-badge badge-progress">IN PROGRESS</span> Partially implemented</div>
+            <div class="legend-item"><span class="status-badge badge-planned">PLANNED</span> Designed, not yet built</div>
+        </div>
+
+        <div class="feature-tree">
+            <div class="feature-group">
+                <h4>Onboarding &amp; Profile</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> Profile Wizard (manual entry)</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Resume Upload &amp; AI Parse</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Smart Autofill with Confidence</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> No-Resume Conversational Onboarding</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> O*NET / ESCO Skill Mapping</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>Job Discovery</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> Job Search &amp; Matching</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Location-Based Filtering</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Bias-Free Scoring</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Real Job Board APIs</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Company Watchlists</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> URL Paste Import</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Cross-Board Deduplication</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>Document Generation</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> Resume Generation (3 tones)</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Cover Letter Generation</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Improvement Suggestions</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> PDF/DOCX Export</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Version Tracking &amp; A/B Learning</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>Application Management</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> Application Tracking (CRUD)</li>
+                    <li><span class="status-badge badge-built">BUILT</span> 7-Status Workflow</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Analytics Dashboard</li>
+                    <li><span class="status-badge badge-built">BUILT</span> AI-Generated Insights</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Feedback Analysis</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Autonomous Apply (Channel-Aware)</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Email Integration (OAuth)</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Morning Briefing</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>Market Intelligence</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> Regional Market Analysis</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Culturally-Aware Tips</li>
+                    <li><span class="status-badge badge-progress">IN PROGRESS</span> Location-Based Salary Calibration</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Skill Gap Analysis with $ ROI</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Level Calibration</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Country/Region Arbitrage</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>Career Advisor</h4>
+                <ul>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Weekly Performance Brief</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Pivot Suggestions</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Salary Negotiation Scripts</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Interview Prep &amp; Mock Interviews</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Upskill Recommendations</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>Privacy &amp; Security</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> AES-256-GCM Encryption</li>
+                    <li><span class="status-badge badge-built">BUILT</span> PII Scrubbing</li>
+                    <li><span class="status-badge badge-built">BUILT</span> LLM Sanitization</li>
+                    <li><span class="status-badge badge-built">BUILT</span> Protected Attribute Guards</li>
+                </ul>
+            </div>
+            <div class="feature-group">
+                <h4>User Interface</h4>
+                <ul>
+                    <li><span class="status-badge badge-built">BUILT</span> Rich CLI</li>
+                    <li><span class="status-badge badge-built">BUILT</span> FastAPI HTTP API</li>
+                    <li><span class="status-badge badge-planned">PLANNED</span> Mobile-First PWA</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── SALARY DATA STRATEGY ─── -->
+<section id="salary-data">
+    <div class="container">
+        <h2>Salary &amp; Market Data Strategy</h2>
+        <p class="section-sub">All salary recommendations are anchored to the applicant's selected location(s). Every number shows its source.</p>
+
+        <h3>Data Sources (Tiered by Feasibility)</h3>
+        <div class="ds-grid">
+            <div class="ds-card tier1">
+                <h4>BLS OEWS API</h4>
+                <p>Occupation-level median/mean wages by metro area &amp; industry. Government data, no restrictions on AI use.</p>
+                <p><strong>Coverage:</strong> All US occupations &middot; <strong>Update:</strong> Annual</p>
+                <span class="ds-tag ds-tag-free">FREE &middot; 500 queries/day</span>
+            </div>
+            <div class="ds-card tier1">
+                <h4>H-1B LCA Disclosure Data</h4>
+                <p>Company-specific salaries: employer name, job title, offered wage, worksite location. Millions of records. Especially strong for tech.</p>
+                <p><strong>Coverage:</strong> All H-1B sponsors &middot; <strong>Update:</strong> Quarterly bulk download</p>
+                <span class="ds-tag ds-tag-free">FREE &middot; DOL bulk download</span>
+            </div>
+            <div class="ds-card tier1">
+                <h4>Job Posting Salary Ranges</h4>
+                <p>Parsed from job listings the agent already pulls. Pay transparency laws (NY, CA, CO, WA) mean more postings include ranges.</p>
+                <p><strong>Coverage:</strong> Growing with legislation &middot; <strong>Update:</strong> Real-time</p>
+                <span class="ds-tag ds-tag-free">FREE &middot; extracted from job feeds</span>
+            </div>
+            <div class="ds-card tier2">
+                <h4>Levels.fyi API</h4>
+                <p>Best tech compensation data (base + stock + bonus by company/level). Explicitly supports AI agents and offers structured data for LLMs.</p>
+                <p><strong>Coverage:</strong> Tech roles &middot; <strong>Access:</strong> Contact sales</p>
+                <span class="ds-tag ds-tag-paid">ENTERPRISE &middot; pricing on request</span>
+            </div>
+            <div class="ds-card tier2">
+                <h4>Salary.com DaaS API</h4>
+                <p>HR-reported compensation data with AI integration documentation. OAuth 2.0 REST API.</p>
+                <p><strong>Coverage:</strong> All industries &middot; <strong>Access:</strong> partnerships@salary.com</p>
+                <span class="ds-tag ds-tag-paid">ENTERPRISE &middot; pricing on request</span>
+            </div>
+            <div class="ds-card tier2">
+                <h4>Lightcast API</h4>
+                <p>Labor market analytics, career pathway mapping, occupation data, skill taxonomies. Formerly EMSI/Burning Glass.</p>
+                <p><strong>Coverage:</strong> Global labor market &middot; <strong>Access:</strong> Commercial license</p>
+                <span class="ds-tag ds-tag-paid">COMMERCIAL &middot; pricing on request</span>
+            </div>
+            <div class="ds-card tier3">
+                <h4>Glassdoor</h4>
+                <p>API shut down in 2021. No new partnerships since Nov 2024. No legitimate access path.</p>
+                <span class="ds-tag ds-tag-dead">NOT VIABLE</span>
+            </div>
+            <div class="ds-card tier3">
+                <h4>LinkedIn Salary</h4>
+                <p>No public salary API. Partner program takes 3-6 months. Thousands/month for enterprise access.</p>
+                <span class="ds-tag ds-tag-dead">NOT VIABLE</span>
+            </div>
+            <div class="ds-card tier3">
+                <h4>Indeed API</h4>
+                <p>Publisher Jobs API deprecated. Current APIs are employer-focused only.</p>
+                <span class="ds-tag ds-tag-dead">NOT VIABLE</span>
+            </div>
+        </div>
+
+        <h3>Salary Data Pipeline</h3>
+        <div class="pipeline">
+            <div class="pipe-stage sources">
+                <h5>DATA SOURCES</h5>
+                <ul>
+                    <li>BLS OEWS API</li>
+                    <li>Occupation &times; Metro Area</li>
+                    <li>&middot; &middot; &middot;</li>
+                    <li>H-1B LCA Data</li>
+                    <li>Employer &times; Title &times; Wage</li>
+                    <li>&middot; &middot; &middot;</li>
+                    <li>Job Posting Ranges</li>
+                    <li>Extracted from listings</li>
+                </ul>
+            </div>
+            <div class="pipe-arrow">&rarr;</div>
+            <div class="pipe-stage processing">
+                <h5>PROCESSING</h5>
+                <ul>
+                    <li>Currency conversion</li>
+                    <li>SOC code mapping</li>
+                    <li>Location normalization</li>
+                    <li>Outlier filtering</li>
+                    <li>&middot; &middot; &middot;</li>
+                    <li>Stored in</li>
+                    <li><strong>SALARY_BENCHMARKS</strong></li>
+                    <li>table in database</li>
+                </ul>
+            </div>
+            <div class="pipe-arrow">&rarr;</div>
+            <div class="pipe-stage output">
+                <h5>USER-FACING OUTPUT</h5>
+                <ul>
+                    <li><strong>Salary Calibration</strong></li>
+                    <li>Floor / Target / Stretch</li>
+                    <li>per user location</li>
+                    <li>&middot; &middot; &middot;</li>
+                    <li><strong>Job Context</strong></li>
+                    <li>"This pays below market"</li>
+                    <li>&middot; &middot; &middot;</li>
+                    <li><strong>Negotiation Scripts</strong></li>
+                    <li>Counter with sourced numbers</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>Company Insights (Without Glassdoor)</h3>
+        <div class="callout callout-amber">Since Glassdoor's API is shut down, company review/culture data comes from: <strong>LLM knowledge</strong> (Claude/Gemini trained on extensive company data), <strong>public data</strong> (Crunchbase funding, GitHub tech stack, press/news), <strong>user-contributed feedback</strong> (the platform builds its own dataset over time), and <strong>Lightcast</strong> (company profiles and labor market analytics, if budget allows).</div>
+    </div>
+</section>
+
+<!-- ─── MULTI-AGENT ARCHITECTURE ─── -->
+<section id="agents">
+    <div class="container">
+        <h2>Multi-Agent Architecture</h2>
+        <p class="section-sub">Ten specialized agents, each running on the optimal model through OpenRouter for cost efficiency.</p>
+
+        <div class="agent-grid">
+            <div class="agent-card">
+                <div class="icon">&#128270;</div>
+                <h4>Scout</h4>
+                <p>Job APIs, dedup, URL parsing, career page monitoring</p>
+                <span class="model-tag model-gemini">Gemini Flash</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#127919;</div>
+                <h4>Match</h4>
+                <p>Scores jobs against profile with confidence numbers</p>
+                <span class="model-tag model-gemini">Gemini Pro</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128196;</div>
+                <h4>Writer</h4>
+                <p>Resumes, cover letters. No fabrication. Tracks what converts.</p>
+                <span class="model-tag model-claude">Claude Sonnet</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128200;</div>
+                <h4>Market</h4>
+                <p>Salary data, skill demand, regional trends, arbitrage</p>
+                <span class="model-tag model-claude">Claude Sonnet</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#129302;</div>
+                <h4>Apply</h4>
+                <p>Email sending, form filling, channel-aware submission</p>
+                <span class="model-tag model-haiku">Claude Haiku</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128101;</div>
+                <h4>Advisor</h4>
+                <p>Weekly briefs, negotiation scripts, pivot suggestions</p>
+                <span class="model-tag model-claude">Claude Sonnet</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128274;</div>
+                <h4>Privacy</h4>
+                <p>Encryption, PII scrubbing, OAuth token management</p>
+                <span class="model-tag model-haiku">Claude Haiku</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128202;</div>
+                <h4>Analytics</h4>
+                <p>Outcome tracking, conversion patterns, learning loop</p>
+                <span class="model-tag model-gemini">Gemini Pro</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128231;</div>
+                <h4>Inbox</h4>
+                <p>Email monitoring via OAuth, reply classification</p>
+                <span class="model-tag model-gemini">Gemini Flash</span>
+            </div>
+            <div class="agent-card">
+                <div class="icon">&#128221;</div>
+                <h4>Parser</h4>
+                <p>Resume parsing (PDF/Word/photo), structured extraction</p>
+                <span class="model-tag model-claude">Claude Sonnet</span>
+            </div>
+        </div>
+        <div class="callout callout-blue" style="margin-top: 16px;"><strong>Why this matters for cost:</strong> Gemini Flash takes ~70% of all API calls at near-zero cost. Claude Sonnet handles the ~25% where quality matters (writing, strategy). Opus fires only for edge cases (~5%). Blended cost: <strong>$1.50-3/user/month</strong> instead of $5-15 on a single premium model.</div>
+    </div>
+</section>
+
+<!-- ─── USER FLOWS ─── -->
+<section id="flows">
+    <div class="container">
+        <h2>Critical User Flows</h2>
+        <p class="section-sub">Step-by-step sequences for the most important workflows.</p>
+
+        <details open>
+            <summary>Resume Upload &amp; Autofill</summary>
+            <div class="detail-body">
+                <ol class="flow-list">
+                    <li><span class="flow-num">1</span><div><span class="participant">User</span> chooses "I have a resume" and uploads PDF/DOCX/photo</div></li>
+                    <li><span class="flow-num">2</span><div><span class="participant">Parser Agent</span> detects format: clean text &rarr; Gemini Flash; scanned/complex &rarr; Claude Vision</div></li>
+                    <li><span class="flow-num">3</span><div><span class="participant">Parser Agent</span> extracts structured fields: contact, skills (O*NET mapped), work history, education</div></li>
+                    <li><span class="flow-num">4</span><div><span class="participant">App</span> presents pre-filled profile with confidence indicators on uncertain fields</div></li>
+                    <li><span class="flow-num">5</span><div><span class="participant">User</span> reviews, edits flagged fields, confirms profile</div></li>
+                    <li><span class="flow-num">6</span><div><span class="participant">Privacy Agent</span> encrypts PII (AES-256-GCM), stores profile in database</div></li>
+                    <li><span class="flow-num">7</span><div><span class="participant">App</span> prompts: "Select your target location(s)" &rarr; proceeds to salary calibration</div></li>
+                </ol>
+            </div>
+        </details>
+
+        <details>
+            <summary>Location-Based Salary Calibration</summary>
+            <div class="detail-body">
+                <ol class="flow-list">
+                    <li><span class="flow-num">1</span><div><span class="participant">User</span> selects target locations (e.g., Berlin, Remote US, San Francisco)</div></li>
+                    <li><span class="flow-num">2</span><div><span class="participant">Market Agent</span> queries BLS OEWS API for occupation wages in each metro area</div></li>
+                    <li><span class="flow-num">3</span><div><span class="participant">Market Agent</span> queries H-1B LCA data for company-specific salaries in those locations</div></li>
+                    <li><span class="flow-num">4</span><div><span class="participant">Market Agent</span> checks cached job posting salary ranges for the user's target roles</div></li>
+                    <li><span class="flow-num">5</span><div><span class="participant">Claude Sonnet</span> synthesizes all data sources into salary ranges (floor/target/stretch) per location</div></li>
+                    <li><span class="flow-num">6</span><div><span class="participant">App</span> displays: "Berlin: &euro;75K-&euro;95K &middot; SF: $160K-$195K &middot; Remote US: $130K-$165K"</div></li>
+                    <li><span class="flow-num">7</span><div><span class="participant">App</span> shows level recommendation + arbitrage opportunities with source attribution</div></li>
+                </ol>
+            </div>
+        </details>
+
+        <details>
+            <summary>Job Search with Salary Context</summary>
+            <div class="detail-body">
+                <ol class="flow-list">
+                    <li><span class="flow-num">1</span><div><span class="participant">User</span> selects "Job Search" &rarr; confirms location, remote pref, max results</div></li>
+                    <li><span class="flow-num">2</span><div><span class="participant">Scout Agent</span> queries job board APIs filtered by user's location(s)</div></li>
+                    <li><span class="flow-num">3</span><div><span class="participant">Match Agent</span> scores each job (bias-free, location-weighted) with 0-100 match score</div></li>
+                    <li><span class="flow-num">4</span><div><span class="participant">Market Agent</span> adds salary context: "This job pays $120K. Market range for your level in SF: $140K-$170K."</div></li>
+                    <li><span class="flow-num">5</span><div><span class="participant">App</span> displays ranked results with match scores, salary comparison, and "above/below market" labels</div></li>
+                </ol>
+            </div>
+        </details>
+
+        <details>
+            <summary>Autonomous Apply &amp; Morning Briefing</summary>
+            <div class="detail-body">
+                <ol class="flow-list">
+                    <li><span class="flow-num">1</span><div><span class="participant">Apply Agent</span> evaluates queued jobs overnight (confidence scoring per channel)</div></li>
+                    <li><span class="flow-num">2</span><div>80-100% + safe channel &rarr; <span class="participant">Writer Agent</span> generates docs &rarr; <span class="participant">Apply Agent</span> submits</div></li>
+                    <li><span class="flow-num">3</span><div>80-100% + risky channel &rarr; pre-filled and saved as draft for one-tap approval</div></li>
+                    <li><span class="flow-num">4</span><div>50-79% &rarr; docs drafted, placed in review bucket</div></li>
+                    <li><span class="flow-num">5</span><div><span class="participant">Inbox Agent</span> checks email for overnight responses, classifies each (rejection/interview/offer)</div></li>
+                    <li><span class="flow-num">6</span><div><span class="participant">App</span> pushes morning briefing: "6 sent, 2 queued, 1 interview invite from Stripe"</div></li>
+                    <li><span class="flow-num">7</span><div><span class="participant">User</span> batch-approves queued items in a few taps</div></li>
+                </ol>
+            </div>
+        </details>
+
+        <details>
+            <summary>Career Advisor &amp; Negotiation</summary>
+            <div class="detail-body">
+                <ol class="flow-list">
+                    <li><span class="flow-num">1</span><div><span class="participant">Analytics Agent</span> computes weekly metrics: callback rates, best sectors, best resume tones</div></li>
+                    <li><span class="flow-num">2</span><div><span class="participant">Advisor Agent</span> generates weekly brief with actionable insights and pivot suggestions</div></li>
+                    <li><span class="flow-num">3</span><div><span class="participant">User</span> reports offer: "I got $130K from Stripe"</div></li>
+                    <li><span class="flow-num">4</span><div><span class="participant">Advisor Agent</span> compares offer against SALARY_BENCHMARKS for user's location</div></li>
+                    <li><span class="flow-num">5</span><div><span class="participant">App</span> presents: "Market says $145K for your profile in SF. Here's your counter script with sourced data."</div></li>
+                </ol>
+            </div>
+        </details>
+    </div>
+</section>
+
+<!-- ─── DATA MODEL ─── -->
+<section id="data-model">
+    <div class="container">
+        <h2>Data Model</h2>
+        <p class="section-sub">Six core entities. New fields marked with <span class="erd-new">NEW</span>.</p>
+
+        <div class="erd-grid">
+            <div class="erd-entity">
+                <h4>USER_PROFILES</h4>
+                <ul>
+                    <li><span class="field-name">id</span> <span class="field-type">int <span class="erd-key">PK</span></span></li>
+                    <li><span class="field-name">name_enc</span> <span class="field-type">string (encrypted)</span></li>
+                    <li><span class="field-name">email_enc</span> <span class="field-type">string (encrypted)</span></li>
+                    <li><span class="field-name">phone_enc</span> <span class="field-type">string (encrypted)</span></li>
+                    <li><span class="field-name">location</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">target_locations</span> <span class="field-type">json <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">skills</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">experience_level</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">years_of_experience</span> <span class="field-type">int</span></li>
+                    <li><span class="field-name">desired_roles</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">desired_job_types</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">salary_range</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">languages</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">certifications</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">education</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">work_history</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">resume_raw_path</span> <span class="field-type">string <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">parse_confidence</span> <span class="field-type">float <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">created_at</span> <span class="field-type">datetime</span></li>
+                </ul>
+            </div>
+            <div class="erd-entity">
+                <h4>JOB_LISTINGS</h4>
+                <ul>
+                    <li><span class="field-name">id</span> <span class="field-type">int <span class="erd-key">PK</span></span></li>
+                    <li><span class="field-name">title</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">company</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">location</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">remote_allowed</span> <span class="field-type">boolean</span></li>
+                    <li><span class="field-name">job_type</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">experience_level</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">description</span> <span class="field-type">text</span></li>
+                    <li><span class="field-name">requirements</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">salary</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">salary_market_context</span> <span class="field-type">json <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">source_platform</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">source_url</span> <span class="field-type">string <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">industry</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">match_score</span> <span class="field-type">float</span></li>
+                    <li><span class="field-name">match_rationale</span> <span class="field-type">text</span></li>
+                    <li><span class="field-name">dedup_hash</span> <span class="field-type">string <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">scraped_at</span> <span class="field-type">datetime</span></li>
+                </ul>
+            </div>
+            <div class="erd-entity">
+                <h4>APPLICATION_RECORDS</h4>
+                <ul>
+                    <li><span class="field-name">id</span> <span class="field-type">int <span class="erd-key">PK</span></span></li>
+                    <li><span class="field-name">user_id</span> <span class="field-type">int <span class="erd-key">FK</span></span></li>
+                    <li><span class="field-name">job_id</span> <span class="field-type">int <span class="erd-key">FK</span></span></li>
+                    <li><span class="field-name">status</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">apply_channel</span> <span class="field-type">string <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">confidence_tier</span> <span class="field-type">string <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">submitted_at</span> <span class="field-type">datetime</span></li>
+                    <li><span class="field-name">last_updated</span> <span class="field-type">datetime</span></li>
+                    <li><span class="field-name">employer_feedback</span> <span class="field-type">text</span></li>
+                    <li><span class="field-name">interview_dates</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">notes</span> <span class="field-type">text</span></li>
+                    <li><span class="field-name">resume_version_id</span> <span class="field-type">int <span class="erd-key">FK</span> <span class="erd-new">NEW</span></span></li>
+                </ul>
+            </div>
+            <div class="erd-entity">
+                <h4>MARKET_INSIGHTS</h4>
+                <ul>
+                    <li><span class="field-name">id</span> <span class="field-type">int <span class="erd-key">PK</span></span></li>
+                    <li><span class="field-name">region</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">industry</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">top_skills_in_demand</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">avg_salary_usd</span> <span class="field-type">float</span></li>
+                    <li><span class="field-name">job_growth_pct</span> <span class="field-type">float</span></li>
+                    <li><span class="field-name">competition_level</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">cultural_notes</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">trending_roles</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">salary_sources</span> <span class="field-type">json <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">generated_at</span> <span class="field-type">datetime</span></li>
+                </ul>
+            </div>
+            <div class="erd-entity">
+                <h4>GENERATED_DOCUMENTS</h4>
+                <ul>
+                    <li><span class="field-name">id</span> <span class="field-type">int <span class="erd-key">PK</span></span></li>
+                    <li><span class="field-name">user_id</span> <span class="field-type">int <span class="erd-key">FK</span></span></li>
+                    <li><span class="field-name">job_id</span> <span class="field-type">int <span class="erd-key">FK</span></span></li>
+                    <li><span class="field-name">doc_type</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">tone</span> <span class="field-type">string <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">content</span> <span class="field-type">text</span></li>
+                    <li><span class="field-name">tailoring_notes</span> <span class="field-type">json</span></li>
+                    <li><span class="field-name">callback_rate</span> <span class="field-type">float <span class="erd-new">NEW</span></span></li>
+                    <li><span class="field-name">created_at</span> <span class="field-type">datetime</span></li>
+                </ul>
+            </div>
+            <div class="erd-entity new-entity">
+                <h4>SALARY_BENCHMARKS (NEW)</h4>
+                <ul>
+                    <li><span class="field-name">id</span> <span class="field-type">int <span class="erd-key">PK</span></span></li>
+                    <li><span class="field-name">occupation_code</span> <span class="field-type">string (SOC)</span></li>
+                    <li><span class="field-name">location</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">median_salary</span> <span class="field-type">float</span></li>
+                    <li><span class="field-name">p25_salary</span> <span class="field-type">float</span></li>
+                    <li><span class="field-name">p75_salary</span> <span class="field-type">float</span></li>
+                    <li><span class="field-name">source</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">currency</span> <span class="field-type">string</span></li>
+                    <li><span class="field-name">last_updated</span> <span class="field-type">datetime</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rel-list">
+            <h4>Relationships</h4>
+            <ul>
+                <li><strong>USER_PROFILES</strong> &rarr; <strong>APPLICATION_RECORDS</strong>: One user submits many applications (1:N)</li>
+                <li><strong>JOB_LISTINGS</strong> &rarr; <strong>APPLICATION_RECORDS</strong>: One job receives many applications (1:N)</li>
+                <li><strong>USER_PROFILES</strong> &rarr; <strong>GENERATED_DOCUMENTS</strong>: One user generates many documents (1:N)</li>
+                <li><strong>JOB_LISTINGS</strong> &rarr; <strong>GENERATED_DOCUMENTS</strong>: Each document tailored for a specific job (1:N)</li>
+                <li><strong>APPLICATION_RECORDS</strong> &rarr; <strong>GENERATED_DOCUMENTS</strong>: Tracks which resume version was used (for A/B learning)</li>
+                <li><strong>SALARY_BENCHMARKS</strong> &rarr; <strong>MARKET_INSIGHTS</strong>: Benchmark data feeds into market analysis</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ─── NON-FUNCTIONAL REQUIREMENTS ─── -->
+<section id="nfr">
+    <div class="container">
+        <h2>Non-Functional Requirements</h2>
+        <p class="section-sub">Performance, security, scalability, and reliability targets.</p>
+
+        <details open>
+            <summary>Performance Targets</summary>
+            <div class="detail-body">
+                <table class="perf-table">
+                    <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+                    <tbody>
+                        <tr><td>Resume parsing (PDF/DOCX)</td><td class="target-val">&lt; 8s</td></tr>
+                        <tr><td>Resume parsing (image/scan via Claude Vision)</td><td class="target-val">&lt; 15s</td></tr>
+                        <tr><td>Job search response time</td><td class="target-val">&lt; 10s (including LLM scoring)</td></tr>
+                        <tr><td>Salary calibration</td><td class="target-val">&lt; 5s (cached BLS/H-1B data)</td></tr>
+                        <tr><td>Document generation</td><td class="target-val">&lt; 15s per resume/cover letter</td></tr>
+                        <tr><td>Analytics computation</td><td class="target-val">&lt; 2s for 1,000 applications</td></tr>
+                        <tr><td>API health check</td><td class="target-val">&lt; 100ms</td></tr>
+                        <tr><td>Chat endpoint (with LLM)</td><td class="target-val">&lt; 30s</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+        <div class="nfr-grid" style="margin-top: 16px;">
+            <div class="nfr-card">
+                <h4>Security</h4>
+                <ul>
+                    <li><strong>Encryption at rest:</strong> AES-256-GCM for all PII fields</li>
+                    <li><strong>Key derivation:</strong> PBKDF2-HMAC-SHA256, 390K iterations</li>
+                    <li><strong>LLM data isolation:</strong> Only sanitized fields sent to LLM</li>
+                    <li><strong>Bias mitigation:</strong> Protected attributes stripped before scoring</li>
+                    <li><strong>OAuth scopes:</strong> Gmail/Outlook with minimal readonly + labels</li>
+                    <li><strong>Resume storage:</strong> Encrypted at rest, deleted after parsing unless user opts to keep</li>
+                    <li><strong>API security:</strong> CORS, session isolation, structured errors</li>
+                </ul>
+            </div>
+            <div class="nfr-card">
+                <h4>Scalability</h4>
+                <ul>
+                    <li><strong>Phase 1:</strong> Single-user SQLite, in-memory sessions</li>
+                    <li><strong>Phase 2:</strong> PostgreSQL via Alembic, connection pooling, async DB</li>
+                    <li><strong>Phase 3:</strong> Multi-tenant auth, rate limiting, Redis sessions</li>
+                </ul>
+            </div>
+            <div class="nfr-card">
+                <h4>Reliability</h4>
+                <ul>
+                    <li>Health check endpoint always available</li>
+                    <li>Graceful error handling via <code>AppError</code> classes</li>
+                    <li><code>with_retry</code> decorator for external service calls</li>
+                    <li>Structured error format: <code>{ error: { code, message } }</code></li>
+                    <li>Salary data fallback chain: BLS &rarr; H-1B &rarr; job postings &rarr; LLM estimates (always labeled)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── RISK REGISTER ─── -->
+<section id="risks">
+    <div class="container">
+        <h2>Risk Register</h2>
+        <p class="section-sub">What could go wrong, how bad it would be, and how we handle it.</p>
+        <div class="risk-grid">
+            <div class="risk-card critical">
+                <div class="severity sev-critical">CRITICAL</div>
+                <h4>Platform Account Bans</h4>
+                <p>Automating LinkedIn/Indeed submissions gets users permanently banned. 461+ tools blacklisted.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> Only auto-submit through safe channels. LinkedIn/Indeed apps queued for user's own tap. Zero ban risk by design.</div>
+            </div>
+            <div class="risk-card critical">
+                <div class="severity sev-critical">CRITICAL</div>
+                <h4>Legal Liability (ToS / Scraping)</h4>
+                <p>hiQ v. LinkedIn ended with $500K judgment and forced data destruction.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> All job data from legitimate APIs or single-URL parsing user initiates. No scraping.</div>
+            </div>
+            <div class="risk-card high">
+                <div class="severity sev-high">HIGH</div>
+                <h4>AI Hallucinating Credentials</h4>
+                <p>36% of hiring managers reject AI-generated applications. Invented credentials destroy interviews.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> Writer agent only uses verified profile data. Every doc shows a diff. Hard guardrails in system prompts.</div>
+            </div>
+            <div class="risk-card high">
+                <div class="severity sev-high">HIGH</div>
+                <h4>Stale Salary Data</h4>
+                <p>If the AI guesses at salaries, users ask for too much or too little.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> Multi-source strategy (BLS + H-1B + job postings). Every number shows source and last-updated date. Monthly refresh.</div>
+            </div>
+            <div class="risk-card high">
+                <div class="severity sev-high">HIGH</div>
+                <h4>Aggregator APIs Deprecate</h4>
+                <p>Indeed already killed their API. Any aggregator could do the same.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> Pull from multiple sources; never depend on one. User-pasted URLs work as fallback.</div>
+            </div>
+            <div class="risk-card medium">
+                <div class="severity sev-medium">MEDIUM</div>
+                <h4>Email OAuth Verification Delay</h4>
+                <p>Google's OAuth review takes 4-6 weeks. Blocks autonomous apply if not started early.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> Start verification early. Use minimal scopes. Tool works without email; users update statuses manually.</div>
+            </div>
+            <div class="risk-card medium">
+                <div class="severity sev-medium">MEDIUM</div>
+                <h4>User Churn After Placement</h4>
+                <p>Most searches take 3-6 months. Users cancel after landing a job.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> "Career growth mode" with salary benchmarking, skill tracking, passive monitoring. Annual pricing + referral program.</div>
+            </div>
+            <div class="risk-card medium">
+                <div class="severity sev-medium">MEDIUM</div>
+                <h4>GDPR / Privacy Regulations</h4>
+                <p>Resumes are personal data. EU can fine up to 4% of revenue.</p>
+                <div class="mitigation"><strong>Mitigation:</strong> AES-256-GCM encryption. Self-hosted option. EU data residency. One-click deletion. Full DSAR compliance.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── MILESTONES ─── -->
+<section id="milestones">
+    <div class="container">
+        <h2>Milestones</h2>
+        <p class="section-sub">Three-phase roadmap from core agent to autonomous career strategist.</p>
+
+        <div class="milestone complete">
+            <h4>Phase 1: Core Agent</h4>
+            <p class="goal">Working agentic job search assistant with privacy-first design</p>
+            <ul>
+                <li>Agentic loop with Claude tool-use orchestration</li>
+                <li>User profile creation with encrypted PII storage</li>
+                <li>Job search with LLM-based bias-free scoring</li>
+                <li>Resume generation (3 tones) with tailoring notes</li>
+                <li>Cover letter generation with regional awareness</li>
+                <li>Application tracking (CRUD + 7-status workflow)</li>
+                <li>Analytics dashboard (response/interview/offer rates)</li>
+                <li>AI-generated insights from application metrics</li>
+                <li>Employer feedback pattern analysis</li>
+                <li>Market intelligence (regional analysis + tips)</li>
+                <li>Rich CLI with profile wizard and menu</li>
+                <li>FastAPI HTTP API (health, chat, sessions)</li>
+                <li>AES-256-GCM encryption, PII scrubbing, bias guards</li>
+                <li>Unit tests (models, analytics, privacy)</li>
+                <li>GitHub Actions CI/CD pipeline</li>
+                <li>Render deployment configuration</li>
+            </ul>
+        </div>
+
+        <div class="milestone upcoming">
+            <h4>Phase 2: Smart Onboarding &amp; Live Data</h4>
+            <p class="goal">Resume parsing, real salary data, and live job feeds</p>
+            <ul>
+                <li>Resume upload &amp; AI parse (PDF, DOCX, image)</li>
+                <li>Smart autofill with confidence indicators</li>
+                <li>No-resume conversational onboarding</li>
+                <li>O*NET / ESCO skill taxonomy mapping</li>
+                <li>Location-based salary calibration (BLS + H-1B)</li>
+                <li>Job posting salary range extraction</li>
+                <li>SALARY_BENCHMARKS table and pipeline</li>
+                <li>Real job board APIs (Adzuna, JSearch, Remotive)</li>
+                <li>Paste-a-URL job import</li>
+                <li>Cross-board deduplication</li>
+                <li>Company watchlist</li>
+                <li>Skill gap analysis with per-location $ ROI</li>
+                <li>Level calibration</li>
+                <li>PDF/DOCX document export</li>
+                <li>PostgreSQL migration with Alembic</li>
+                <li>Enhanced test coverage</li>
+            </ul>
+        </div>
+
+        <div class="milestone upcoming">
+            <h4>Phase 3: Autonomous Operations &amp; Career Advisor</h4>
+            <p class="goal">The agent works while you sleep and becomes your career strategist</p>
+            <ul>
+                <li>Channel-aware autonomous apply (auto/review/skip)</li>
+                <li>OAuth email integration (Gmail/Outlook)</li>
+                <li>Auto-classification of employer replies</li>
+                <li>Morning briefing notification</li>
+                <li>Auto follow-up drafts (7-day ghost detection)</li>
+                <li>Document version tracking &amp; A/B learning</li>
+                <li>AI Career Advisor: weekly performance briefs</li>
+                <li>Pivot suggestions from rejection patterns</li>
+                <li>Salary negotiation scripts with sourced data</li>
+                <li>Interview prep &amp; mock interviews</li>
+                <li>Country/region salary arbitrage</li>
+                <li>Mobile-first PWA web application</li>
+                <li>Multi-tenant user authentication</li>
+                <li>Push notifications</li>
+                <li>Rate limiting and Redis session store</li>
+                <li>Levels.fyi / Lightcast API (if budget allows)</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ─── PRICING ─── -->
+<section id="pricing">
+    <div class="container">
+        <h2>Pricing</h2>
+        <p class="section-sub">Open-source core so people can trust it. Paid tiers for the autonomous engine and career strategy features.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Free / Open Source</h3>
+                <div class="price">$0</div>
+                <ul>
+                    <li>Self-hosted, local data</li>
+                    <li>Resume parsing + profile builder</li>
+                    <li>Application tracker (manual)</li>
+                    <li>Basic analytics</li>
+                    <li>Privacy encryption</li>
+                    <li>5 AI resume tailors/month</li>
+                    <li>Community support</li>
+                </ul>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$24<span>/mo</span></div>
+                <ul>
+                    <li>Everything in Free</li>
+                    <li>Mobile-first web app</li>
+                    <li>Multi-source job feed</li>
+                    <li>Unlimited AI tailoring</li>
+                    <li>Autonomous apply (safe channels)</li>
+                    <li>Morning briefing</li>
+                    <li>Market salary insights</li>
+                    <li>Skill gap analysis</li>
+                    <li>PDF/DOCX export</li>
+                    <li>Email response tracking</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <h3>Career Engine</h3>
+                <div class="price">$49<span>/mo</span></div>
+                <ul>
+                    <li>Everything in Pro</li>
+                    <li>Outcome learning loop</li>
+                    <li>AI career advisor (weekly briefs)</li>
+                    <li>Salary negotiation scripts</li>
+                    <li>Country arbitrage analysis</li>
+                    <li>Interview prep + mock interviews</li>
+                    <li>Calendar integration</li>
+                    <li>Company watchlist</li>
+                    <li>Automated follow-ups</li>
+                    <li>Priority support</li>
+                </ul>
+            </div>
+        </div>
+        <div class="callout callout-blue" style="margin-top: 16px;"><strong>Cost model:</strong> Blended LLM cost ~$1.50-3/user/month via OpenRouter multi-model routing. Gemini Flash handles 70% of calls at near-zero cost. Claude Sonnet handles the quality-critical 25%.</div>
+    </div>
+</section>
+
+<!-- ─── TECH STACK ─── -->
+<section id="stack">
+    <div class="container">
+        <h2>Technical Stack</h2>
+        <p class="section-sub">The technologies powering AI Job Agent.</p>
+        <div class="stack-grid">
+            <div class="stack-item"><div class="stack-label">Language</div><div class="stack-value">Python 3.9+</div></div>
+            <div class="stack-item"><div class="stack-label">Web Framework</div><div class="stack-value">FastAPI 0.111+</div></div>
+            <div class="stack-item"><div class="stack-label">ORM</div><div class="stack-value">SQLAlchemy 2.0</div></div>
+            <div class="stack-item"><div class="stack-label">Database</div><div class="stack-value">SQLite &rarr; PostgreSQL</div></div>
+            <div class="stack-item"><div class="stack-label">Migrations</div><div class="stack-value">Alembic</div></div>
+            <div class="stack-item"><div class="stack-label">Validation</div><div class="stack-value">Pydantic v2</div></div>
+            <div class="stack-item"><div class="stack-label">LLM Routing</div><div class="stack-value">OpenRouter</div></div>
+            <div class="stack-item"><div class="stack-label">Resume Parsing</div><div class="stack-value">Claude Vision + Gemini Flash</div></div>
+            <div class="stack-item"><div class="stack-label">Salary Data</div><div class="stack-value">BLS + H-1B + Job Postings</div></div>
+            <div class="stack-item"><div class="stack-label">Encryption</div><div class="stack-value">AES-256-GCM</div></div>
+            <div class="stack-item"><div class="stack-label">CLI</div><div class="stack-value">Rich</div></div>
+            <div class="stack-item"><div class="stack-label">HTTP Client</div><div class="stack-value">httpx</div></div>
+            <div class="stack-item"><div class="stack-label">Testing</div><div class="stack-value">pytest + pytest-asyncio</div></div>
+            <div class="stack-item"><div class="stack-label">CI/CD</div><div class="stack-value">GitHub Actions</div></div>
+            <div class="stack-item"><div class="stack-label">Deployment</div><div class="stack-value">Render (uvicorn)</div></div>
+            <div class="stack-item"><div class="stack-label">Payments</div><div class="stack-value">Stripe (Phase 3)</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── APPENDIX: WORKFLOW ─── -->
+<section>
+    <div class="container">
+        <h2>Appendix: Application Status Workflow</h2>
+        <p class="section-sub">The 7-status lifecycle of every job application.</p>
+        <div class="workflow-container">
+            <div class="workflow">
+                <span class="wf-node draft">DRAFT</span>
+                <span class="wf-arrow">&rarr;</span>
+                <span class="wf-node submitted">SUBMITTED</span>
+                <span class="wf-arrow">&rarr;</span>
+                <span class="wf-node review">UNDER_REVIEW</span>
+                <span class="wf-arrow">&rarr;</span>
+                <div class="wf-branch">
+                    <span class="wf-node interview">INTERVIEW_SCHEDULED</span>
+                    <span class="wf-branch-label">or</span>
+                    <span class="wf-node rejected">REJECTED</span>
+                </div>
+                <span class="wf-arrow">&rarr;</span>
+                <div class="wf-branch">
+                    <span class="wf-node offer">OFFER_RECEIVED</span>
+                    <span class="wf-branch-label">or</span>
+                    <span class="wf-node rejected">REJECTED</span>
+                </div>
+            </div>
+        </div>
+        <div class="rel-list" style="margin-top: 20px;">
+            <h4>Transitions</h4>
+            <ul>
+                <li><strong>DRAFT &rarr; SUBMITTED</strong>: User submits the application</li>
+                <li><strong>SUBMITTED &rarr; UNDER_REVIEW</strong>: Employer acknowledges receipt</li>
+                <li><strong>UNDER_REVIEW &rarr; INTERVIEW_SCHEDULED</strong>: Interview invite received</li>
+                <li><strong>UNDER_REVIEW &rarr; REJECTED</strong>: Rejection at screening stage</li>
+                <li><strong>INTERVIEW_SCHEDULED &rarr; OFFER_RECEIVED</strong>: Offer extended after interview</li>
+                <li><strong>INTERVIEW_SCHEDULED &rarr; REJECTED</strong>: Post-interview rejection</li>
+                <li><strong>Any active status &rarr; WITHDRAWN</strong>: User withdraws their application</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 32px;">Appendix: Autonomous Apply Decision Tree</h3>
+        <div class="decision-tree">
+            <h4>How the agent decides what to do with each job match:</h4>
+            <div class="dt-row">
+                <span class="dt-score high">80-100%</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-channel">Email / Career Page / Open API</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-action auto">AUTO-APPLY</span>
+            </div>
+            <div class="dt-row">
+                <span class="dt-score high">80-100%</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-channel">LinkedIn / Workday / Greenhouse</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-action queued">QUEUED (one-tap)</span>
+            </div>
+            <div class="dt-row">
+                <span class="dt-score mid">50-79%</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-channel">Any channel</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-action review">REVIEW (docs drafted)</span>
+            </div>
+            <div class="dt-row">
+                <span class="dt-score low">&lt;50%</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-channel">Any channel</span>
+                <span class="dt-arrow">&rarr;</span>
+                <span class="dt-action skip">SKIP (visible with reasons)</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>AI Job Agent: Product Requirements Document v2.0 &middot; AVIEN SOLUTIONS &middot; March 2026</p>
+    <p style="margin-top: 4px;">Not a spray-and-pray bot. A career strategist that works while you don't.</p>
+</footer>
+
+<script>
+document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+    navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+});
+</script>
+
+</body>
+</html>

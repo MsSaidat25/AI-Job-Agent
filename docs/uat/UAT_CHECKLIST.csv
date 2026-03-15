@@ -1,0 +1,4 @@
+UAT_ID,Feature,Priority,Status,Tester,Date,Defect_ID,Notes
+UAT-001,Health Check,P0,NOT RUN,,,,
+UAT-002,Structured Error Response,P1,NOT RUN,,,,
+UAT-003,Graceful Shutdown,P1,NOT RUN,,,,
