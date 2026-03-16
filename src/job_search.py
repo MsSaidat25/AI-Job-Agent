@@ -10,6 +10,7 @@ Exports two interfaces:
 from __future__ import annotations
 
 import json
+import logging
 import os
 import uuid
 from typing import Any, Optional
@@ -17,7 +18,10 @@ from typing import Any, Optional
 import httpx
 from pydantic import BaseModel
 
+from config.settings import AGENT_MODEL
 from src.models import JobListing, JobType, UserProfile
+
+logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
@@ -30,8 +34,10 @@ JSEARCH_HEADERS  = {
 
 
 # ── Market insight model ──────────────────────────────────────────────────────
+# This is the LLM-response schema used by MarketIntelligenceService.
+# It differs from src.models.MarketInsight which is the persistence/ORM model.
 
-class MarketInsight(BaseModel):
+class MarketInsightLLM(BaseModel):
     region:         str
     industry:       str
     summary:        str
@@ -68,7 +74,8 @@ def _score_job(job: dict, profile: UserProfile) -> tuple[int, str]:
             reasons.append(f"Title matches '{role}'")
             break
 
-    if job.get("job_is_remote") and "remote" in (profile.desired_job_types or []):
+    desired_type_values = [jt.value if isinstance(jt, JobType) else jt for jt in (profile.desired_job_types or [])]
+    if job.get("job_is_remote") and "remote" in desired_type_values:
         score += 5
         reasons.append("Remote")
 
@@ -81,7 +88,8 @@ def _score_job(job: dict, profile: UserProfile) -> tuple[int, str]:
 
     emp = (job.get("job_employment_type") or "").lower()
     for jt in (profile.desired_job_types or []):
-        if jt.replace("_", " ") in emp:
+        jt_val = jt.value if isinstance(jt, JobType) else jt
+        if jt_val.replace("_", " ") in emp:
             score += 5
             break
 
@@ -166,6 +174,7 @@ def _jsearch_sync(query: str) -> list[dict]:
             r.raise_for_status()
             return r.json().get("data", [])
     except Exception:
+        logger.exception("JSearch sync request failed for query: %s", query)
         return []
 
 
@@ -180,6 +189,7 @@ async def _jsearch_async(query: str) -> list[dict]:
             r.raise_for_status()
             return r.json().get("data", [])
     except Exception:
+        logger.exception("JSearch async request failed for query: %s", query)
         return []
 
 
@@ -234,10 +244,10 @@ class MarketIntelligenceService:
     def __init__(self, client: Any) -> None:
         self._client = client
 
-    def get_insights(self, region: str, industry: str) -> MarketInsight:
+    def get_insights(self, region: str, industry: str) -> MarketInsightLLM:
         try:
             resp = self._client.messages.create(
-                model="", max_tokens=1024,
+                model=AGENT_MODEL, max_tokens=1024,
                 system="You are a job market analyst. Respond ONLY with valid JSON — no markdown fences.",
                 messages=[{"role": "user", "content": (
                     f"Job market report for {industry} in {region}. "
@@ -247,9 +257,9 @@ class MarketIntelligenceService:
             )
             text = next((b.text for b in resp.content if b.type == "text"), "{}")
             data = json.loads(text.strip())
-            return MarketInsight(region=region, industry=industry, **data)
+            return MarketInsightLLM(region=region, industry=industry, **data)
         except Exception as e:
-            return MarketInsight(
+            return MarketInsightLLM(
                 region=region, industry=industry,
                 summary=f"Market data for {industry} in {region} temporarily unavailable. ({e})"
             )
@@ -257,7 +267,7 @@ class MarketIntelligenceService:
     def get_application_tips(self, region: str) -> str:
         try:
             resp = self._client.messages.create(
-                model="", max_tokens=1024,
+                model=AGENT_MODEL, max_tokens=1024,
                 system="You are an expert career coach with deep global hiring knowledge.",
                 messages=[{"role": "user", "content": (
                     f"Key job application tips for applying in {region}: "
@@ -298,7 +308,7 @@ async def search_jobs_live(
         key=lambda x: x.match_score or 0, reverse=True
     )[:max_results]
 
-    raw_by_id = {j.get("job_id"): j for j in raw}
+    raw_by_id = {j["job_id"]: j for j in raw if j.get("job_id")}
     header    = f"# Job Search Results\n**Query:** {query} · **Found:** {len(listings)} roles\n\n"
     parts, job_ids, sorted_raw = [], [], []
 

@@ -35,7 +35,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import cast
 
 import anthropic
@@ -94,7 +94,7 @@ class DocumentGenerator:
             job_id=job.id,
             doc_type="resume",
             content=content,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             model_used=AGENT_MODEL,
             tailoring_notes=notes,
         )
@@ -114,7 +114,7 @@ class DocumentGenerator:
             job_id=job.id,
             doc_type="cover_letter",
             content=content,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             model_used=AGENT_MODEL,
             tailoring_notes=notes,
         )
@@ -217,9 +217,9 @@ Location: {profile.location}
 Key Skills: {", ".join(profile.skills[:10])}
 Experience: {profile.years_of_experience} years as {", ".join(profile.desired_roles[:3])}
 Notable:
-- Education: {profile.education[0].get("degree","") if profile.education else "Not specified"}
-- Recent role: {profile.work_history[0].get("title","") if profile.work_history else "Not specified"}
-  at {profile.work_history[0].get("company","") if profile.work_history else ""}
+- Education: {profile.education[0].get("degree", "") if profile.education else "Not specified"}
+- Recent role: {profile.work_history[0].get("title", "") if len(profile.work_history) > 0 else "Not specified"}
+  at {profile.work_history[0].get("company", "") if len(profile.work_history) > 0 else ""}
 
 === JOB ===
 Title: {job.title}

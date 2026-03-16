@@ -38,20 +38,19 @@ from typing import Any, Optional, cast
 
 import anthropic
 from anthropic.types import TextBlock
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from config.settings import AGENT_MODEL
 from src.models import (
     ApplicationRecord,
     ApplicationRecordORM,
     ApplicationStatus,
-    JobListingORM,
     init_db,
 )
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(timezone.utc)
 
 
 class ApplicationTracker:
@@ -120,7 +119,12 @@ class ApplicationTracker:
         return [self._orm_to_model(r) for r in rows]
 
     def get_application(self, application_id: str) -> Optional[ApplicationRecord]:
-        orm = self._session.query(ApplicationRecordORM).filter_by(id=application_id).first()
+        orm = (
+            self._session.query(ApplicationRecordORM)
+            .options(joinedload(ApplicationRecordORM.job))
+            .filter_by(id=application_id)
+            .first()
+        )
         return self._orm_to_model(orm) if orm else None
 
     # ── Analytics ──────────────────────────────────────────────────────────
@@ -168,13 +172,17 @@ class ApplicationTracker:
                 if delta >= 0:
                     reply_days.append(delta)
 
-        # Industry / platform breakdown via joined job records
+        # Industry / platform breakdown via eager-loaded job records
         industry_counter: Counter = Counter()
         platform_counter: Counter = Counter()
-        for a in apps:
-            job_orm: Optional[JobListingORM] = (
-                self._session.query(JobListingORM).filter_by(id=a.job_id).first()
-            )
+        app_orms = (
+            self._session.query(ApplicationRecordORM)
+            .options(joinedload(ApplicationRecordORM.job))
+            .filter_by(user_id=user_id)
+            .all()
+        )
+        for orm in app_orms:
+            job_orm = orm.job  # type: ignore[union-attr]
             if job_orm:
                 if job_orm.industry:  # type: ignore[truthy-bool]
                     industry_counter[job_orm.industry] += 1
@@ -265,7 +273,9 @@ Provide:
             last_updated=orm_any.last_updated,
             employer_feedback=orm_any.employer_feedback,
             interview_dates=[
-                datetime.fromisoformat(d) for d in (orm_any.interview_dates or [])
+                datetime.fromisoformat(d)
+                for d in (orm_any.interview_dates or [])
+                if isinstance(d, str)
             ],
             notes=orm_any.notes or "",
         )

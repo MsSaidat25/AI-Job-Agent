@@ -43,8 +43,9 @@ Tools exposed to the model
 from __future__ import annotations
 
 import json
+import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional, cast
 
 import anthropic
@@ -60,6 +61,8 @@ from src.models import (
     UserProfile,
     init_db,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # ── Tool schemas (JSON Schema for Claude's tool-use API) ───────────────────
@@ -257,9 +260,9 @@ class JobAgent:
 
     # ── Agentic loop ───────────────────────────────────────────────────────
 
-    def _agent_loop(self) -> str:
+    def _agent_loop(self, max_turns: int = 20) -> str:
         """Run Claude tool-use loop until a final text response is produced."""
-        while True:
+        for _turn in range(max_turns):
             response = self._client.messages.create(
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
@@ -293,7 +296,7 @@ class JobAgent:
                 # Unexpected stop reason
                 break
 
-        return "I encountered an unexpected issue. Please try again."
+        return "I reached the maximum number of processing steps. Please try a simpler request."
 
     # ── Tool dispatcher ────────────────────────────────────────────────────
 
@@ -319,8 +322,9 @@ class JobAgent:
                 return self._tool_feedback_analysis()
             else:
                 return json.dumps({"error": f"Unknown tool: {name}"})
-        except Exception as exc:
-            return json.dumps({"error": str(exc)})
+        except Exception:
+            logger.exception("Tool %s failed", name)
+            return json.dumps({"error": f"Tool '{name}' encountered an internal error."})
 
     # ── Tool implementations ───────────────────────────────────────────────
 
@@ -367,7 +371,11 @@ class JobAgent:
         tips = self._market_svc.get_application_tips(region)
         return tips
 
+    _ALLOWED_TONES = {"professional", "creative", "technical"}
+
     def _tool_generate_resume(self, job_id: str, tone: str = "professional") -> str:
+        if tone not in self._ALLOWED_TONES:
+            tone = "professional"
         job = self._job_cache.get(job_id)
         if not job:
             return json.dumps({"error": "Job not found in current session. Run search_jobs first."})
@@ -397,8 +405,8 @@ class JobAgent:
             user_id=self.profile.id,
             job_id=job_id,
             status=ApplicationStatus.SUBMITTED,
-            submitted_at=datetime.utcnow(),
-            last_updated=datetime.utcnow(),
+            submitted_at=datetime.now(timezone.utc),
+            last_updated=datetime.now(timezone.utc),
             notes=notes,
         )
         self._tracker.add_application(record)
@@ -412,6 +420,11 @@ class JobAgent:
         feedback: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> str:
+        # Validate application_id format to prevent prompt injection
+        try:
+            uuid.UUID(application_id)
+        except ValueError:
+            return json.dumps({"error": "Invalid application ID format."})
         updated = self._tracker.update_status(
             application_id,
             ApplicationStatus(new_status),

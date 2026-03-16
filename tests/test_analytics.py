@@ -1,6 +1,6 @@
 """Tests for ApplicationTracker (no Anthropic API calls needed)."""
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest
@@ -32,8 +32,8 @@ def _make_record(user_id: str, status: ApplicationStatus = ApplicationStatus.SUB
         user_id=user_id,
         job_id=str(uuid.uuid4()),
         status=status,
-        submitted_at=datetime.utcnow(),
-        last_updated=datetime.utcnow(),
+        submitted_at=datetime.now(timezone.utc),
+        last_updated=datetime.now(timezone.utc),
     )
 
 

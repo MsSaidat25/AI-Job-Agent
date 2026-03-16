@@ -11,6 +11,7 @@ avien@aviensolutions.com
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js" integrity="sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu" crossorigin="anonymous"></script>
 <script id="tailwind-config">
 tailwind.config = {
   darkMode: "class",
@@ -926,20 +927,28 @@ function toast(msg, type = 'info') {
 // ── Markdown renderer ──────────────────────────────
 function md(t) {
   if (!t) return '';
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  const html = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^# (.+)$/gm,'<h2>$1</h2>')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
     .replace(/^---+$/gm,'<hr/>')
     .replace(/^[*-] (.+)$/gm,'<div class="md-bullet"><span class="md-bullet-dot">•</span><span>$1</span></div>')
     .replace(/^(\d+)\. (.+)$/gm,'<div class="md-num"><span class="md-num-n">$1.</span><span>$2</span></div>')
     .replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br/>');
+  if (typeof DOMPurify !== 'undefined') return DOMPurify.sanitize(html);
+  // Fallback: strip all HTML tags if DOMPurify failed to load
+  const tmp = document.createElement('div'); tmp.textContent = t; return tmp.innerHTML;
 }
 
 // ── Loading / result helpers ───────────────────────
 function setLoading(id) {
   const el = document.getElementById(id); if (!el) return;
   el.className = 'response-area';
-  el.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>';
+  el.textContent = '';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;';
+  const spin = document.createElement('div'); spin.className = 'spinner';
+  wrap.appendChild(spin); wrap.appendChild(document.createTextNode('Thinking…'));
+  el.appendChild(wrap);
 }
 function setResult(id, t) {
   const el = document.getElementById(id); if (!el) return;
@@ -996,8 +1005,12 @@ function addTag(con, arr, val, inp) {
   const c = document.getElementById(con); const i = document.getElementById(inp);
   const t = document.createElement('div');
   t.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:rgba(242,204,13,0.1);color:#f2cc0d;border:1px solid rgba(242,204,13,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:500;';
-  t.innerHTML = val + '<span style="cursor:pointer;opacity:0.6;margin-left:2px;font-size:12px;">×</span>';
-  t.querySelector('span').addEventListener('click', () => { const idx = arr.indexOf(val); if (idx > -1) arr.splice(idx, 1); t.remove(); });
+  t.textContent = val;
+  const closeSpan = document.createElement('span');
+  closeSpan.style.cssText = 'cursor:pointer;opacity:0.6;margin-left:2px;font-size:12px;';
+  closeSpan.textContent = '×';
+  t.appendChild(closeSpan);
+  closeSpan.addEventListener('click', () => { const idx = arr.indexOf(val); if (idx > -1) arr.splice(idx, 1); t.remove(); });
   c.insertBefore(t, i);
 }
 
@@ -1100,9 +1113,11 @@ function updateProfileCard(p) {
       ['Currency', p.preferred_currency || 'USD'],
       ['LinkedIn', p.linkedin_url || '—'],
     ];
-    fields.innerHTML = rows.map(([l, v]) =>
+    const fieldsHtml = rows.map(([l, v]) =>
       `<div class="profile-field"><span class="profile-field-label">${l}</span><span class="profile-field-value">${v || '—'}</span></div>`
     ).join('');
+    if (typeof DOMPurify !== 'undefined') { fields.innerHTML = DOMPurify.sanitize(fieldsHtml); }
+    else { fields.textContent = rows.map(([l, v]) => l + ': ' + (v || '—')).join(' | '); }
   }
 }
 
@@ -1155,9 +1170,21 @@ async function searchJobs() {
     const d = await api('POST', '/api/jobs/search', { location_filter: document.getElementById('jobLocation').value.trim(), include_remote: document.getElementById('jobRemote').value === 'true', max_results: parseInt(document.getElementById('jobMax').value) || 10 });
     setResult('jobsResult', d.response);
     if (d.job_ids && d.job_ids.length) {
-      document.getElementById('jobIdsList').innerHTML = d.job_ids.map((id, i) =>
-        '<div class="job-id-item"><span>' + (i + 1) + '. ' + id + '</span><span class="job-id-copy" onclick="copyId(\'' + id + '\')">Copy</span></div>'
-      ).join('');
+      const listEl = document.getElementById('jobIdsList');
+      listEl.innerHTML = '';
+      d.job_ids.forEach((id, i) => {
+        const row = document.createElement('div');
+        row.className = 'job-id-item';
+        const label = document.createElement('span');
+        label.textContent = (i + 1) + '. ' + id;
+        const copy = document.createElement('span');
+        copy.className = 'job-id-copy';
+        copy.textContent = 'Copy';
+        copy.addEventListener('click', () => copyId(id));
+        row.appendChild(label);
+        row.appendChild(copy);
+        listEl.appendChild(row);
+      });
       document.getElementById('jobIdsBox').style.display = 'block';
       toast('Found ' + d.job_ids.length + ' jobs', 'success');
     }
@@ -1234,21 +1261,27 @@ function appendChatMsg(role, html) {
   const init = document.getElementById('sidebarAvatar').textContent || '?';
   const d = document.createElement('div');
   d.style.cssText = 'display:flex;gap:8px;' + (role === 'user' ? 'flex-direction:row-reverse;' : 'flex-direction:row;');
-  const avatarStyle = role === 'user'
+  const avatar = document.createElement('div');
+  avatar.style.cssText = role === 'user'
     ? 'width:28px;height:28px;border-radius:8px;background:rgba(242,204,13,0.2);display:flex;align-items:center;justify-content:center;color:#f2cc0d;font-weight:700;font-size:12px;flex-shrink:0;'
     : 'width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(141,163,153,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;';
-  const bubbleStyle = role === 'user'
+  avatar.textContent = role === 'user' ? init : '🤖';
+  const bubble = document.createElement('div');
+  bubble.style.cssText = role === 'user'
     ? 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#f2cc0d;color:#221f10;font-weight:500;'
     : 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:rgba(255,255,255,0.05);border:1px solid rgba(242,204,13,0.08);color:#cbd5e1;';
-  d.innerHTML = '<div style="' + avatarStyle + '">' + (role === 'user' ? init : '🤖') + '</div><div style="' + bubbleStyle + '">' + html + '</div>';
+  if (role === 'user') { bubble.textContent = html; } else { bubble.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : ''; }
+  d.appendChild(avatar); d.appendChild(bubble);
   w.appendChild(d); w.scrollTop = w.scrollHeight; return d;
 }
 
 async function sendChat() {
   const i = document.getElementById('chatInput'); const m = i.value.trim(); if (!m) return; i.value = '';
-  appendChatMsg('user', m.replace(/</g, '&lt;'));
-  const el = appendChatMsg('agent', '<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>');
-  try { const d = await api('POST', '/api/chat', { message: m }); el.querySelectorAll('div')[1].innerHTML = md(d.response); }
+  appendChatMsg('user', m);
+  const el = appendChatMsg('agent', '');
+  const bubbleEl = el.querySelectorAll('div')[1];
+  bubbleEl.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>';
+  try { const d = await api('POST', '/api/chat', { message: m }); bubbleEl.innerHTML = md(d.response); }
   catch (err) { el.querySelectorAll('div')[1].textContent = '⚠ ' + err.message; toast(err.message, 'error'); }
 }
 
@@ -1256,7 +1289,7 @@ async function resetChat() {
   try {
     await api('DELETE', '/api/chat/reset');
     document.getElementById('chatMessages').innerHTML = '';
-    appendChatMsg('agent', 'Conversation reset. How can I help you?');
+    appendChatMsg('agent', md('Conversation reset. How can I help you?'));
     toast('Chat reset', 'info');
   } catch (err) { toast(err.message, 'error'); }
 }
@@ -1309,54 +1342,16 @@ async function handleResumeUpload(e, context) {
   }
 
   try {
-    let parsedText = '';
-
-    if (file.type === 'application/pdf') {
-      // PDF: send as base64 document to Claude
-      const b64 = await new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result.split(',')[1]);
-        r.onerror = () => rej(new Error('Read failed'));
-        r.readAsDataURL(file);
-      });
-      if (msgEl) msgEl.textContent = 'Sending to Claude AI…';
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } },
-              { type: 'text', text: 'Extract information from this resume. Return ONLY valid JSON, no markdown fences, no explanation:\n{"name":"","email":"","phone":"","location":"","experience_level":"entry|mid|senior|lead|executive","years_of_experience":0,"skills":[],"desired_roles":[],"certifications":[],"languages":[],"linkedin_url":"","portfolio_url":""}' }
-            ]
-          }]
-        })
-      });
-      const data = await resp.json();
-      parsedText = data.content?.find(b => b.type === 'text')?.text || '';
-    } else {
-      // Text files: read directly
-      const raw = await file.text();
-      if (msgEl) msgEl.textContent = 'Analysing with Claude AI…';
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: 'Extract from this resume. Return ONLY valid JSON, no markdown:\n{"name":"","email":"","phone":"","location":"","experience_level":"entry|mid|senior|lead|executive","years_of_experience":0,"skills":[],"desired_roles":[],"certifications":[],"languages":[],"linkedin_url":"","portfolio_url":""}\n\nResume:\n' + raw.substring(0, 4000) }]
-        })
-      });
-      const data = await resp.json();
-      parsedText = data.content?.find(b => b.type === 'text')?.text || '';
-    }
-
-    // Parse JSON
-    const clean = parsedText.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    if (msgEl) msgEl.textContent = 'Sending to server…';
+    const formData = new FormData();
+    formData.append('file', file);
+    const resp = await fetch('/api/parse-resume', {
+      method: 'POST',
+      headers: sessionId ? { 'X-Session-ID': sessionId } : {},
+      body: formData
+    });
+    if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.detail || 'Parse failed'); }
+    const parsed = await resp.json();
 
     if (isSetup) {
       applyParsedResume(parsed);

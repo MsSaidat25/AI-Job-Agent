@@ -25,7 +25,7 @@ Design decisions
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
@@ -101,7 +101,7 @@ class UserProfile(BaseModel):
     portfolio_url: Optional[str] = None
     linkedin_url: Optional[str] = None
     preferred_currency: str = "USD"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("skills", "desired_roles", mode="before")
     @classmethod
@@ -146,7 +146,7 @@ class ApplicationRecord(BaseModel):
     resume_version: Optional[str] = None     # path / key
     cover_letter_version: Optional[str] = None
     submitted_at: Optional[datetime] = None
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     employer_feedback: Optional[str] = None
     interview_dates: list[datetime] = Field(default_factory=list)
     notes: str = ""
@@ -163,7 +163,7 @@ class MarketInsight(BaseModel):
     competition_level: str = "medium"        # low / medium / high
     cultural_notes: str = ""
     trending_roles: list[str] = Field(default_factory=list)
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class GeneratedDocument(BaseModel):
@@ -174,7 +174,7 @@ class GeneratedDocument(BaseModel):
     job_id: str
     doc_type: str                  # "resume" | "cover_letter"
     content: str                   # full text / markdown
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     model_used: str = ""
     tailoring_notes: str = ""      # why specific edits were made
 
@@ -206,7 +206,7 @@ class UserProfileORM(Base):
     certifications = Column(JSON)
     portfolio_url = Column(String, nullable=True)
     linkedin_url = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     applications = relationship("ApplicationRecordORM", back_populates="user")
 
@@ -249,7 +249,7 @@ class ApplicationRecordORM(Base):
     resume_version = Column(String, nullable=True)
     cover_letter_version = Column(String, nullable=True)
     submitted_at = Column(DateTime, nullable=True)
-    last_updated = Column(DateTime, default=datetime.utcnow)
+    last_updated = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     employer_feedback = Column(Text, nullable=True)
     interview_dates = Column(JSON)
     notes = Column(Text, default="")
@@ -270,7 +270,7 @@ class MarketInsightORM(Base):
     competition_level = Column(String, default="medium")
     cultural_notes = Column(Text, default="")
     trending_roles = Column(JSON)
-    last_updated = Column(DateTime, default=datetime.utcnow)
+    last_updated = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class GeneratedDocumentORM(Base):
@@ -281,7 +281,7 @@ class GeneratedDocumentORM(Base):
     job_id = Column(String, ForeignKey("job_listings.id"))
     doc_type = Column(String)
     content = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     model_used = Column(String, default="")
     tailoring_notes = Column(Text, default="")
 

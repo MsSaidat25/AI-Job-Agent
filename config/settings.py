@@ -27,6 +27,13 @@ USE_OPENROUTER: bool = bool(OPENROUTER_API_KEY)
 LLM_API_KEY: str = OPENROUTER_API_KEY if USE_OPENROUTER else ANTHROPIC_API_KEY
 LLM_BASE_URL: str | None = "https://openrouter.ai/api/v1" if USE_OPENROUTER else None
 
+if not LLM_API_KEY:
+    import warnings
+    warnings.warn(
+        "No LLM API key configured. Set ANTHROPIC_API_KEY or OPENROUTER_API_KEY.",
+        stacklevel=1,
+    )
+
 # ── Privacy ────────────────────────────────────────────────────────────────
 # When True, PII is stored encrypted at rest; key derived from user passphrase
 ENCRYPT_USER_DATA: bool = os.getenv("ENCRYPT_USER_DATA", "true").lower() == "true"
