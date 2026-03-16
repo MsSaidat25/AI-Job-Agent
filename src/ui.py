@@ -19,10 +19,8 @@ or
 from __future__ import annotations
 
 import sys
-from typing import Optional
 
 from rich import box
-from rich.columns import Columns
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -37,7 +35,6 @@ from src.models import (
     ExperienceLevel,
     JobType,
     UserProfile,
-    init_db,
 )
 
 console = Console()
@@ -190,7 +187,7 @@ def job_search_view(agent: JobAgent) -> None:
     max_results = IntPrompt.ask("Max results to display", default=10)
 
     query = (
-        f"Search for jobs"
+        "Search for jobs"
         + (f" near {location_filter}" if location_filter else " globally")
         + (" including remote" if include_remote else "")
         + f". Show top {max_results} results."

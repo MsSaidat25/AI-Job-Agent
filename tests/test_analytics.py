@@ -1,17 +1,19 @@
 """Tests for ApplicationTracker (no Anthropic API calls needed)."""
 import uuid
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from src.analytics import ApplicationTracker
-from src.models import ApplicationRecord, ApplicationStatus, init_db
+from src.models import ApplicationRecord, ApplicationStatus
 
 
 @pytest.fixture
 def tracker(tmp_path, monkeypatch):
-    monkeypatch.setattr("config.settings.DB_PATH", tmp_path / "test_analytics.db")
+    db_path = tmp_path / "test_analytics.db"
+    monkeypatch.setattr("config.settings.DB_PATH", db_path)
+    monkeypatch.setattr("src.models.DB_PATH", db_path)
     from src.models import Base, get_engine
     from sqlalchemy.orm import sessionmaker
     engine = get_engine()

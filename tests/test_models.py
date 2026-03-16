@@ -1,5 +1,8 @@
 """Tests for data models."""
-import pytest
+from typing import Any
+
+from sqlalchemy import text
+
 from src.models import (
     ApplicationRecord,
     ApplicationStatus,
@@ -8,13 +11,11 @@ from src.models import (
     JobType,
     MarketInsight,
     UserProfile,
-    init_db,
 )
-from sqlalchemy import text
 
 
-def make_profile(**kwargs) -> UserProfile:
-    defaults = dict(
+def make_profile(**kwargs: Any) -> UserProfile:
+    defaults: dict[str, Any] = dict(
         name="Jane Doe",
         email="jane@example.com",
         location="Berlin, Germany",
@@ -28,8 +29,8 @@ def make_profile(**kwargs) -> UserProfile:
     return UserProfile(**defaults)
 
 
-def make_job(**kwargs) -> JobListing:
-    defaults = dict(
+def make_job(**kwargs: Any) -> JobListing:
+    defaults: dict[str, Any] = dict(
         title="Data Engineer",
         company="DataCo",
         location="Berlin, Germany",
@@ -80,8 +81,10 @@ def test_market_insight_fields():
 
 def test_db_init_creates_tables(tmp_path, monkeypatch):
     """init_db should create tables without error in a temp dir."""
-    monkeypatch.setattr("config.settings.DB_PATH", tmp_path / "test.db")
-    from src.models import init_db, Base, get_engine
+    db_path = tmp_path / "test.db"
+    monkeypatch.setattr("config.settings.DB_PATH", db_path)
+    monkeypatch.setattr("src.models.DB_PATH", db_path)
+    from src.models import Base, get_engine
     engine = get_engine()
     Base.metadata.create_all(engine)
     with engine.connect() as conn:

@@ -36,9 +36,10 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import cast
 
 import anthropic
+from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
 from src.models import GeneratedDocument, JobListing, UserProfile
@@ -141,7 +142,7 @@ Focus on: keyword optimisation, impact quantification, relevance, and structure.
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     # ── Private helpers ────────────────────────────────────────────────────
 
@@ -152,7 +153,7 @@ Focus on: keyword optimisation, impact quantification, relevance, and structure.
             system=system,
             messages=[{"role": "user", "content": user_content}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     def _split_notes(self, raw: str) -> tuple[str, str]:
         """Separate document body from trailing ```json ... ``` tailoring notes."""

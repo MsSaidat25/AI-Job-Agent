@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Job Agent - Product Vision v3.0</title>
+    <title>AI Job Agent - User Stories &amp; Journeys</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -50,1045 +50,1143 @@
             color: #7c3aed;
             font-size: 0.9rem;
             padding-right: 12px;
-            margin-right: 4px;
             border-right: 1px solid #e5e7eb;
+            margin-right: 4px;
+            white-space: nowrap;
         }
 
-        /* Layout */
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-        section { padding: 56px 0; }
-        section + section { border-top: 1px solid #f1f5f9; }
-        h2 { font-size: 1.6rem; color: #1a1a2e; margin-bottom: 4px; }
-        .section-sub { color: #64748b; margin-bottom: 32px; font-size: 0.92rem; }
+        /* Sections */
+        section { padding: 80px 24px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
+        h2 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+        .subtitle { font-size: 1.1rem; color: #64748b; max-width: 680px; margin-bottom: 48px; }
+        .accent { color: #7c3aed; }
+        .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7c3aed;
+            background: #f3f0ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
 
         /* Hero */
         .hero {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%);
-            padding: 72px 40px 64px;
+            background: linear-gradient(135deg, #f8f6ff 0%, #eef2ff 100%);
+            padding: 100px 24px 80px;
             text-align: center;
-            color: #fff;
         }
-        .hero h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 12px; }
-        .hero .subtitle {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.85);
-            max-width: 680px;
-            margin: 0 auto;
+        .hero h1 { font-size: 2.8rem; max-width: 800px; margin: 0 auto 16px; }
+        .hero .subtitle { max-width: 600px; margin: 0 auto 32px; text-align: center; }
+        .hero-badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
-        .hero .tagline {
-            margin-top: 24px;
-            display: inline-block;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            padding: 8px 24px;
-            font-size: 0.88rem;
-            color: rgba(255,255,255,0.95);
-        }
-        .hero .version {
-            margin-top: 14px;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.78rem;
+        .hero-badge {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #475569;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 8px 18px;
+            border-radius: 24px;
         }
 
-        /* Persona cards */
+        /* Persona Cards */
         .persona-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
         }
         .persona-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-        }
-        .persona-card h3 { color: #7c3aed; font-size: 1.05rem; margin-bottom: 2px; }
-        .persona-card .role { color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px; }
-        .persona-card p { font-size: 0.88rem; color: #475569; }
-        .persona-card .quote {
-            margin-top: 12px;
-            padding-left: 12px;
-            border-left: 3px solid #7c3aed;
-            color: #6d28d9;
-            font-style: italic;
-            font-size: 0.85rem;
-        }
-
-        /* Collapsible details */
-        details {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            transition: all 0.2s;
-        }
-        details[open] {
             background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .persona-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.08);
+        }
+        .persona-card.employer {
             border-color: #c4b5fd;
-            box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06);
+            background: linear-gradient(135deg, #faf8ff, #f3f0ff);
         }
-        details summary {
-            padding: 18px 24px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #1e293b;
-            cursor: pointer;
-            list-style: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        details summary::-webkit-details-marker { display: none; }
-        details summary::before {
-            content: '\25B6';
-            font-size: 0.65rem;
-            color: #7c3aed;
-            transition: transform 0.2s;
-        }
-        details[open] summary::before { transform: rotate(90deg); }
-        details summary .step-num {
-            background: #7c3aed;
-            color: #fff;
-            font-size: 0.72rem;
-            font-weight: 700;
-            width: 24px;
-            height: 24px;
+        .persona-avatar {
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
         }
-        details summary .tag-inline {
-            margin-left: auto;
+        .persona-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .persona-role {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .persona-goal {
+            font-size: 0.9rem;
+            padding: 12px 16px;
+            background: #f0fdf4;
+            border-left: 3px solid #22c55e;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+        }
+        .persona-goal strong { color: #15803d; }
+        .persona-pain {
+            font-size: 0.9rem;
+            padding: 12px 16px;
+            background: #fef2f2;
+            border-left: 3px solid #ef4444;
+            border-radius: 0 8px 8px 0;
+        }
+        .persona-pain strong { color: #dc2626; }
+        .persona-quote {
+            font-style: italic;
+            font-size: 0.88rem;
+            color: #475569;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .persona-quote::before { content: '\201C'; font-size: 1.5rem; color: #c4b5fd; margin-right: 4px; vertical-align: -4px; }
+
+        /* Journey */
+        .journey-section { background: #f8f6ff; }
+        .journey-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+        .journey-tabs::-webkit-scrollbar { display: none; }
+        .journey-tab {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            background: #fff;
+            color: #475569;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .journey-tab:hover { border-color: #c4b5fd; color: #7c3aed; }
+        .journey-tab.active {
+            background: #7c3aed;
+            color: #fff;
+            border-color: #7c3aed;
+        }
+        .journey-panel { display: none; }
+        .journey-panel.active { display: block; }
+        .journey-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .journey-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .journey-header-text h3 { margin-bottom: 2px; }
+        .journey-header-text p { font-size: 0.85rem; color: #64748b; margin: 0; }
+        .journey-steps {
+            position: relative;
+            padding-left: 40px;
+        }
+        .journey-steps::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #c4b5fd, #e9d5ff);
+        }
+        .journey-step {
+            position: relative;
+            margin-bottom: 28px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            border: 1px solid #e5e7eb;
+        }
+        .journey-step:last-child { margin-bottom: 0; }
+        .journey-step-number {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 32px;
+            height: 32px;
+            background: #7c3aed;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 1;
+            box-shadow: 0 0 0 4px #f8f6ff;
+        }
+        .journey-step h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1a1a2e;
+        }
+        .journey-step p {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin: 0;
+        }
+        .journey-step .step-highlight {
+            margin-top: 8px;
+            font-size: 0.82rem;
+            padding: 8px 12px;
+            background: #f3f0ff;
+            border-radius: 8px;
+            color: #6d28d9;
+            font-weight: 500;
+        }
+
+        /* Pain/Solution Cards */
+        .pain-grid {
+            display: grid;
+            gap: 20px;
+        }
+        .pain-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .pain-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .pain-col {
+            padding: 24px;
+        }
+        .pain-col:first-child {
+            background: #fef2f2;
+            border-right: 1px solid #fecaca;
+        }
+        .pain-col:nth-child(2) {
+            background: #f8fafc;
+            border-right: 1px solid #e5e7eb;
+        }
+        .pain-col:last-child {
+            background: #f0fdf4;
+        }
+        .pain-col-label {
             font-size: 0.7rem;
             font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 8px;
-        }
-        details .detail-body { padding: 0 24px 20px 60px; }
-        details .detail-body p { color: #475569; font-size: 0.9rem; margin-bottom: 10px; }
-        details .detail-body ul { padding-left: 18px; margin-bottom: 12px; }
-        details .detail-body li { color: #475569; font-size: 0.88rem; margin-bottom: 4px; }
-        details .detail-body li strong { color: #1e293b; }
-
-        /* Callouts */
-        .callout { border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 0.85rem; }
-        .callout-purple { background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; }
-        .callout-blue { background: #f0f9ff; border: 1px solid #bae6fd; color: #0369a1; }
-        .callout-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-        .callout-amber { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
-
-        /* Decision grid: 2x2 compact */
-        .decision-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-        .decision-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 18px;
-        }
-        .decision-card h4 { color: #1e293b; margin-bottom: 2px; font-size: 0.88rem; }
-        .decision-card .decision {
-            color: #059669;
-            font-weight: 700;
-            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
             margin-bottom: 8px;
         }
-        .decision-card .option {
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            color: #475569;
-            margin-bottom: 4px;
-        }
-        .option.chosen { background: #f0fdf4; border: 1px solid #bbf7d0; }
-        .option.rejected {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            opacity: 0.55;
-            text-decoration: line-through;
-            text-decoration-color: #cbd5e1;
+        .pain-col:first-child .pain-col-label { color: #dc2626; }
+        .pain-col:nth-child(2) .pain-col-label { color: #64748b; }
+        .pain-col:last-child .pain-col-label { color: #16a34a; }
+        .pain-col p {
+            font-size: 0.9rem;
+            color: #334155;
         }
 
-        /* Agent grid */
-        .agent-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        .agent-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 18px;
-            text-align: center;
-        }
-        .agent-card .icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 8px;
-            color: #7c3aed;
-        }
-        .agent-card .icon svg { width: 20px; height: 20px; stroke-width: 2; }
-        .agent-card h4 { color: #7c3aed; font-size: 0.88rem; margin-bottom: 4px; }
-        .agent-card p { color: #64748b; font-size: 0.78rem; }
-        .agent-card .model-tag {
-            display: inline-block;
-            margin-top: 6px;
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 0.68rem;
-            font-weight: 600;
-        }
-        .model-gemini { background: #eff6ff; color: #3b82f6; }
-        .model-claude { background: #f5f3ff; color: #7c3aed; }
-        .model-haiku { background: #f0f9ff; color: #0891b2; }
-
-        /* Channel cards */
-        .channel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .channel-card { border-radius: 10px; padding: 16px; }
-        .channel-card.safe { background: #f0fdf4; border: 1px solid #bbf7d0; }
-        .channel-card.caution { background: #fffbeb; border: 1px solid #fde68a; }
-        .channel-card h5 { font-size: 0.85rem; margin-bottom: 6px; }
-        .channel-card h5.safe-title { color: #166534; }
-        .channel-card h5.caution-title { color: #92400e; }
-        .channel-card p { color: #475569; font-size: 0.82rem; }
-
-        /* Confidence bars */
-        .conf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-        .conf-row .bar { flex: 1; height: 6px; border-radius: 3px; background: #e2e8f0; }
-        .conf-row .fill-high { background: #10b981; width: 80%; height: 100%; border-radius: 3px; }
-        .conf-row .fill-low { background: #f59e0b; width: 55%; height: 100%; border-radius: 3px; }
-        .conf-row label { font-size: 0.75rem; color: #64748b; min-width: 90px; }
-
-        /* Morning briefing mock */
-        .briefing-mock {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 16px 20px;
-            margin-top: 14px;
-        }
-        .briefing-mock .notif-header {
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
-        }
-        .briefing-mock .notif-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #7c3aed;
-        }
-        .briefing-mock .notif-icon svg { width: 16px; height: 16px; stroke-width: 2.2; }
-        .briefing-mock .notif-title { color: #1e293b; font-weight: 600; font-size: 0.88rem; }
-        .briefing-mock .notif-time { color: #94a3b8; font-size: 0.75rem; margin-left: auto; }
-        .briefing-mock .notif-line {
-            display: flex; align-items: center; gap: 8px;
-            padding: 4px 0; font-size: 0.82rem; color: #475569;
-        }
-        .briefing-mock .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .dot-green { background: #10b981; }
-        .dot-yellow { background: #f59e0b; }
-        .dot-blue { background: #3b82f6; }
-
-        /* Moat cards */
+        /* Moat Cards */
         .moat-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
         }
         .moat-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .moat-card h4 { color: #059669; font-size: 0.92rem; margin-bottom: 6px; }
-        .moat-card p { color: #475569; font-size: 0.88rem; }
-        .moat-card .vs { margin-top: 8px; font-size: 0.78rem; color: #94a3b8; font-style: italic; }
-
-        /* Feature table */
-        .feature-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .feature-table th {
-            background: #f8fafc; color: #7c3aed; padding: 12px 14px;
-            text-align: left; border-bottom: 2px solid #e2e8f0; font-size: 0.8rem;
+        .moat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.08);
         }
-        .feature-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #475569; }
-        .feature-table tr:hover td { background: #faf5ff; }
-        .check { color: #059669; font-weight: 600; }
-        .cross { color: #cbd5e1; }
-        .partial { color: #d97706; }
-        .status-icon {
-            display: inline-flex;
+        .moat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
             align-items: center;
-            vertical-align: text-bottom;
-            margin-right: 6px;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 16px;
         }
-        .status-icon svg { width: 14px; height: 14px; stroke-width: 2.2; }
-
-        /* Risk cards */
-        .risk-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
+        .moat-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
         }
-        .risk-card { background: #fff; border-radius: 12px; padding: 20px; }
-        .risk-card.critical { border: 1px solid #fca5a5; }
-        .risk-card.high { border: 1px solid #fde68a; }
-        .risk-card.medium { border: 1px solid #bae6fd; }
-        .risk-card h4 { color: #1e293b; font-size: 0.9rem; margin-bottom: 6px; }
-        .risk-card .severity {
-            font-size: 0.7rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
-        }
-        .sev-critical { color: #dc2626; }
-        .sev-high { color: #d97706; }
-        .sev-medium { color: #0284c7; }
-        .risk-card p { color: #64748b; font-size: 0.85rem; }
-        .risk-card .mitigation {
-            margin-top: 8px; padding-left: 12px;
-            border-left: 2px solid #10b981; color: #166534; font-size: 0.82rem;
+        .moat-card p {
+            font-size: 0.88rem;
+            color: #64748b;
         }
 
-        /* Pricing */
-        .pricing-grid {
+        /* Employer Portal Vision */
+        .marketplace-visual {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0;
+            align-items: center;
+            margin-bottom: 40px;
         }
-        .pricing-card {
-            background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 12px; padding: 28px; text-align: center;
+        .marketplace-side {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 32px;
         }
-        .pricing-card.featured {
-            border-color: #7c3aed;
-            box-shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
-            background: #faf5ff;
+        .marketplace-side h3 {
+            margin-bottom: 16px;
         }
-        .pricing-card h3 { color: #1e293b; margin-bottom: 2px; font-size: 1.05rem; }
-        .pricing-card .price { font-size: 2.2rem; color: #7c3aed; font-weight: 700; margin: 10px 0; }
-        .pricing-card .price span { font-size: 0.85rem; color: #94a3b8; }
-        .pricing-card ul { list-style: none; text-align: left; margin-top: 14px; }
-        .pricing-card li {
-            padding: 5px 0; font-size: 0.85rem; color: #475569;
+        .marketplace-side ul {
+            list-style: none;
+            padding: 0;
+        }
+        .marketplace-side ul li {
+            font-size: 0.9rem;
+            padding: 8px 0;
             border-bottom: 1px solid #f1f5f9;
+            color: #475569;
         }
-        .pricing-card li::before { content: '\2713  '; color: #059669; }
-
-        /* Tags */
-        .tag {
-            display: inline-block; padding: 2px 8px; border-radius: 8px;
-            font-size: 0.7rem; font-weight: 600;
+        .marketplace-side ul li:last-child { border-bottom: none; }
+        .marketplace-side ul li::before {
+            content: '\2713';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 50%;
+            margin-right: 10px;
         }
-        .tag-auto { background: #dcfce7; color: #166534; }
-        .tag-review { background: #fef3c7; color: #92400e; }
-        .tag-skip { background: #fee2e2; color: #991b1b; }
-        .tag-v3 { background: #dbeafe; color: #1d4ed8; }
+        .marketplace-side.seeker ul li::before {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .marketplace-side.employer ul li::before {
+            background: #f3f0ff;
+            color: #7c3aed;
+        }
+        .marketplace-bridge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #7c3aed;
+        }
+        .marketplace-bridge-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .marketplace-bridge span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #7c3aed;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .employer-pricing {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .employer-pricing-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        .employer-pricing-card.featured {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 1px #7c3aed;
+        }
+        .employer-pricing-card h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .employer-pricing-card .price {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #7c3aed;
+            margin-bottom: 4px;
+        }
+        .employer-pricing-card .price-note {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .employer-pricing-card p {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
 
-        /* User story details */
-        .story-details summary { font-size: 0.88rem; }
-        .story-details .detail-body { padding-left: 56px; }
-        .story-details .as-a { color: #7c3aed; font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
-        .story-details li { font-size: 0.84rem; }
+        /* Coming Soon Badge */
+        .coming-soon-badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #d97706;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
 
-        footer { padding: 32px 0; text-align: center; border-top: 1px solid #e2e8f0; }
-        footer p { color: #94a3b8; font-size: 0.8rem; }
+        /* Section reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-        @media (max-width: 768px) {
-            .hero { padding: 48px 20px; }
-            .hero h1 { font-size: 1.8rem; }
-            section { padding: 36px 0; }
-            details .detail-body { padding-left: 24px; }
-            .story-details .detail-body { padding-left: 24px; }
-            .decision-grid { grid-template-columns: 1fr; }
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+        }
+        footer p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        footer a {
+            color: #7c3aed;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .pain-card {
+                grid-template-columns: 1fr;
+            }
+            .pain-col:first-child {
+                border-right: none;
+                border-bottom: 1px solid #fecaca;
+            }
+            .pain-col:nth-child(2) {
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .marketplace-visual {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .marketplace-bridge {
+                flex-direction: row;
+                gap: 8px;
+            }
+            .employer-pricing {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .hero h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            section { padding: 60px 16px; }
+            .persona-grid { grid-template-columns: 1fr; }
+            .moat-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
+<!-- Nav -->
 <nav>
     <div class="nav-inner">
         <span class="nav-logo">AI Job Agent</span>
         <a href="#personas">Personas</a>
-        <a href="#journey">Journey</a>
-        <a href="#decisions">Decisions</a>
-        <a href="#agents">Architecture</a>
-        <a href="#moat">Why This Wins</a>
-        <a href="#comparison">Comparison</a>
-        <a href="#risks">Risks</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#stories">User Stories</a>
+        <a href="#journeys">Journeys</a>
+        <a href="#pain-solutions">Pain &rarr; Solutions</a>
+        <a href="#moats">Why Us</a>
+        <a href="#employer-portal">Employer Portal</a>
     </div>
 </nav>
 
-<header class="hero">
-    <h1>AI Job Agent</h1>
-    <p class="subtitle">It finds jobs across boards, applies to them overnight, writes a different resume for each one, and helps you negotiate what you're actually worth.</p>
-    <div class="tagline">Not a spray-and-pray bot. A career strategist that works while you don't.</div>
-    <p class="version">v3.0 · Autonomous overnight apply · OpenRouter multi-model routing · Mobile-first web app</p>
-</header>
-
-<section id="personas">
+<!-- Hero -->
+<section class="hero">
     <div class="container">
-        <h2>Who Is This For?</h2>
-        <p class="section-sub">Four people, four problems, one tool.</p>
+        <span class="tag">User Stories &amp; Journeys</span>
+        <h1>Real people. Real frustrations. A better way to find work.</h1>
+        <p class="subtitle">
+            This document is about the humans behind the product. Who they are,
+            what hurts them, and the step-by-step experiences that make their lives easier.
+        </p>
+        <div class="hero-badges">
+            <span class="hero-badge">5 Personas</span>
+            <span class="hero-badge">5 User Journeys</span>
+            <span class="hero-badge">7 Pain Points Solved</span>
+            <span class="hero-badge">Employer + Seeker</span>
+        </div>
+    </div>
+</section>
+
+<!-- Personas -->
+<section id="personas" class="reveal">
+    <div class="container">
+        <span class="tag">Who We Serve</span>
+        <h2>Meet the people we are building for</h2>
+        <p class="subtitle">
+            Each persona represents thousands of real job seekers (and one hiring manager)
+            whose daily frustrations shaped every feature in this product.
+        </p>
+
         <div class="persona-grid">
+
+            <!-- Amara -->
             <div class="persona-card">
-                <h3>Amara</h3>
-                <div class="role">Mid-level Data Analyst · Lagos · Wants remote EU/US roles</div>
-                <p>She spends 3 hours a day pasting the same resume into different portals. Gets ghosted on 90% of them.</p>
-                <div class="quote">"I want to wake up and see that my agent already applied to 10 jobs while I slept."</div>
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">A</div>
+                <div class="persona-name">Amara, The Remote Worker</div>
+                <div class="persona-role">Mid-Level Data Analyst &middot; Lagos, Nigeria</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Land a remote EU/US role without spending 3+ hours per day on job portals.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Resume copy-paste fatigue. 90% ghost rate. No salary benchmarking for cross-border roles.
+                </div>
+                <div class="persona-quote">
+                    I spend my evenings reformatting the same resume for every single portal. Then I never hear back.
+                </div>
             </div>
+
+            <!-- Marcus -->
             <div class="persona-card">
-                <h3>Marcus</h3>
-                <div class="role">Senior DevOps · Berlin · Exploring US relocation</div>
-                <p>He knows he's underpaid but has no idea by how much. Tried LazyApply, got his LinkedIn flagged.</p>
-                <div class="quote">"I need something smart enough to apply for me without getting my accounts banned."</div>
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">M</div>
+                <div class="persona-name">Marcus, The Underpaid Senior</div>
+                <div class="persona-role">Senior DevOps Engineer &middot; Berlin, Germany</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Understand his true market value and explore US relocation opportunities.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Zero salary visibility. Previous automation tools got his LinkedIn account flagged.
+                </div>
+                <div class="persona-quote">
+                    I tried one of those auto-apply tools. Two weeks later, my LinkedIn was restricted. Never again.
+                </div>
             </div>
+
+            <!-- Priya -->
             <div class="persona-card">
-                <h3>Priya</h3>
-                <div class="role">Career Changer · Mumbai · Marketing to Product Management</div>
-                <p>Switching fields. No idea which of her skills transfer, which ones she needs to pick up, or what salary to expect.</p>
-                <div class="quote">"I need something that gets where I am and where I'm trying to go."</div>
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #ec4899, #be185d);">P</div>
+                <div class="persona-name">Priya, The Career Changer</div>
+                <div class="persona-role">Marketing Manager &rarr; Product Management</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Identify which of her skills transfer and build a plan to close the gaps.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Does not know which skills transfer. Overwhelmed by job requirements that list 20 "must-haves."
+                </div>
+                <div class="persona-quote">
+                    Every PM job listing asks for SQL, A/B testing, and roadmapping. I do not even know where to start.
+                </div>
             </div>
+
+            <!-- David -->
             <div class="persona-card">
-                <h3>David</h3>
-                <div class="role">Fresh Graduate · Toronto · First job search</div>
-                <p>Doesn't have a resume. Doesn't know what roles fit his CS degree. Drowning in job boards.</p>
-                <div class="quote">"Can this thing just tell me what to apply for and do it?"</div>
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #22c55e, #15803d);">D</div>
+                <div class="persona-name">David, The Fresh Graduate</div>
+                <div class="persona-role">CS Graduate &middot; Toronto, Canada</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Land his first tech job without insider connections or paid tools.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Caught in the "need experience to get experience" trap. Cannot afford $99/mo subscription tools.
+                </div>
+                <div class="persona-quote">
+                    I graduated four months ago. Every "entry level" posting wants 3 years of experience.
+                </div>
             </div>
+
+            <!-- Sarah (Employer) -->
+            <div class="persona-card employer">
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">S</div>
+                <div class="persona-name">Sarah, The Hiring Manager <span class="coming-soon-badge">Coming Soon</span></div>
+                <div class="persona-role">Engineering Manager &middot; Employer Portal Persona</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Find pre-qualified candidates without sifting through 500 unqualified applications.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Job boards send volume, not quality. Wants AI-matched candidates, not keyword spam.
+                </div>
+                <div class="persona-quote">
+                    I posted one role and got 487 applications. Maybe 12 were actually qualified. That is not sustainable.
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
 
-<section id="journey">
+<!-- User Journeys -->
+<section id="journeys" class="journey-section reveal">
     <div class="container">
-        <h2>The User Journey</h2>
-        <p class="section-sub">First visit to "9 jobs applied, 1 needs your tap." Click any step to expand.</p>
+        <span class="tag">Step by Step</span>
+        <h2>User Journeys</h2>
+        <p class="subtitle">
+            Walk through the product as each persona would experience it,
+            from first sign-up to daily use.
+        </p>
 
-        <details>
-            <summary><span class="step-num">0</span> Signup &amp; Onboarding</summary>
-            <div class="detail-body">
-                <p>Three ways in, nobody left behind:</p>
-                <ul>
-                    <li><strong>"I have a resume"</strong> → Upload it (Step 1)</li>
-                    <li><strong>"I don't have a resume"</strong> → The agent walks you through questions about your education, projects, and skills. Builds your first resume from the conversation.</li>
-                    <li><strong>"I just want to look around"</strong> → Jump straight to the job feed with a bare-bones profile. You'll need to fill it in before you can apply.</li>
-                </ul>
-                <div class="callout callout-purple">You connect your email (Gmail or Outlook, via OAuth) during signup. This is what powers autonomous apply and response tracking. You can use your main address or set up a +jobs alias to keep things separate.</div>
-                <div class="callout callout-blue"><strong>Platform</strong> — Mobile-first web app, built as a PWA. Works on your phone, tablet, or laptop. No app store, no install, no CLI.</div>
-            </div>
-        </details>
+        <div class="journey-tabs">
+            <button class="journey-tab active" data-journey="j1">First-Time Setup</button>
+            <button class="journey-tab" data-journey="j2">Daily Job Search</button>
+            <button class="journey-tab" data-journey="j3">Career Dreaming</button>
+            <button class="journey-tab" data-journey="j4">First Job Hunt</button>
+            <button class="journey-tab" data-journey="j5">Employer Posting</button>
+        </div>
 
-        <details>
-            <summary><span class="step-num">1</span> Upload Resume &amp; Smart Parse</summary>
-            <div class="detail-body">
-                <p>Hand it a PDF, a Word doc, or even a photo of a printed resume. The AI pulls out everything:</p>
-                <ul>
-                    <li>Contact info, location, languages</li>
-                    <li>Work history with dates, titles, and what you actually did</li>
-                    <li>Skills, mapped to O*NET and ESCO taxonomies</li>
-                    <li>Education and certifications</li>
-                </ul>
-                <div class="callout callout-purple">Everything's pre-filled but you can edit any of it. Fields the parser isn't sure about get flagged. Your profile sticks around across sessions and devices.</div>
-                <div class="callout callout-blue"><strong>Parsing</strong> — Claude Vision for the hard stuff (scanned pages, multi-column layouts, non-English resumes). Gemini Flash for clean text extraction.</div>
-            </div>
-        </details>
-
-        <details>
-            <summary><span class="step-num">2</span> Know Your Worth (Market Calibration)</summary>
-            <div class="detail-body">
-                <p>Before you start applying anywhere, the agent compares your resume against real market data and tells you what you should be targeting:</p>
-                <ul>
-                    <li><strong>Market arbitrage</strong> — "Your skills pull $95K remote from Lagos, $140K in Berlin, $180K in San Francisco"</li>
-                    <li><strong>Level calibration</strong> — "You qualify for Senior. You're searching Mid-level. Aim higher."</li>
-                    <li><strong>Salary range</strong> — Your floor, your target, and your stretch number, broken out by region</li>
-                    <li><strong>Country opportunities</strong> — "The Netherlands has strong demand for your stack, good visa sponsorship, and pays about 20% more"</li>
-                </ul>
-                <div class="callout callout-blue"><strong>Data</strong> — Levels.fyi API for tech roles, salary bands pulled from live job postings via aggregator APIs, plus Claude analysis layered on top. Every number shows its source and when it was last updated. Refreshed monthly.</div>
-            </div>
-        </details>
-
-        <details>
-            <summary><span class="step-num">3</span> Skill Gap Intelligence</summary>
-            <div class="detail-body">
-                <p>The agent looks at thousands of live job postings for your target roles and tells you exactly where you stand:</p>
-                <ul>
-                    <li><strong>Must-have gaps</strong> — "85% of Senior Data Engineer roles ask for Spark. You don't have it listed."</li>
-                    <li><strong>Nice-to-have gaps</strong> — "Kubernetes shows up in 40% of postings but almost never as a hard requirement. Don't stress about it."</li>
-                    <li><strong>Hidden strengths</strong> — "Only 12% of candidates have Airflow experience. You do. Lead with that."</li>
-                    <li><strong>Upskill ROI</strong> — "Getting an AWS cert would bump your match rate by 30% and move you up about $15K. Takes about 6 weeks."</li>
-                    <li><strong>Learning paths</strong> — Specific courses, certs, and time estimates</li>
-                </ul>
-                <div class="callout callout-purple">Every recommendation comes with a dollar figure. "Learning X is worth $Y more per year." No vague advice.</div>
-            </div>
-        </details>
-
-        <details>
-            <summary><span class="step-num">4</span> Job Discovery (All Sources, One Feed)</summary>
-            <div class="detail-body">
-                <p>Jobs from a bunch of different sources, all in one place, deduplicated:</p>
-                <ul>
-                    <li><strong>Aggregator APIs</strong> — Adzuna, JSearch, Jooble, Reed, Arbeitnow, Remotive, The Muse</li>
-                    <li><strong>Paste a URL</strong> — Found something on LinkedIn? Paste the link. The agent grabs the listing, scores it, and adds it to your feed.</li>
-                    <li><strong>Company watchlist</strong> — Pick companies you like and the agent monitors their careers pages for new openings</li>
-                    <li>If the same job appears on 3 different boards, you see it once with all three sources listed</li>
-                    <li>Every listing gets a 0-100 score with a plain-language explanation of why</li>
-                    <li>New matches show up daily via email or push notification</li>
-                </ul>
-                <div class="callout callout-purple">"You're only looking at Data Analyst roles, but your profile is a really good fit for Analytics Engineer too. Want me to pull those in?"</div>
-            </div>
-        </details>
-
-        <details>
-            <summary><span class="step-num">5</span> Per-Job Tailored Resumes &amp; Cover Letters</summary>
-            <div class="detail-body">
-                <p>Every application gets its own resume. Not one generic version sent to 50 companies:</p>
-                <ul>
-                    <li>Keywords pulled straight from the job description so it passes ATS filters</li>
-                    <li>Your achievements reordered and reframed based on what this specific role cares about</li>
-                    <li>Cover letter with a real hook about the company — their recent funding round, their tech stack, whatever's relevant</li>
-                    <li>Export as <strong>PDF, DOCX, or Markdown</strong></li>
-                    <li>Tailoring notes show you exactly what changed and why ("Pushed Python and SQL to the top, pulled Java down — this is a data pipeline role")</li>
-                    <li><strong>Nothing gets made up.</strong> The agent only uses what's in your verified profile.</li>
-                </ul>
-                <div class="callout callout-purple">Over time, the agent figures out which versions work best. "Your technical-tone resumes get twice as many callbacks for backend roles."</div>
-                <div class="callout callout-blue"><strong>Model</strong> — Claude Sonnet handles all the writing through OpenRouter. This is the part where quality really matters. Everything else runs on Gemini to keep costs low.</div>
-            </div>
-        </details>
-
-        <details open>
-            <summary>
-                <span class="step-num">6</span> Autonomous Apply (Works While You Sleep)
-                <span class="tag-inline tag-v3">V3 CORE</span>
-            </summary>
-            <div class="detail-body">
-                <p>Every matched job gets a confidence score, and the agent knows which submission channels are safe to use on its own vs. which ones need you to tap approve.</p>
-
-                <div style="margin: 14px 0;">
-                    <div class="conf-row">
-                        <label><span class="tag tag-auto">AUTO-APPLY</span></label>
-                        <div class="bar"><div class="fill-high"></div></div>
-                        <label>80-100%</label>
-                    </div>
-                    <p style="font-size: 0.82rem; color: #059669; margin: 4px 0 10px 0;">Goes out automatically on safe channels. Gets queued on risky ones for your one-tap approval.</p>
-
-                    <div class="conf-row">
-                        <label><span class="tag tag-review">REVIEW</span></label>
-                        <div class="bar"><div class="fill-low"></div></div>
-                        <label>50-79%</label>
-                    </div>
-                    <p style="font-size: 0.82rem; color: #d97706; margin: 4px 0 10px 0;">Everything's prepared but the agent holds off and asks you first. Docs are ready to go if you say yes.</p>
-
-                    <div>
-                        <span class="tag tag-skip">SKIP</span>
-                        <span style="font-size: 0.8rem; color: #94a3b8; margin-left: 8px;">Below 50%. Not worth your time. Still visible in the "Skipped" tab if you want to see why.</span>
-                    </div>
-                </div>
-
-                <div class="channel-grid">
-                    <div class="channel-card safe">
-                        <h5 class="safe-title">FULLY AUTONOMOUS</h5>
-                        <p><strong>Email applications</strong> — Lots of jobs say "send your resume to careers@company.com." The agent writes the email, attaches your tailored resume and cover letter, and sends it from your connected email. No platform involved, totally legal.</p>
-                        <p style="margin-top: 6px;"><strong>Company career pages</strong> — Submits directly through the company's own application form. No job board ToS to worry about.</p>
-                        <p style="margin-top: 6px;"><strong>Open API boards</strong> — Arbeitnow, Remotive, and others that have proper APIs for accepting applications.</p>
-                    </div>
-                    <div class="channel-card caution">
-                        <h5 class="caution-title">QUEUED — One-Tap Approval</h5>
-                        <p><strong>LinkedIn, Indeed, Workday, iCIMS, Greenhouse</strong> — The agent builds a tailored resume, fills out every form field, and saves it all as a draft. In the morning you open the app, see everything ready, and batch-approve in a few taps.</p>
-                        <p style="margin-top: 6px;">Why not just auto-submit these too? Because these platforms actively detect bots. CAPTCHAs, 2FA, ML detection. Automating them gets accounts banned. Your one tap per application keeps you safe.</p>
-                    </div>
-                </div>
-
-                <div class="briefing-mock">
-                    <div class="notif-header">
-                        <span class="notif-icon">&#9889;</span>
-                        <span class="notif-title">Your Morning Briefing</span>
-                        <span class="notif-time">Today, 7:02 AM</span>
-                    </div>
-                    <div class="notif-line"><span class="dot dot-green"></span><span><strong>6 email applications sent</strong> — tailored resume + cover letter for each</span></div>
-                    <div class="notif-line"><span class="dot dot-green"></span><span><strong>3 career page applications sent</strong> — forms filled and submitted</span></div>
-                    <div class="notif-line"><span class="dot dot-yellow"></span><span><strong>2 LinkedIn Easy Apply queued</strong> — pre-filled, just needs your tap</span></div>
-                    <div class="notif-line"><span class="dot dot-blue"></span><span><strong>1 new response</strong> — Stripe wants to set up an interview</span></div>
-                </div>
-
-                <div class="callout callout-green" style="margin-top: 14px;">
-                    You pick the confidence threshold. Set it to 90% if you want tight control, drop it to 70% if you want volume. The agent watches what you approve and reject over time and adjusts. You can also just turn autonomous mode off whenever you want.
+        <!-- Journey 1: Amara -->
+        <div class="journey-panel active" id="j1">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">A</div>
+                <div class="journey-header-text">
+                    <h3>Amara's First-Time Setup</h3>
+                    <p>From zero to fully configured profile in under 10 minutes.</p>
                 </div>
             </div>
-        </details>
-
-        <details>
-            <summary><span class="step-num">7</span> Response Tracking &amp; Pipeline</summary>
-            <div class="detail-body">
-                <ul>
-                    <li>Every application gets tracked through the pipeline: submitted → under review → interview → offer or rejected</li>
-                    <li><strong>Email monitoring via OAuth</strong> — The agent reads incoming emails from employers and figures out what they are (rejection, interview invite, follow-up request, offer). Your pipeline updates on its own.</li>
-                    <li><strong>Interview spotted?</strong> "You've got an interview at Stripe, Thursday 2pm. Want me to add it to your calendar? Here's a prep doc for this role."</li>
-                    <li><strong>Ghosted for 7 days?</strong> The agent drafts a follow-up email for you to look over before sending.</li>
-                    <li>All employer feedback gets logged and analyzed across your full application history</li>
-                </ul>
-                <div class="callout callout-blue"><strong>How email works</strong> — Gmail API with gmail.readonly and gmail.labels scopes. The agent sets up a "Job Applications" label and only watches that label. It never touches your personal inbox. You can revoke access whenever.</div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Sign Up</h4>
+                    <p>Amara signs up with email or Google via Supabase Auth. No credit card required.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>Upload Resume</h4>
+                    <p>She uploads her PDF resume. The AI parses it into a structured profile, showing confidence scores for each field.</p>
+                    <div class="step-highlight">AI Confidence: Name 99% &middot; Skills 94% &middot; Experience 91% &middot; Education 97%</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Review &amp; Correct</h4>
+                    <p>She reviews the parsed fields. A few items flagged as low-confidence are easy to correct inline.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Set Preferences</h4>
+                    <p>Desired roles, locations (remote EU/US), salary range, and remote-only preference.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Privacy Dashboard</h4>
+                    <p>The privacy panel shows exactly what is shared and what is encrypted.</p>
+                    <div class="step-highlight">"Your data is encrypted. Only skills and location are shared with AI."</div>
+                </div>
             </div>
-        </details>
+        </div>
 
-        <details>
-            <summary><span class="step-num">8</span> AI Career Advisor</summary>
-            <div class="detail-body">
-                <p>This isn't just something that fills out forms. It's a strategic advisor that gets better the more you use it:</p>
-                <ul>
-                    <li><strong>Weekly brief</strong> — "You applied to 34 jobs this week. Got 8 callbacks, that's 24%, up from 15% last week. Fintech is clearly your strongest sector. Also, your technical-tone resumes outperform professional ones 2 to 1."</li>
-                    <li><strong>Pivot suggestions</strong> — "You keep getting turned down for Staff roles. Your profile is a much stronger fit at the Senior level right now. Want to adjust your targets?"</li>
-                    <li><strong>Salary negotiation</strong> — "They offered $130K. For your profile in this market, $145K is more in line. Here's a counter script with the numbers to back it up."</li>
-                    <li><strong>Interview prep</strong> — Mock interviews tailored to the role, common questions for the company, and a research brief</li>
-                    <li><strong>"Should I even bother?"</strong> — It'll be straight with you. "This one's a stretch. Here's what you'd need to close the gap. But also, here's a closer match you missed."</li>
-                </ul>
-                <div class="callout callout-purple">The more you use it, the better it gets. It learns which roles you skip, which companies get you excited, and what kind of feedback you're getting. Recommendations sharpen over time.</div>
+        <!-- Journey 2: Marcus -->
+        <div class="journey-panel" id="j2">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">M</div>
+                <div class="journey-header-text">
+                    <h3>Marcus's Daily Job Search</h3>
+                    <p>From dashboard to downloaded application package in 5 minutes.</p>
+                </div>
             </div>
-        </details>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Dashboard Overview</h4>
+                    <p>Marcus opens his dashboard and sees KPI cards: total applications, response rate, interview rate.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>AI-Powered Search</h4>
+                    <p>He clicks "Find Jobs." The AI searches across JSearch, Adzuna, and Greenhouse/Lever APIs simultaneously.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Smart Results</h4>
+                    <p>Each result shows a match score, salary vs. market comparison, and company intelligence summary.</p>
+                    <div class="step-highlight">Match: 92% &middot; Salary: EUR 85k (Market avg: EUR 78k) &middot; Company: Series C, 200 employees</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Tailored Preview</h4>
+                    <p>He clicks a listing and sees a tailored resume preview with ATS compatibility score.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Download Package</h4>
+                    <p>One click downloads a PDF package: tailored resume, cover letter, and company cheat sheet.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">6</div>
+                    <h4>Apply Safely</h4>
+                    <p>Marcus applies on the actual job site himself. No browser automation, no account risk.</p>
+                    <div class="step-highlight">Zero automation on job platforms. His accounts stay safe.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 3: Priya -->
+        <div class="journey-panel" id="j3">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #ec4899, #be185d);">P</div>
+                <div class="journey-header-text">
+                    <h3>Priya's Career Dreaming</h3>
+                    <p>From "can I even do this?" to a concrete 12-month plan.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Open Career Dreamer</h4>
+                    <p>Priya enters her target: "Product Manager" in London with a 12-month timeline.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>AI Gap Analysis</h4>
+                    <p>The AI maps her existing skills to the target role and returns a detailed breakdown.</p>
+                    <div class="step-highlight">Skill overlap: 65% &middot; Missing: SQL, A/B testing, roadmapping &middot; Feasibility: 72/100</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Salary Comparison</h4>
+                    <p>Current salary ($75k Marketing Manager) vs. target ($95k Product Manager). Clear upside.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Learning Plan</h4>
+                    <p>A week-by-week plan: free courses, certifications, portfolio projects. Prioritized by impact.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Track Progress</h4>
+                    <p>Priya saves the dream and revisits it monthly to track progress and adjust the plan.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 4: David -->
+        <div class="journey-panel" id="j4">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #22c55e, #15803d);">D</div>
+                <div class="journey-header-text">
+                    <h3>David's First Job Hunt</h3>
+                    <p>From no resume and no connections to a structured daily job search.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Free Tier Sign-Up</h4>
+                    <p>David signs up on the free tier. No credit card, no trial expiration on core features.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>Build Resume from Scratch</h4>
+                    <p>He has no resume yet. The AI helps him build one from his coursework, projects, and hackathon experience.</p>
+                    <div class="step-highlight">AI turns "built a React weather app" into a professional achievement bullet.</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Daily Matches</h4>
+                    <p>The AI identifies 5 high-match entry-level roles per day, filtered for "truly entry-level" (no 3-year experience traps).</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Tailored Applications</h4>
+                    <p>For each role, a tailored resume is generated with ATS scoring. He learns what works.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Track What Works</h4>
+                    <p>David tracks every application. Over time, he sees which resume styles and job types get responses.</p>
+                    <div class="step-highlight">Week 3: "Roles with company size &lt;50 have 3x response rate for you."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 5: Sarah (Employer) -->
+        <div class="journey-panel" id="j5">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">S</div>
+                <div class="journey-header-text">
+                    <h3>Sarah's Employer Posting <span class="coming-soon-badge">Coming Soon</span></h3>
+                    <p>From job posting to qualified, opted-in candidates.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Employer Sign-Up</h4>
+                    <p>Sarah signs up on the employer portal, a separate experience from the job seeker side.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>Post a Role</h4>
+                    <p>She posts a job with requirements, culture notes, and salary range.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>AI Matching</h4>
+                    <p>The AI matches her posting against anonymized candidate profiles. No names, no demographics. Just skills.</p>
+                    <div class="step-highlight">12 candidates matched at 80%+ &middot; Average match score: 87%</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Review Anonymized Profiles</h4>
+                    <p>Sarah sees match scores and anonymized skill profiles. She shortlists 5 candidates.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Candidate Opt-In</h4>
+                    <p>Shortlisted candidates receive a notification. They choose whether to reveal their identity and connect.</p>
+                    <div class="step-highlight">Candidates control their own data. They opt in, not the other way around.</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
 
-<section id="decisions">
+<!-- Pain to Solution -->
+<section id="pain-solutions" class="reveal">
     <div class="container">
-        <h2>Key Architectural Decisions</h2>
-        <p class="section-sub">Four calls that shape everything else.</p>
-        <div class="decision-grid">
-            <div class="decision-card">
-                <h4>How do we get job listings?</h4>
-                <div class="decision">Aggregator APIs + User-Pasted URLs</div>
-                <div class="option rejected"><strong>Scrape LinkedIn/Indeed</strong> — Violates ToS. hiQ Labs paid $500K and had to destroy the data. Dead end.</div>
-                <div class="option chosen"><strong>Aggregator APIs</strong> — Adzuna, JSearch, Jooble, Reed, Arbeitnow, Remotive. Covers 70-80% of the market, completely legal.</div>
-                <div class="option chosen"><strong>User-pasted URLs</strong> — You find a job on LinkedIn, paste the link, the agent grabs that one listing to score and tailor for.</div>
+        <span class="tag">Pain &rarr; Solution</span>
+        <h2>Every feature exists because something hurts</h2>
+        <p class="subtitle">
+            What job seekers struggle with today, how competitors handle it,
+            and why our approach is fundamentally different.
+        </p>
+
+        <div class="pain-grid">
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I applied to 500 jobs and got 2 responses."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>LazyApply: blast even more applications. Results in 0.1% response rates.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>Quality matching: fewer, targeted applications with higher response rates.</p>
+                </div>
             </div>
-            <div class="decision-card">
-                <h4>How do we submit applications?</h4>
-                <div class="decision">Channel-Aware Autonomous Apply <span class="tag tag-v3">V3</span></div>
-                <div class="option rejected"><strong>User clicks Submit every time</strong> — Defeats the whole "wake up to 10 applications" promise.</div>
-                <div class="option chosen"><strong>Auto where safe, queued where risky</strong> — Email and career pages go out on their own. LinkedIn, Workday, Greenhouse get pre-filled and held for your approval.</div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I do not know if my resume will pass ATS."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>Jobscan: scan-only, no fixes. Costs $50/mo separately.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>ATS scoring and auto-fix built into resume generation. Included, not upsold.</p>
+                </div>
             </div>
-            <div class="decision-card">
-                <h4>How do we handle email?</h4>
-                <div class="decision">User's Own Email via OAuth</div>
-                <div class="option rejected"><strong>Dedicated agent email</strong> — Employers see a weird address they don't recognize. Looks sketchy. Now you're checking two inboxes.</div>
-                <div class="option chosen"><strong>User's real email via OAuth</strong> — Gmail or Outlook with scoped permissions. Applications go out from your actual address. Optional +jobs alias if you want separation.</div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"These tools send my personal data to their servers."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>All SaaS competitors store your data on their cloud. You have no control.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>AES-256-GCM encryption, EU hosting, PII scrubbing, and a transparency dashboard.</p>
+                </div>
             </div>
-            <div class="decision-card">
-                <h4>Which AI models do what? <span class="tag tag-v3">V3</span></h4>
-                <div class="decision">OpenRouter Multi-Model Routing</div>
-                <div class="option chosen"><strong>Gemini Flash</strong> — Search, parsing, classification. Cheap and fast. Handles about 70% of all calls.</div>
-                <div class="option chosen"><strong>Gemini Pro / Claude Haiku</strong> — Job matching, scoring, skill gap analysis. Needs to think a bit but still cost-sensitive.</div>
-                <div class="option chosen"><strong>Claude Sonnet</strong> — Resumes, cover letters, career advice. The writing has to be good here.</div>
-                <div class="option chosen"><strong>Claude Opus</strong> — Tricky strategy questions and edge cases. Used sparingly.</div>
-                <p style="margin-top: 6px; color: #0891b2; font-size: 0.75rem;">Blended cost lands around $1.50-3/user/month because Gemini Flash carries most of the load.</p>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"My LinkedIn got flagged for using automation."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>AIHawk and LazyApply use browser automation. Known account risk.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>No browser automation, ever. API-only architecture. Zero account risk.</p>
+                </div>
             </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I cannot afford $99/month while job hunting."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>LazyApply charges $99-249/mo. Jobscan is $50/mo. Adds up fast.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>Free tier with real, usable features. Pro tier at $19/mo for power users.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I do not know what I am worth in another country."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>Nobody does cross-border salary benchmarking well. Data is scattered.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>BLS + Eurostat salary benchmarks with multi-currency comparison built in.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I do not know if my skills transfer to a new role."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>Nobody offers this. Career changers are on their own.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>Career Dreamer: gap analysis, feasibility scoring, and a week-by-week learning timeline.</p>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
 
-<section id="agents">
+<!-- Competitive Moats -->
+<section id="moats" class="reveal" style="background: #f8fafc;">
     <div class="container">
-        <h2>Multi-Agent Architecture</h2>
-        <p class="section-sub">Ten specialized agents, each running on the right model through OpenRouter.</p>
-        <div class="agent-grid">
-            <div class="agent-card">
-                <div class="icon">&#128270;</div>
-                <h4>Scout</h4>
-                <p>Talks to job APIs, deduplicates listings, parses pasted URLs, watches career pages.</p>
-                <span class="model-tag model-gemini">Gemini Flash</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#127919;</div>
-                <h4>Match</h4>
-                <p>Scores every job against your profile. Explains why, with a confidence number.</p>
-                <span class="model-tag model-gemini">Gemini Pro</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128196;</div>
-                <h4>Writer</h4>
-                <p>Writes your resumes and cover letters. Doesn't make things up. Tracks what converts.</p>
-                <span class="model-tag model-claude">Claude Sonnet</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128200;</div>
-                <h4>Market</h4>
-                <p>Pulls salary data, tracks skill demand, spots regional trends and arbitrage plays.</p>
-                <span class="model-tag model-claude">Claude Sonnet</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#129302;</div>
-                <h4>Apply</h4>
-                <p>Sends emails, fills forms, submits through APIs. Knows which channel is which.</p>
-                <span class="model-tag model-haiku">Claude Haiku</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128101;</div>
-                <h4>Advisor</h4>
-                <p>Weekly briefs, pivot suggestions, negotiation scripts. The strategic brain.</p>
-                <span class="model-tag model-claude">Claude Sonnet</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128274;</div>
-                <h4>Privacy</h4>
-                <p>Encrypts data at rest, scrubs PII before it hits any model, manages OAuth tokens.</p>
-                <span class="model-tag model-haiku">Claude Haiku</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128202;</div>
-                <h4>Analytics</h4>
-                <p>Tracks outcomes across the full funnel. Finds conversion patterns. Feeds the learning loop.</p>
-                <span class="model-tag model-gemini">Gemini Pro</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128231;</div>
-                <h4>Inbox</h4>
-                <p>Watches your email via OAuth. Figures out if a reply is a rejection, an invite, or an offer.</p>
-                <span class="model-tag model-gemini">Gemini Flash</span>
-            </div>
-            <div class="agent-card">
-                <div class="icon">&#128221;</div>
-                <h4>Parser</h4>
-                <p>Reads resumes in any format (PDF, Word, photo) and turns them into structured profiles.</p>
-                <span class="model-tag model-claude">Claude Sonnet</span>
-            </div>
-        </div>
-        <div class="callout callout-blue" style="margin-top: 16px;">
-            <strong>Why this matters for cost</strong> — Gemini Flash takes about 70% of all API calls at basically zero cost. Claude Sonnet handles the 25% where quality matters (writing, strategy). Opus only fires for the really hard stuff, maybe 5% of calls. That puts us at <strong>$1.50-3/user/month</strong> instead of the $5-15 you'd spend running everything on one premium model.
-        </div>
-    </div>
-</section>
+        <span class="tag">Why Us</span>
+        <h2>Four things competitors cannot easily copy</h2>
+        <p class="subtitle">
+            Our moats are structural, not feature-based. See the
+            <a href="docs/PRD.html" style="color: #7c3aed; text-decoration: underline;">PRD</a>
+            for detailed competitive analysis.
+        </p>
 
-<section id="moat">
-    <div class="container">
-        <h2>Why This Wins</h2>
-        <p class="section-sub">Features are easy to copy. The flywheel isn't.</p>
         <div class="moat-grid">
             <div class="moat-card">
-                <h4>1. Channel-Aware Apply</h4>
-                <p>It knows email and career pages are safe to submit to automatically, and that LinkedIn and Workday need a human tap. You get 90% of the autonomy with none of the account bans.</p>
-                <div class="vs">LazyApply and Sonara blast everything. Users get banned.</div>
+                <div class="moat-icon" style="background: #f0fdf4; color: #16a34a;">&#x1f512;</div>
+                <h3>Privacy-First</h3>
+                <p>Your data never leaves your control. AES-256-GCM encryption, PII scrubbing, EU-hosted.</p>
             </div>
             <div class="moat-card">
-                <h4>2. Outcome Learning Loop</h4>
-                <p>It watches which resume versions, cover letter tones, timing, and channels actually lead to interviews. Gets sharper the more you use it, per role and per region.</p>
-                <div class="vs">Sorce optimizes for swipes, not interview callbacks.</div>
+                <div class="moat-icon" style="background: #f3f0ff; color: #7c3aed;">&#x1f3af;</div>
+                <h3>Quality over Quantity</h3>
+                <p>15 targeted applications outperform 500 spray-and-pray blasts. Every time.</p>
             </div>
             <div class="moat-card">
-                <h4>3. Multi-Model Cost</h4>
-                <p>Cheap models handle the grunt work, premium models handle the writing. We spend $1.50-3 per user where competitors locked to a single provider spend $5-15. Better margins, lower prices, faster growth.</p>
-                <div class="vs">Teal and Massive are tied to one model vendor.</div>
+                <div class="moat-icon" style="background: #eff6ff; color: #2563eb;">&#x1f9e0;</div>
+                <h3>Career Intelligence</h3>
+                <p>Not just jobs. Career strategy: gap analysis, salary benchmarks, feasibility scoring.</p>
             </div>
             <div class="moat-card">
-                <h4>4. Career Strategy</h4>
-                <p>Salary arbitrage across regions. Skill gaps with dollar values attached. Level calibration. Country exploration. This isn't a form filler, it's a career advisor that also happens to handle the paperwork.</p>
-                <div class="vs">Teal and Jobscan optimize your resume for ATS keywords. We optimize your career trajectory.</div>
-            </div>
-            <div class="moat-card">
-                <h4>5. Privacy-First</h4>
-                <p>AES-256-GCM encryption at rest, PII scrubbed before anything hits the models, bias-safe scoring. There's a self-hosted option if you want full control. Nobody else in this space encrypts user data.</p>
-                <div class="vs">Everyone else has vague data policies and stores your resume on their servers.</div>
+                <div class="moat-icon" style="background: #fffbeb; color: #d97706;">&#x1f6e1;&#xfe0f;</div>
+                <h3>EU Compliant</h3>
+                <p>Built for GDPR and the EU AI Act from day one. Not bolted on after the fact.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section id="comparison">
+<!-- Employer Portal Vision -->
+<section id="employer-portal" class="reveal">
     <div class="container">
-        <h2>Feature Comparison</h2>
-        <p class="section-sub">Honest look at what we can actually deliver vs. the competition.</p>
-        <div style="overflow-x: auto;">
-        <table class="feature-table">
-            <thead>
-                <tr><th>Capability</th><th>AI Job Agent</th><th>Sorce ($40)</th><th>Teal ($29)</th><th>LazyApply ($99)</th><th>Sonara ($24)</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>Autonomous overnight apply</td><td class="check">&#10003; channel-aware</td><td class="partial">~ swipe only</td><td class="cross">&#10007;</td><td class="partial">~ all channels (risky)</td><td class="partial">~ all (25-40% fail)</td></tr>
-                <tr><td>Morning briefing</td><td class="check">&#10003; "9 sent, 2 queued"</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">~ basic log</td><td class="partial">~ digest</td></tr>
-                <tr><td>Per-job resume tailoring</td><td class="check">&#10003; Claude</td><td class="cross">&#10007;</td><td class="check">&#10003; GPT</td><td class="cross">&#10007; same resume</td><td class="cross">&#10007;</td></tr>
-                <tr><td>Salary market arbitrage</td><td class="check">&#10003; real data + AI</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
-                <tr><td>Skill gap + ROI</td><td class="check">&#10003; tied to salary</td><td class="cross">&#10007;</td><td class="partial">~ keywords</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
-                <tr><td>Multi-model routing</td><td class="check">&#10003; OpenRouter</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
-                <tr><td>Email response detection</td><td class="check">&#10003; OAuth auto-classify</td><td class="partial">~ basic</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">~ digest</td></tr>
-                <tr><td>Outcome learning loop</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
-                <tr><td>Account ban risk</td><td class="check">&#10003; ZERO</td><td class="partial">~ moderate</td><td class="check">&#10003; none</td><td class="cross">&#10007; HIGH</td><td class="cross">&#10007; HIGH</td></tr>
-                <tr><td>No-resume onboarding</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
-                <tr><td>Mobile-first web app</td><td class="check">&#10003; PWA</td><td class="check">&#10003; native</td><td class="check">&#10003; web</td><td class="partial">~ extension</td><td class="check">&#10003; web</td></tr>
-                <tr><td>Privacy / encryption</td><td class="check">&#10003; AES-256</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
-            </tbody>
-        </table>
-        </div>
-    </div>
-</section>
+        <span class="tag">Two-Sided Marketplace</span>
+        <h2>The Employer Portal Vision <span class="coming-soon-badge">Coming Soon</span></h2>
+        <p class="subtitle">
+            A marketplace where job seekers get real listings and employers get
+            pre-qualified candidates. Both sides win.
+        </p>
 
-<section id="risks">
-    <div class="container">
-        <h2>Risk Register</h2>
-        <p class="section-sub">What could go wrong, how bad it would be, and how we handle it.</p>
-        <div class="risk-grid">
-            <div class="risk-card critical">
-                <div class="severity sev-critical">CRITICAL</div>
-                <h4>Platform Account Bans</h4>
-                <p>If we automate LinkedIn or Indeed submissions directly, users get permanently banned. Over 461 tools have been blacklisted already.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — We only auto-submit through safe channels. LinkedIn and Indeed apps get queued for the user's own tap. Zero ban risk by design.</div>
+        <div class="marketplace-visual">
+            <div class="marketplace-side seeker">
+                <h3>Job Seekers Get</h3>
+                <ul>
+                    <li>Real employer listings with a "Direct" badge</li>
+                    <li>Faster response times from engaged employers</li>
+                    <li>Transparency into who is viewing their profile</li>
+                    <li>Full control over identity reveal</li>
+                </ul>
             </div>
-            <div class="risk-card critical">
-                <div class="severity sev-critical">CRITICAL</div>
-                <h4>Legal Liability (ToS / Scraping)</h4>
-                <p>hiQ v. LinkedIn ended with a $500K judgment and forced data destruction. Scraping is a legal landmine.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — All job data comes from legitimate APIs or single-URL parsing that the user initiates themselves. We don't scrape anything.</div>
+            <div class="marketplace-bridge">
+                <div class="marketplace-bridge-icon">AI</div>
+                <span>Matching</span>
             </div>
-            <div class="risk-card high">
-                <div class="severity sev-high">HIGH</div>
-                <h4>AI Hallucinating Credentials</h4>
-                <p>36% of hiring managers say they reject AI-generated applications. If the AI invents a credential you don't have, the interview falls apart.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — The writer agent can only use what's in your verified profile. Every generated doc shows a diff of what was changed. System prompts have hard guardrails against invention.</div>
-            </div>
-            <div class="risk-card high">
-                <div class="severity sev-high">HIGH</div>
-                <h4>Stale Salary Data</h4>
-                <p>If the AI just guesses at salaries, users end up asking for too much or too little. Both are bad.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — We pull real numbers from Levels.fyi and live job postings. Every estimate shows its source and when it was last pulled. Data refreshes monthly.</div>
-            </div>
-            <div class="risk-card high">
-                <div class="severity sev-high">HIGH</div>
-                <h4>Aggregator APIs Deprecate</h4>
-                <p>Indeed already killed their API. Any of the others could do the same.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — We pull from multiple sources and never depend on just one. User-pasted URLs work as a fallback no matter what.</div>
-            </div>
-            <div class="risk-card medium">
-                <div class="severity sev-medium">MEDIUM</div>
-                <h4>Email OAuth Verification Delay</h4>
-                <p>Google's OAuth review process takes 4-6 weeks. If we don't start early, it blocks launch.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — Start the verification process well before launch. Use minimal scopes. The tool works fine without email access, you just update statuses by hand.</div>
-            </div>
-            <div class="risk-card medium">
-                <div class="severity sev-medium">MEDIUM</div>
-                <h4>User Churn After Placement</h4>
-                <p>Most job searches take 3-6 months. Once someone lands a job, they cancel.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — "Career growth mode" keeps the tool useful after placement with salary benchmarking, skill tracking, and passive opportunity monitoring. Annual pricing and a referral program help too.</div>
-            </div>
-            <div class="risk-card medium">
-                <div class="severity sev-medium">MEDIUM</div>
-                <h4>GDPR / Privacy Regulations</h4>
-                <p>Resumes are personal data. EU can fine up to 4% of revenue for mishandling it.</p>
-                <div class="mitigation"><strong>Mitigation</strong> — AES-256-GCM encryption at rest. Self-hosted option available. EU data residency for the cloud version. One-click data deletion and full DSAR compliance.</div>
+            <div class="marketplace-side employer">
+                <h3>Employers Get</h3>
+                <ul>
+                    <li>Pre-qualified, AI-matched candidates</li>
+                    <li>Anonymized profiles until candidate opts in</li>
+                    <li>Match scores based on skills, not keywords</li>
+                    <li>No resume spam, only relevant candidates</li>
+                </ul>
             </div>
         </div>
-    </div>
-</section>
 
-<section id="pricing">
-    <div class="container">
-        <h2>Pricing</h2>
-        <p class="section-sub">Open-source core so people can trust it. Paid tiers for the autonomous engine and career strategy features.</p>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Free / Open Source</h3>
+        <h3 style="margin-bottom: 16px; text-align: center; color: #64748b; font-weight: 500; font-size: 0.95rem;">Employer Pricing</h3>
+        <div class="employer-pricing">
+            <div class="employer-pricing-card">
+                <h4>Free</h4>
                 <div class="price">$0</div>
-                <ul>
-                    <li>Self-hosted, local data</li>
-                    <li>Resume parsing + profile builder</li>
-                    <li>Application tracker (manual)</li>
-                    <li>Basic analytics</li>
-                    <li>Privacy encryption</li>
-                    <li>5 AI resume tailors/month</li>
-                    <li>Community support</li>
-                </ul>
+                <div class="price-note">3 job posts / month</div>
+                <p>Try the platform with real candidate matching. No commitment.</p>
             </div>
-            <div class="pricing-card featured">
-                <h3>Pro</h3>
-                <div class="price">$24<span>/mo</span></div>
-                <ul>
-                    <li>Everything in Free</li>
-                    <li>Mobile-first web app</li>
-                    <li>Multi-source job feed</li>
-                    <li>Unlimited AI tailoring</li>
-                    <li>Autonomous apply (safe channels)</li>
-                    <li>Morning briefing</li>
-                    <li>Market salary insights</li>
-                    <li>Skill gap analysis</li>
-                    <li>PDF/DOCX export</li>
-                    <li>Email response tracking</li>
-                </ul>
+            <div class="employer-pricing-card featured">
+                <h4>Pro</h4>
+                <div class="price">$99<span style="font-size: 0.8rem; font-weight: 400;">/mo</span></div>
+                <div class="price-note">Unlimited posts</div>
+                <p>Full AI matching, analytics dashboard, and priority candidate access.</p>
             </div>
-            <div class="pricing-card">
-                <h3>Career Engine</h3>
-                <div class="price">$49<span>/mo</span></div>
-                <ul>
-                    <li>Everything in Pro</li>
-                    <li>Outcome learning loop</li>
-                    <li>AI career advisor (weekly briefs)</li>
-                    <li>Salary negotiation scripts</li>
-                    <li>Country arbitrage analysis</li>
-                    <li>Interview prep + mock interviews</li>
-                    <li>Calendar integration</li>
-                    <li>Company watchlist</li>
-                    <li>Automated follow-ups</li>
-                    <li>Priority support</li>
-                </ul>
+            <div class="employer-pricing-card">
+                <h4>Enterprise</h4>
+                <div class="price">$499<span style="font-size: 0.8rem; font-weight: 400;">/mo</span></div>
+                <div class="price-note">Custom integrations</div>
+                <p>ATS integration, dedicated support, and custom matching rules.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section id="stories">
-    <div class="container">
-        <h2>User Stories</h2>
-        <p class="section-sub">Formal acceptance criteria. Click to expand.</p>
-
-        <details class="story-details">
-            <summary><span class="step-num">U0</span> Signup &amp; Onboarding</summary>
-            <div class="detail-body">
-                <p class="as-a">As a new user on any device, I want to sign up and build my profile in under 5 minutes so the agent can start working immediately.</p>
-                <ul>
-                    <li><strong>Given</strong> I visit the web app, <strong>when</strong> I sign up, <strong>then</strong> I choose: upload resume, build from scratch, or explore first</li>
-                    <li><strong>Given</strong> I choose "build from scratch," <strong>when</strong> I answer guided questions, <strong>then</strong> the agent constructs a profile and starter resume</li>
-                    <li><strong>Given</strong> I complete my profile, <strong>when</strong> prompted, <strong>then</strong> I can connect email via OAuth for autonomous apply</li>
-                    <li><strong>Given</strong> I want email separation, <strong>when</strong> connecting, <strong>then</strong> I can opt into a +jobs alias</li>
-                    <li><strong>Given</strong> I add the PWA to home screen, <strong>then</strong> I receive morning briefings as push notifications</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U1</span> Resume Upload &amp; Smart Profile</summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want to upload my resume and have it parsed into editable fields so I don't have to re-type everything.</p>
-                <ul>
-                    <li><strong>Given</strong> I upload a PDF/DOCX/image, <strong>when</strong> parsing completes, <strong>then</strong> all fields are pre-populated with confidence indicators</li>
-                    <li><strong>Given</strong> a badly formatted resume, <strong>when</strong> text extraction fails, <strong>then</strong> Claude Vision parses the visual layout</li>
-                    <li><strong>Given</strong> I save my profile, <strong>when</strong> I return on any device, <strong>then</strong> it's persisted and synced</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U2</span> Salary &amp; Level Calibration</summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want to know what I'm worth in different markets, backed by real data, so I don't undersell myself.</p>
-                <ul>
-                    <li><strong>Given</strong> my profile is complete, <strong>when</strong> I request calibration, <strong>then</strong> I see salary ranges for 3+ regions with source attribution</li>
-                    <li><strong>Given</strong> my experience, <strong>then</strong> the agent recommends a seniority level with reasoning</li>
-                    <li><strong>Given</strong> arbitrage opportunities exist, <strong>then</strong> the agent suggests higher-paying regions with visa/relocation context</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U3</span> Skill Gap Analysis</summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want to know which skills are worth learning and how much they'd actually increase my pay.</p>
-                <ul>
-                    <li><strong>Given</strong> my target roles, <strong>when</strong> I request analysis, <strong>then</strong> skills are ranked by how often they appear in live listings</li>
-                    <li><strong>Given</strong> a skill gap, <strong>then</strong> I see the estimated salary bump, match rate improvement, and where to learn it</li>
-                    <li><strong>Given</strong> I have a rare skill, <strong>then</strong> it's called out as a competitive advantage</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U4</span> Unified Job Feed</summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want all my jobs in one feed instead of checking five different sites.</p>
-                <ul>
-                    <li><strong>Given</strong> I search, <strong>then</strong> results from all connected aggregators appear in one list with sources shown</li>
-                    <li><strong>Given</strong> I paste a job URL, <strong>then</strong> it gets pulled in, scored, and added to my feed</li>
-                    <li><strong>Given</strong> the same job is on multiple boards, <strong>then</strong> I see it once with all sources listed</li>
-                    <li><strong>Given</strong> any listing, <strong>then</strong> it has a 0-100 score with a plain-language explanation</li>
-                    <li><strong>Given</strong> my profile fits a role I haven't searched for, <strong>then</strong> the agent suggests I expand my search</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U5</span> Autonomous Apply <span class="tag-inline tag-v3">V3</span></summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want the agent to handle applications overnight and brief me in the morning on what happened.</p>
-                <ul>
-                    <li><strong>Given</strong> 80%+ confidence on a safe channel, <strong>when</strong> the overnight cycle runs, <strong>then</strong> the agent submits on its own</li>
-                    <li><strong>Given</strong> 80%+ confidence on a risky channel, <strong>then</strong> it's queued for one-tap batch approval</li>
-                    <li><strong>Given</strong> 50-79% confidence, <strong>then</strong> it goes to a review bucket with draft materials</li>
-                    <li><strong>Given</strong> below 50%, <strong>then</strong> it's skipped but visible with reasons</li>
-                    <li><strong>Given</strong> the cycle finishes, <strong>then</strong> I get a morning briefing notification</li>
-                    <li><strong>Given</strong> I approve or reject apps over time, <strong>then</strong> the agent adjusts its scoring</li>
-                    <li><strong>Given</strong> I turn autonomous mode off, <strong>then</strong> everything waits for manual approval</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U6</span> Email Integration &amp; Response Tracking</summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want the agent to catch employer replies and update my pipeline so I don't miss anything important.</p>
-                <ul>
-                    <li><strong>Given</strong> Gmail/Outlook is connected, <strong>when</strong> an employer replies, <strong>then</strong> the agent figures out what it is and updates the status</li>
-                    <li><strong>Given</strong> it spots an interview invite, <strong>then</strong> it offers to add it to my calendar and pulls together prep materials</li>
-                    <li><strong>Given</strong> nobody replies for 7 days, <strong>then</strong> it drafts a follow-up for me to review</li>
-                    <li><strong>Given</strong> I don't connect email, <strong>then</strong> I can still update statuses by hand</li>
-                    <li><strong>Given</strong> monitoring is on, <strong>then</strong> it only reads job-related threads, never personal email</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U7</span> Career Advisor &amp; Weekly Briefs</summary>
-            <div class="detail-body">
-                <p class="as-a">As a job seeker, I want data-backed career advice, not generic tips.</p>
-                <ul>
-                    <li><strong>Given</strong> a week of activity, <strong>then</strong> the brief covers my response rates, which resume versions worked, strongest sectors, and what to do next</li>
-                    <li><strong>Given</strong> I keep getting rejected at a certain level, <strong>then</strong> the advisor explains why and suggests where to aim instead</li>
-                    <li><strong>Given</strong> I report an offer, <strong>then</strong> I get a negotiation script with real market numbers</li>
-                    <li><strong>Given</strong> I'm brand new with no history, <strong>then</strong> it gives general guidance based on my profile until it has enough data to get specific</li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="story-details">
-            <summary><span class="step-num">U8</span> Billing &amp; Subscription</summary>
-            <div class="detail-body">
-                <p class="as-a">As a user, I want clear pricing and no gotchas.</p>
-                <ul>
-                    <li><strong>Given</strong> I sign up, <strong>then</strong> I get 14 days of Pro free, no credit card</li>
-                    <li><strong>Given</strong> my trial ends and I haven't upgraded, <strong>then</strong> I drop to Free (profile, tracker, and 5 tailors/month still work)</li>
-                    <li><strong>Given</strong> I upgrade, <strong>then</strong> I pay through Stripe (card, Apple Pay, Google Pay)</li>
-                    <li><strong>Given</strong> I cancel, <strong>then</strong> my data stays around for 90 days in case I come back</li>
-                </ul>
-            </div>
-        </details>
-    </div>
-</section>
-
+<!-- Footer -->
 <footer>
-    <p>AI Job Agent · Product Vision v3.0</p>
-    <p style="margin-top: 4px;">Not a spray-and-pray bot. A career strategist that works while you don't.</p>
+    <p>&copy; 2025 AVIEN SOLUTIONS. All rights reserved.</p>
+    <p style="margin-top: 8px;">
+        <a href="docs/PRD.html">Product Requirements</a>
+        &nbsp;&middot;&nbsp;
+        <a href="user-story.html">User Stories</a>
+    </p>
 </footer>
 
 <script>
-document.querySelectorAll('nav a').forEach(a => {
-    a.addEventListener('click', e => {
-        e.preventDefault();
-        const target = document.querySelector(a.getAttribute('href'));
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Smooth scroll for nav links
+    document.querySelectorAll('nav a[href^="#"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
     });
-});
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('nav a');
-window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
-    navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
-});
+
+    // Active nav highlighting on scroll
+    var sections = document.querySelectorAll('section[id]');
+    var navLinks = document.querySelectorAll('nav a[href^="#"]');
+    window.addEventListener('scroll', function() {
+        var scrollPos = window.scrollY + 120;
+        sections.forEach(function(section) {
+            if (section.offsetTop <= scrollPos && section.offsetTop + section.offsetHeight > scrollPos) {
+                navLinks.forEach(function(link) {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + section.id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    });
+
+    // Journey tab switching
+    document.querySelectorAll('.journey-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.journey-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.journey-panel').forEach(function(p) { p.classList.remove('active'); });
+            this.classList.add('active');
+            document.getElementById(this.getAttribute('data-journey')).classList.add('active');
+        });
+    });
+
+    // Section reveal on scroll
+    var revealElements = document.querySelectorAll('.reveal');
+    function checkReveal() {
+        var windowHeight = window.innerHeight;
+        revealElements.forEach(function(el) {
+            var top = el.getBoundingClientRect().top;
+            if (top < windowHeight - 60) {
+                el.classList.add('visible');
+            }
+        });
+    }
+    window.addEventListener('scroll', checkReveal);
+    window.addEventListener('load', checkReveal);
 </script>
 
 </body>

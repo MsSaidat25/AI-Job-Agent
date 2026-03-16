@@ -29,7 +29,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -100,6 +100,7 @@ class UserProfile(BaseModel):
     certifications: list[str] = Field(default_factory=list)
     portfolio_url: Optional[str] = None
     linkedin_url: Optional[str] = None
+    preferred_currency: str = "USD"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     @field_validator("skills", "desired_roles", mode="before")

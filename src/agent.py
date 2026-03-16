@@ -45,9 +45,10 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import anthropic
+from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS, LLM_API_KEY, LLM_BASE_URL
 from src.analytics import ApplicationTracker
@@ -56,9 +57,6 @@ from src.job_search import JobSearchEngine, MarketIntelligenceService
 from src.models import (
     ApplicationRecord,
     ApplicationStatus,
-    ExperienceLevel,
-    JobListing,
-    JobType,
     UserProfile,
     init_db,
 )
@@ -66,7 +64,7 @@ from src.models import (
 
 # ── Tool schemas (JSON Schema for Claude's tool-use API) ───────────────────
 
-TOOLS: list[dict] = [
+TOOLS: list[dict[str, Any]] = [
     {
         "name": "search_jobs",
         "description": (
@@ -225,10 +223,10 @@ class JobAgent:
 
     def __init__(self, profile: UserProfile) -> None:
         self.profile = profile
-        self._client = anthropic.Anthropic(
-            api_key=LLM_API_KEY,
-            **({"base_url": LLM_BASE_URL} if LLM_BASE_URL else {}),
-        )
+        client_kwargs: dict[str, Any] = {"api_key": LLM_API_KEY}
+        if LLM_BASE_URL:
+            client_kwargs["base_url"] = LLM_BASE_URL
+        self._client = anthropic.Anthropic(**client_kwargs)
         self._session = init_db()
         self._search_engine = JobSearchEngine(self._client)
         self._market_svc = MarketIntelligenceService(self._client)
@@ -236,11 +234,12 @@ class JobAgent:
         self._tracker = ApplicationTracker(self._session, self._client)
 
         # In-memory caches for the current session
-        self._job_cache: dict[str, JobListing] = {}
+        # Values may be JobListing (from agent tool loop) or raw dicts (from api.py live search)
+        self._job_cache: dict[str, Any] = {}
         self._app_cache: dict[str, ApplicationRecord] = {}
 
         # Conversation history
-        self._messages: list[dict] = []
+        self._messages: list[dict[str, Any]] = []
 
     # ── Public API ─────────────────────────────────────────────────────────
 
@@ -265,8 +264,8 @@ class JobAgent:
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system=_SYSTEM_PROMPT,
-                tools=TOOLS,
-                messages=self._messages,
+                tools=cast(Any, TOOLS),
+                messages=cast(Any, self._messages),
             )
 
             # Append assistant turn to history
@@ -275,7 +274,7 @@ class JobAgent:
             if response.stop_reason == "end_turn":
                 # Extract the text response
                 for block in response.content:
-                    if hasattr(block, "text"):
+                    if isinstance(block, TextBlock):
                         return block.text
                 return ""
 

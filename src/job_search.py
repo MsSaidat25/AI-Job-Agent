@@ -1,364 +1,310 @@
+# Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com). All Rights Reserved.
+# avien@aviensolutions.com
 """
-Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com).
-All Rights Reserved.
-No part of this software or any of its contents may be reproduced, copied,
-modified or adapted, without the prior written consent of the author, unless
-otherwise indicated for stand-alone materials.
-For permission requests, write to the publisher at the email address below:
-avien@aviensolutions.com
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+Job Search — Live data via JSearch API (Indeed / LinkedIn / Glassdoor).
 
-Job Search & Market Intelligence module.
-
-Architecture
-────────────
-• JobSearchEngine  – orchestrates searches via pluggable source adapters.
-• MarketIntelligenceService – uses Claude to synthesise regional/industry insights.
-• Built-in mock adapter for offline / test use; real adapters can be dropped in.
-
-Bias mitigation
-───────────────
-• Match scoring is based purely on skill overlap, role alignment, and location
-  preferences — never on protected attributes.
-• The LLM prompt explicitly instructs the model to ignore any demographic signals.
+Exports two interfaces:
+  1. JobSearchEngine + MarketIntelligenceService  — classes used by agent.py (sync)
+  2. search_jobs_live()                           — async function used by api.py
 """
 from __future__ import annotations
 
 import json
-import random
+import os
 import uuid
-from datetime import date, timedelta
 from typing import Any, Optional
 
-import anthropic
+import httpx
+from pydantic import BaseModel
 
-from config.settings import AGENT_MODEL, MAX_JOBS_PER_SEARCH, MAX_TOKENS
-from src.models import ExperienceLevel, JobListing, JobType, MarketInsight, UserProfile
-from src.privacy import sanitise_for_llm, strip_protected_attributes
+from src.models import JobListing, JobType, UserProfile
 
+# ── Config ────────────────────────────────────────────────────────────────────
 
-# ── Mock job data (representative sample across geographies) ───────────────
-
-_MOCK_JOBS: list[dict[str, Any]] = [
-    {
-        "title": "Senior Software Engineer",
-        "company": "TechCorp",
-        "location": "Austin, TX, USA",
-        "remote_allowed": True,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.SENIOR,
-        "description": "Build scalable backend services for our SaaS platform.",
-        "requirements": ["Python", "AWS", "PostgreSQL", "REST APIs", "Docker"],
-        "nice_to_have": ["Kubernetes", "GraphQL"],
-        "salary_min": 130_000,
-        "salary_max": 170_000,
-        "currency": "USD",
-        "source_platform": "LinkedIn",
-        "industry": "Technology",
-        "keywords": ["backend", "cloud", "python"],
-    },
-    {
-        "title": "Data Scientist",
-        "company": "AnalyticsPro",
-        "location": "New York, NY, USA",
-        "remote_allowed": False,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.MID,
-        "description": "Develop predictive models and derive actionable insights.",
-        "requirements": ["Python", "Machine Learning", "SQL", "TensorFlow"],
-        "nice_to_have": ["Spark", "Airflow", "A/B Testing"],
-        "salary_min": 110_000,
-        "salary_max": 145_000,
-        "currency": "USD",
-        "source_platform": "Indeed",
-        "industry": "Finance",
-        "keywords": ["ML", "data", "analytics"],
-    },
-    {
-        "title": "Frontend Developer",
-        "company": "DesignHub",
-        "location": "London, UK",
-        "remote_allowed": True,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.MID,
-        "description": "Craft pixel-perfect UIs with React and TypeScript.",
-        "requirements": ["React", "TypeScript", "CSS", "REST APIs"],
-        "nice_to_have": ["Next.js", "Storybook", "Figma"],
-        "salary_min": 55_000,
-        "salary_max": 80_000,
-        "currency": "GBP",
-        "source_platform": "Glassdoor",
-        "industry": "Technology",
-        "keywords": ["react", "frontend", "typescript"],
-    },
-    {
-        "title": "Product Manager",
-        "company": "InnovateCo",
-        "location": "Berlin, Germany",
-        "remote_allowed": True,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.SENIOR,
-        "description": "Lead cross-functional teams to ship world-class products.",
-        "requirements": ["Product Strategy", "Agile", "Stakeholder Management", "SQL"],
-        "nice_to_have": ["B2B SaaS", "OKRs", "User Research"],
-        "salary_min": 90_000,
-        "salary_max": 120_000,
-        "currency": "EUR",
-        "source_platform": "XING",
-        "industry": "Technology",
-        "keywords": ["product", "agile", "roadmap"],
-    },
-    {
-        "title": "DevOps Engineer",
-        "company": "CloudBase",
-        "location": "Remote",
-        "remote_allowed": True,
-        "job_type": JobType.REMOTE,
-        "experience_level": ExperienceLevel.MID,
-        "description": "Automate CI/CD pipelines and manage cloud infrastructure.",
-        "requirements": ["Kubernetes", "Terraform", "AWS", "CI/CD", "Linux"],
-        "nice_to_have": ["Prometheus", "Grafana", "Go"],
-        "salary_min": 120_000,
-        "salary_max": 155_000,
-        "currency": "USD",
-        "source_platform": "Remote.co",
-        "industry": "Technology",
-        "keywords": ["devops", "cloud", "kubernetes"],
-    },
-    {
-        "title": "UX Designer",
-        "company": "CreativeMinds",
-        "location": "Toronto, Canada",
-        "remote_allowed": False,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.MID,
-        "description": "Design intuitive digital experiences grounded in user research.",
-        "requirements": ["Figma", "User Research", "Prototyping", "Accessibility"],
-        "nice_to_have": ["Motion Design", "HTML/CSS", "Design Systems"],
-        "salary_min": 85_000,
-        "salary_max": 110_000,
-        "currency": "CAD",
-        "source_platform": "Workopolis",
-        "industry": "Media",
-        "keywords": ["UX", "design", "figma"],
-    },
-    {
-        "title": "Machine Learning Engineer",
-        "company": "AIStart",
-        "location": "San Francisco, CA, USA",
-        "remote_allowed": True,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.SENIOR,
-        "description": "Deploy and scale LLM-based products in production.",
-        "requirements": ["Python", "PyTorch", "MLOps", "Docker", "LLMs"],
-        "nice_to_have": ["RLHF", "vLLM", "Triton"],
-        "salary_min": 160_000,
-        "salary_max": 220_000,
-        "currency": "USD",
-        "source_platform": "LinkedIn",
-        "industry": "Artificial Intelligence",
-        "keywords": ["llm", "ml", "pytorch"],
-    },
-    {
-        "title": "Marketing Analyst",
-        "company": "GrowthLab",
-        "location": "Sydney, Australia",
-        "remote_allowed": False,
-        "job_type": JobType.FULL_TIME,
-        "experience_level": ExperienceLevel.ENTRY,
-        "description": "Analyse campaign performance and support growth strategy.",
-        "requirements": ["Google Analytics", "Excel", "SQL", "Data Visualisation"],
-        "nice_to_have": ["Tableau", "Python", "A/B Testing"],
-        "salary_min": 65_000,
-        "salary_max": 85_000,
-        "currency": "AUD",
-        "source_platform": "Seek",
-        "industry": "Marketing",
-        "keywords": ["analytics", "marketing", "growth"],
-    },
-]
+JSEARCH_API_KEY  = os.getenv("JSEARCH_API_KEY", "")
+JSEARCH_BASE_URL = "https://jsearch.p.rapidapi.com/search"
+JSEARCH_HEADERS  = {
+    "X-RapidAPI-Key":  JSEARCH_API_KEY,
+    "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
+}
 
 
-def _build_listing(raw: dict[str, Any], days_ago: int = 0) -> JobListing:
-    today = date.today()
+# ── Market insight model ──────────────────────────────────────────────────────
+
+class MarketInsight(BaseModel):
+    region:         str
+    industry:       str
+    summary:        str
+    avg_salary_min: Optional[int]  = None
+    avg_salary_max: Optional[int]  = None
+    top_skills:     list[str]      = []
+    top_employers:  list[str]      = []
+    hiring_trend:   str            = ""
+    tips:           str            = ""
+
+
+# ── Internal helpers ──────────────────────────────────────────────────────────
+
+def _build_query(profile: UserProfile, location_filter: str = "") -> str:
+    role     = (profile.desired_roles[0] if profile.desired_roles else "software engineer")
+    location = location_filter or profile.location or "Canada"
+    return f"{role} in {location}"
+
+
+def _score_job(job: dict, profile: UserProfile) -> tuple[int, str]:
+    score   = 50
+    reasons = []
+    desc    = (job.get("job_description") or "").lower()
+    title   = (job.get("job_title")       or "").lower()
+
+    matched = [s for s in (profile.skills or []) if s.lower() in desc or s.lower() in title]
+    score  += min(len(matched) * 5, 30)
+    if matched:
+        reasons.append(f"Skills: {', '.join(matched[:4])}")
+
+    for role in (profile.desired_roles or []):
+        if role.lower() in title:
+            score += 10
+            reasons.append(f"Title matches '{role}'")
+            break
+
+    if job.get("job_is_remote") and "remote" in (profile.desired_job_types or []):
+        score += 5
+        reasons.append("Remote")
+
+    min_s = job.get("job_min_salary")
+    max_s = job.get("job_max_salary")
+    if min_s and profile.desired_salary_min and min_s >= profile.desired_salary_min:
+        score += 5
+    if max_s and profile.desired_salary_max and max_s <= profile.desired_salary_max:
+        score += 5
+
+    emp = (job.get("job_employment_type") or "").lower()
+    for jt in (profile.desired_job_types or []):
+        if jt.replace("_", " ") in emp:
+            score += 5
+            break
+
+    score     = min(max(score, 0), 100)
+    rationale = "; ".join(reasons) if reasons else "General profile match"
+    return score, rationale
+
+
+def _to_listing(job: dict, profile: UserProfile) -> JobListing:
+    score, rationale = _score_job(job, profile)
+    city     = job.get("job_city")    or ""
+    state    = job.get("job_state")   or ""
+    country  = job.get("job_country") or ""
+    location = ", ".join(p for p in [city, state, country] if p) or "Location not listed"
+    currency = getattr(profile, "preferred_currency", None) or "USD"
+
+    raw_type = (job.get("job_employment_type") or "full_time").lower().replace(" ", "_")
+    try:
+        job_type = JobType(raw_type)
+    except ValueError:
+        job_type = JobType.FULL_TIME
+
+    raw_date = (job.get("job_posted_at_datetime_utc") or "")[:10] or None
+    from datetime import date as _date
+    posted_date: _date | None = None
+    if raw_date:
+        try:
+            posted_date = _date.fromisoformat(raw_date)
+        except ValueError:
+            posted_date = None
+
     return JobListing(
-        id=str(uuid.uuid4()),
-        posted_date=today - timedelta(days=days_ago),
-        application_deadline=today + timedelta(days=30 - days_ago),
-        **raw,
+        id              = job.get("job_id") or str(uuid.uuid4()),
+        title           = job.get("job_title")       or "Untitled Role",
+        company         = job.get("employer_name")   or "Unknown Company",
+        location        = location,
+        remote_allowed  = job.get("job_is_remote", False),
+        job_type        = job_type,
+        description     = (job.get("job_description") or "")[:2000],
+        requirements    = [],
+        salary_min      = job.get("job_min_salary"),
+        salary_max      = job.get("job_max_salary"),
+        currency        = currency,
+        source_platform = job.get("job_publisher")   or "JSearch",
+        source_url      = job.get("job_apply_link")  or job.get("job_google_link") or "",
+        posted_date     = posted_date,
+        match_score     = score,
+        match_rationale = rationale,
     )
 
 
-# ── Job Search Engine ──────────────────────────────────────────────────────
+def _format_md(job: JobListing, index: int) -> str:
+    score  = job.match_score or 0
+    icon   = "🟡" if score >= 80 else "🟢" if score >= 60 else "🔵"
+    salary = (
+        f"{job.currency} {int(job.salary_min):,} – {int(job.salary_max):,}"
+        if job.salary_min and job.salary_max else
+        f"{job.currency} {int(job.salary_min):,}+" if job.salary_min else
+        "Salary not listed"
+    )
+    remote  = " · Remote" if job.remote_allowed else ""
+    apply   = f"\n**Apply:** {job.source_url}" if job.source_url else ""
+    desc    = job.description[:300] + ("…" if len(job.description) > 300 else "")
+    return (
+        f"## {index}. {job.title}\n"
+        f"**Company:** {job.company}\n"
+        f"**Location:** {job.location}{remote}\n"
+        f"**Salary:** {salary} · **Posted:** {job.posted_date}\n"
+        f"**Match:** {icon} {score}/100 — {job.match_rationale}\n"
+        f"{desc}{apply}\n---"
+    )
+
+
+def _jsearch_sync(query: str) -> list[dict]:
+    """Blocking HTTP call — safe to call from synchronous agent loop."""
+    if not JSEARCH_API_KEY:
+        return []
+    try:
+        with httpx.Client(timeout=15.0) as c:
+            r = c.get(JSEARCH_BASE_URL, headers=JSEARCH_HEADERS,
+                      params={"query": query, "page": "1", "num_pages": "1", "date_posted": "month"})
+            r.raise_for_status()
+            return r.json().get("data", [])
+    except Exception:
+        return []
+
+
+async def _jsearch_async(query: str) -> list[dict]:
+    """Async HTTP call — used by search_jobs_live()."""
+    if not JSEARCH_API_KEY:
+        return []
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as c:
+            r = await c.get(JSEARCH_BASE_URL, headers=JSEARCH_HEADERS,
+                            params={"query": query, "page": "1", "num_pages": "1", "date_posted": "month"})
+            r.raise_for_status()
+            return r.json().get("data", [])
+    except Exception:
+        return []
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  CLASS-BASED INTERFACE  (used by src/agent.py — synchronous)
+# ══════════════════════════════════════════════════════════════════════════════
 
 class JobSearchEngine:
     """
-    Searches for jobs matching the user profile.
-
-    Currently uses a mock data source.  To integrate a real job board API:
-        1. Implement a method like `_fetch_from_linkedin(profile)`.
-        2. Call it inside `search()` and merge results.
+    Synchronous job search used by JobAgent.
+    Fetches real listings from JSearch and maps them to JobListing models.
+    The `client` shim is kept for API compatibility but not used for searching.
     """
 
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
-
-    # ── Public API ─────────────────────────────────────────────────────────
+    def __init__(self, client: Any) -> None:
+        self._client = client
 
     def search(
         self,
-        profile: UserProfile,
-        max_results: int = MAX_JOBS_PER_SEARCH,
+        profile:        UserProfile,
+        location_filter: str  = "",
+        include_remote:  bool = True,
+        max_results:     int  = 10,
     ) -> list[JobListing]:
-        """Return ranked job listings relevant to *profile*."""
-        raw_listings = self._fetch_mock(profile)
-        scored = self._score_with_llm(profile, raw_listings)
-        scored.sort(key=lambda j: j.match_score or 0, reverse=True)
-        return scored[:max_results]
+        query   = _build_query(profile, location_filter)
+        raw     = _jsearch_sync(query)
+        if not raw:
+            return []
+        listings = sorted(
+            [_to_listing(j, profile) for j in raw],
+            key=lambda x: x.match_score or 0, reverse=True
+        )
+        return listings[:max_results]
 
     def filter_by_location(
         self,
-        listings: list[JobListing],
-        location: str,
-        include_remote: bool = True,
+        listings:       list[JobListing],
+        location_filter: str,
+        include_remote:  bool = True,
     ) -> list[JobListing]:
-        """Filter listings by location string (case-insensitive substring match)."""
-        loc_lower = location.lower()
-        return [
+        loc    = location_filter.lower()
+        result = [
             j for j in listings
-            if loc_lower in j.location.lower()
-            or (include_remote and j.remote_allowed)
+            if loc in j.location.lower() or (include_remote and j.remote_allowed)
         ]
+        return result or listings   # fallback: return all if nothing matched
 
-    # ── Private helpers ────────────────────────────────────────────────────
-
-    def _fetch_mock(self, profile: UserProfile) -> list[JobListing]:
-        """Return a shuffled subset of mock listings (simulates live search)."""
-        sample = random.sample(_MOCK_JOBS, min(len(_MOCK_JOBS), MAX_JOBS_PER_SEARCH))
-        return [_build_listing(r, days_ago=random.randint(0, 14)) for r in sample]
-
-    def _score_with_llm(
-        self, profile: UserProfile, listings: list[JobListing]
-    ) -> list[JobListing]:
-        """Ask Claude to score each listing for this profile (bias-safe)."""
-        safe_profile = sanitise_for_llm(
-            strip_protected_attributes(profile.model_dump())
-        )
-        listing_summaries = [
-            {
-                "id": j.id,
-                "title": j.title,
-                "requirements": j.requirements,
-                "experience_level": j.experience_level,
-                "location": j.location,
-                "remote_allowed": j.remote_allowed,
-                "industry": j.industry,
-            }
-            for j in listings
-        ]
-
-        prompt = f"""You are an unbiased job-matching assistant.
-
-CANDIDATE (anonymised — no personal information):
-{json.dumps(safe_profile, indent=2)}
-
-JOB LISTINGS:
-{json.dumps(listing_summaries, indent=2)}
-
-Score each listing from 0 to 100 based ONLY on:
-- Skill overlap with candidate's skills
-- Alignment with desired roles
-- Experience level fit
-- Location / remote preference
-
-IMPORTANT: Do NOT consider or infer any protected attributes (gender, age, ethnicity, etc.).
-
-Return a JSON array: [{{"id": "...", "score": <0-100>, "rationale": "..."}}]
-Return ONLY the JSON array, no other text.
-"""
-        response = self._client.messages.create(
-            model=AGENT_MODEL,
-            max_tokens=MAX_TOKENS,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw_text = response.content[0].text.strip()
-        # Defensive: strip markdown fences if present
-        if raw_text.startswith("```"):
-            raw_text = raw_text.split("```")[1]
-            if raw_text.startswith("json"):
-                raw_text = raw_text[4:]
-        scores: list[dict] = json.loads(raw_text)
-
-        score_map = {s["id"]: s for s in scores}
-        for listing in listings:
-            if listing.id in score_map:
-                entry = score_map[listing.id]
-                listing.match_score = entry.get("score")
-                listing.match_rationale = entry.get("rationale")
-        return listings
-
-
-# ── Market Intelligence Service ────────────────────────────────────────────
 
 class MarketIntelligenceService:
-    """
-    Generates actionable market insights for a given region + industry.
+    """AI-powered market intelligence — stays AI-generated (correct tool for qualitative data)."""
 
-    Uses Claude to synthesise broad knowledge about job market conditions,
-    in-demand skills, salary ranges, cultural hiring norms, and growth trends.
-    """
-
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: Any) -> None:
+        self._client = client
 
     def get_insights(self, region: str, industry: str) -> MarketInsight:
-        """Return a MarketInsight for the requested region and industry."""
-        prompt = f"""You are a global job market analyst.
-
-Provide a structured analysis of the **{industry}** job market in **{region}**.
-
-Return ONLY valid JSON with these exact keys:
-{{
-  "top_skills_in_demand": ["skill1", "skill2", ...],
-  "avg_salary_usd": <integer or null>,
-  "job_growth_pct": <float year-over-year % or null>,
-  "competition_level": "low" | "medium" | "high",
-  "cultural_notes": "<hiring culture, CV norms, interview expectations>",
-  "trending_roles": ["role1", "role2", ...]
-}}
-
-Be concise and factual. If data is unavailable, use null.
-"""
-        response = self._client.messages.create(
-            model=AGENT_MODEL,
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = response.content[0].text.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        data: dict = json.loads(raw)
-        return MarketInsight(region=region, industry=industry, **data)
+        try:
+            resp = self._client.messages.create(
+                model="", max_tokens=1024,
+                system="You are a job market analyst. Respond ONLY with valid JSON — no markdown fences.",
+                messages=[{"role": "user", "content": (
+                    f"Job market report for {industry} in {region}. "
+                    "Return JSON with keys: summary, avg_salary_min, avg_salary_max, "
+                    "top_skills (list), top_employers (list), hiring_trend, tips."
+                )}],
+            )
+            text = next((b.text for b in resp.content if b.type == "text"), "{}")
+            data = json.loads(text.strip())
+            return MarketInsight(region=region, industry=industry, **data)
+        except Exception as e:
+            return MarketInsight(
+                region=region, industry=industry,
+                summary=f"Market data for {industry} in {region} temporarily unavailable. ({e})"
+            )
 
     def get_application_tips(self, region: str) -> str:
-        """Return culturally-aware application tips for a region."""
-        prompt = f"""You are a career coach familiar with hiring practices worldwide.
+        try:
+            resp = self._client.messages.create(
+                model="", max_tokens=1024,
+                system="You are an expert career coach with deep global hiring knowledge.",
+                messages=[{"role": "user", "content": (
+                    f"Key job application tips for applying in {region}: "
+                    "CV/resume norms, cover letter expectations, interview etiquette, "
+                    "cultural nuances, common mistakes."
+                )}],
+            )
+            return next((b.text for b in resp.content if b.type == "text"), "No tips available.")
+        except Exception as e:
+            return f"Tips for {region} temporarily unavailable. ({e})"
 
-Provide 5–7 concise, actionable tips for job seekers applying to positions in **{region}**.
-Cover: CV/resume format, cover letter expectations, interview etiquette, follow-up norms.
-Format as a numbered list. Be specific to this region's culture.
-"""
-        response = self._client.messages.create(
-            model=AGENT_MODEL,
-            max_tokens=700,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return response.content[0].text.strip()
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ASYNC INTERFACE  (used directly by api.py)
+# ══════════════════════════════════════════════════════════════════════════════
+
+async def search_jobs_live(
+    profile:        UserProfile,
+    location_filter: str  = "",
+    include_remote:  bool = True,
+    max_results:     int  = 10,
+) -> tuple[str, list[str], list[dict]]:
+    """
+    Async live job search for api.py endpoints.
+    Returns: (markdown_text, job_ids, raw_jobs)
+    """
+    if not JSEARCH_API_KEY:
+        return ("⚠ JSEARCH_API_KEY not set. Add it to your .env file.", [], [])
+
+    query = _build_query(profile, location_filter)
+    raw   = await _jsearch_async(query)
+
+    if not raw:
+        return (f"No jobs found for **{query}**. Try a broader location or different role.", [], [])
+
+    listings = sorted(
+        [_to_listing(j, profile) for j in raw],
+        key=lambda x: x.match_score or 0, reverse=True
+    )[:max_results]
+
+    raw_by_id = {j.get("job_id"): j for j in raw}
+    header    = f"# Job Search Results\n**Query:** {query} · **Found:** {len(listings)} roles\n\n"
+    parts, job_ids, sorted_raw = [], [], []
+
+    for i, listing in enumerate(listings, 1):
+        job_ids.append(listing.id)
+        sorted_raw.append(raw_by_id.get(listing.id, {}))
+        parts.append(_format_md(listing, i))
+
+    return header + "\n".join(parts), job_ids, sorted_raw

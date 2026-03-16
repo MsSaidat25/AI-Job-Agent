@@ -32,11 +32,12 @@ Privacy note: All data lives in the local SQLite database only.
 from __future__ import annotations
 
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional, cast
 
 import anthropic
+from anthropic.types import TextBlock
 from sqlalchemy.orm import Session
 
 from config.settings import AGENT_MODEL
@@ -100,12 +101,12 @@ class ApplicationTracker:
         )
         if orm is None:
             return None
-        orm.status = new_status.value
-        orm.last_updated = _utcnow()
+        orm.status = new_status.value  # type: ignore[assignment]
+        orm.last_updated = _utcnow()  # type: ignore[assignment]
         if feedback is not None:
-            orm.employer_feedback = feedback
+            orm.employer_feedback = feedback  # type: ignore[assignment]
         if notes is not None:
-            orm.notes = notes
+            orm.notes = notes  # type: ignore[assignment]
         self._session.commit()
         return self._orm_to_model(orm)
 
@@ -175,9 +176,9 @@ class ApplicationTracker:
                 self._session.query(JobListingORM).filter_by(id=a.job_id).first()
             )
             if job_orm:
-                if job_orm.industry:
+                if job_orm.industry:  # type: ignore[truthy-bool]
                     industry_counter[job_orm.industry] += 1
-                if job_orm.source_platform:
+                if job_orm.source_platform:  # type: ignore[truthy-bool]
                     platform_counter[job_orm.source_platform] += 1
 
         return {
@@ -217,7 +218,7 @@ Keep each bullet under 2 sentences. Do NOT repeat the raw numbers verbatim.
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     def employer_feedback_analysis(self, user_id: str) -> str:
         """Aggregate employer feedback and extract patterns via Claude."""
@@ -246,24 +247,25 @@ Provide:
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     # ── Private helpers ────────────────────────────────────────────────────
 
     @staticmethod
     def _orm_to_model(orm: ApplicationRecordORM) -> ApplicationRecord:
+        orm_any = cast(Any, orm)
         return ApplicationRecord(
-            id=orm.id,
-            user_id=orm.user_id,
-            job_id=orm.job_id,
-            status=ApplicationStatus(orm.status),
-            resume_version=orm.resume_version,
-            cover_letter_version=orm.cover_letter_version,
-            submitted_at=orm.submitted_at,
-            last_updated=orm.last_updated,
-            employer_feedback=orm.employer_feedback,
+            id=orm_any.id,
+            user_id=orm_any.user_id,
+            job_id=orm_any.job_id,
+            status=ApplicationStatus(orm_any.status),
+            resume_version=orm_any.resume_version,
+            cover_letter_version=orm_any.cover_letter_version,
+            submitted_at=orm_any.submitted_at,
+            last_updated=orm_any.last_updated,
+            employer_feedback=orm_any.employer_feedback,
             interview_dates=[
-                datetime.fromisoformat(d) for d in (orm.interview_dates or [])
+                datetime.fromisoformat(d) for d in (orm_any.interview_dates or [])
             ],
-            notes=orm.notes or "",
+            notes=orm_any.notes or "",
         )

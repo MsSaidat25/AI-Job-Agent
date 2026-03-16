@@ -1,0 +1,1470 @@
+<!--
+Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com). All Rights Reserved.
+avien@aviensolutions.com
+-->
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>JobPath AI — Land Your Next Role</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#f2cc0d",
+        "background-light": "#f8f8f5",
+        "background-dark": "#221f10",
+        "surface-dark": "#2a2714",
+        "sage": "#8da399",
+      },
+      fontFamily: { "display": ["Space Grotesk"] },
+      borderRadius: {
+        "DEFAULT": "0.125rem","lg": "0.5rem","xl": "1rem","2xl": "1.5rem","full": "9999px"
+      },
+    },
+  },
+}
+</script>
+<style>
+/* ── Base ── */
+body { font-family: "Space Grotesk", sans-serif; min-height: max(884px, 100dvh); }
+.material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+.step-anchor::before { content: ""; position: absolute; left: 50%; top: -24px; transform: translateX(-50%); width: 2px; height: 24px; background: linear-gradient(to bottom, transparent, #f2cc0d); opacity: 0.3; }
+
+/* ── Form elements ── */
+input, select, textarea {
+  font-family: "Space Grotesk", sans-serif;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(141,163,153,0.25);
+  border-radius: 0.75rem;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input::placeholder, textarea::placeholder { color: #475569; }
+input:focus, select:focus, textarea:focus { border-color: rgba(242,204,13,0.6); }
+select option { background: #221f10; color: #e2e8f0; }
+textarea { resize: vertical; }
+
+/* ── Response area ── */
+.response-area {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(141,163,153,0.15);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: #cbd5e1;
+  min-height: 120px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.response-area.empty { display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.75rem; }
+.response-area h2 { color: #f2cc0d; font-weight: 700; font-size: 1rem; margin: 1rem 0 0.5rem; }
+.response-area h3 { color: #f2cc0d; font-weight: 600; font-size: 0.9rem; margin: 0.75rem 0 0.35rem; }
+.response-area h4 { color: rgba(242,204,13,0.8); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.75rem 0 0.25rem; }
+.response-area strong { color: #f1f5f9; font-weight: 600; }
+.response-area code { background: rgba(242,204,13,0.1); color: #f2cc0d; padding: 1px 5px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
+.response-area hr { border: none; border-top: 1px solid rgba(141,163,153,0.2); margin: 0.75rem 0; }
+.md-bullet { display:flex;gap:8px;margin:3px 0; }
+.md-bullet-dot { color:#f2cc0d;flex-shrink:0; }
+.md-num { display:flex;gap:8px;margin:3px 0; }
+.md-num-n { color:#f2cc0d;font-size:0.7rem;flex-shrink:0;min-width:18px; }
+
+/* ── Spinner ── */
+.spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(242,204,13,0.2);border-top-color:#f2cc0d;border-radius:50%;animation:spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Job IDs box ── */
+.job-ids-box { margin-top:12px;padding:14px;background:rgba(242,204,13,0.06);border:1px solid rgba(242,204,13,0.15);border-radius:1rem; }
+.job-id-item { display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(242,204,13,0.08);color:#94a3b8;font-size:0.75rem; }
+.job-id-item:last-child { border-bottom:none; }
+.job-id-copy { cursor:pointer;color:#f2cc0d;font-size:0.65rem;padding:2px 8px;border:1px solid rgba(242,204,13,0.25);border-radius:4px;transition:all 0.15s; }
+.job-id-copy:hover { background:#f2cc0d;color:#221f10; }
+
+/* ── Toast ── */
+#toast { position:fixed;bottom:80px;right:16px;padding:11px 18px;border-radius:12px;font-size:0.8rem;z-index:9999;transform:translateY(12px);opacity:0;transition:all 0.25s;max-width:300px;border:1px solid; }
+@media (min-width: 640px) { #toast { bottom: 20px; right: 20px; } }
+#toast.show { transform:translateY(0);opacity:1; }
+#toast.success { background:#221f10;border-color:rgba(141,163,153,0.4);color:#8da399; }
+#toast.error { background:#221f10;border-color:rgba(244,63,94,0.3);color:#f87171; }
+#toast.info { background:#221f10;border-color:rgba(242,204,13,0.3);color:#f2cc0d; }
+
+/* ── Scroll reveal ── */
+.reveal { opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease; }
+.reveal.visible { opacity:1;transform:translateY(0); }
+
+/* ══════════════════════════════════════
+   SIDEBAR — collapsible
+══════════════════════════════════════ */
+#sidebar {
+  width: 14rem; /* 224px = w-56 */
+  min-width: 14rem;
+  transition: width 0.22s cubic-bezier(0.4,0,0.2,1), min-width 0.22s cubic-bezier(0.4,0,0.2,1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+#sidebar.collapsed {
+  width: 3.5rem;   /* 56px — icon only */
+  min-width: 3.5rem;
+}
+/* Hide text labels when collapsed */
+#sidebar.collapsed .nav-label,
+#sidebar.collapsed .section-label,
+#sidebar.collapsed .brand-text,
+#sidebar.collapsed .user-info { display: none; }
+/* Centre icons when collapsed */
+#sidebar.collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+#sidebar.collapsed .sidebar-user { justify-content: center; }
+
+/* ══════════════════════════════════════
+   DASHBOARD LAYOUT
+══════════════════════════════════════ */
+#app-layout { display: flex; height: 100svh; overflow: hidden; }
+#main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+#content-scroll { flex: 1; overflow-y: auto; }
+
+/* ══════════════════════════════════════
+   MOBILE BOTTOM NAV
+══════════════════════════════════════ */
+#mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: #1a1810;
+  border-top: 1px solid rgba(242,204,13,0.1);
+  z-index: 200;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+#mobile-nav .mn-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; color: #475569; cursor: pointer; transition: color 0.15s; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+#mobile-nav .mn-item.active { color: #f2cc0d; }
+#mobile-nav .mn-item .material-symbols-outlined { font-size: 20px; }
+
+/* ══════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+══════════════════════════════════════ */
+@media (max-width: 767px) {
+  #sidebar { display: none !important; }
+  #mobile-nav { display: flex; }
+  #content-scroll { padding-bottom: 68px; }
+  #app-layout { height: 100svh; }
+  /* Full width panels on mobile */
+  .dash-panel { border-radius: 1rem; margin: 0 0 1rem; }
+  /* Chat full height mobile */
+  #chat-inner { height: calc(100svh - 180px); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Auto-collapse sidebar on tablet */
+  #sidebar { width: 3.5rem; min-width: 3.5rem; }
+  #sidebar .nav-label, #sidebar .section-label, #sidebar .brand-text, #sidebar .user-info { display: none; }
+  #sidebar .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+  #sidebar .sidebar-user { justify-content: center; }
+}
+@media (min-width: 1024px) {
+  #chat-inner { height: calc(100vh - 128px); }
+}
+
+/* ══════════════════════════════════════
+   ACTIVE NAV
+══════════════════════════════════════ */
+.nav-item.active-nav { background: rgba(242,204,13,0.1); color: #f2cc0d; border-radius: 0.75rem; }
+
+/* ══════════════════════════════════════
+   LIGHT MODE OVERRIDES
+══════════════════════════════════════ */
+html:not(.dark) body { background:#f8f8f5; color:#1a1a1a; }
+html:not(.dark) input, html:not(.dark) select, html:not(.dark) textarea {
+  background:#fff; border-color:#d1d5db; color:#111827;
+}
+html:not(.dark) input::placeholder, html:not(.dark) textarea::placeholder { color:#9ca3af; }
+html:not(.dark) select option { background: #fff; color: #111827; }
+html:not(.dark) .response-area { background:#fff; border-color:#e5e7eb; color:#374151; }
+html:not(.dark) .response-area.empty { color:#9ca3af; }
+html:not(.dark) .response-area h2, html:not(.dark) .response-area h3, html:not(.dark) .response-area h4 { color:#b45309; }
+html:not(.dark) .response-area strong { color:#111827; }
+html:not(.dark) .response-area code { background:rgba(180,83,9,0.08); color:#b45309; }
+html:not(.dark) .job-ids-box { background:rgba(242,204,13,0.08); border-color:rgba(242,204,13,0.25); }
+html:not(.dark) .job-id-item { color:#6b7280; border-color:rgba(242,204,13,0.12); }
+html:not(.dark) #mobile-nav { background:#f8f8f5; border-color:#e5e7eb; }
+html:not(.dark) #mobile-nav .mn-item { color:#9ca3af; }
+html:not(.dark) #mobile-nav .mn-item.active { color:#b45309; }
+html:not(.dark) #sidebar { background: #f0efe8; border-color: #e5e4d5; }
+
+/* ── Upload dropzone ── */
+.upload-dropzone {
+  border: 2px dashed rgba(242,204,13,0.25);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.upload-dropzone:hover { border-color: rgba(242,204,13,0.6); background: rgba(242,204,13,0.04); }
+.upload-dropzone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+/* ── Profile card ── */
+.profile-field { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom: 1px solid rgba(141,163,153,0.1); font-size: 0.8rem; }
+.profile-field:last-child { border-bottom: none; }
+.profile-field-label { color:#8da399; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:0.65rem; }
+.profile-field-value { color:#e2e8f0; max-width:60%; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+html:not(.dark) .profile-field-value { color:#1f2937; }
+html:not(.dark) .profile-field { border-color: #e5e7eb; }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
+
+<!-- ════════════════════════════════
+     LANDING PAGE
+════════════════════════════════ -->
+<div id="landing">
+
+<!-- NAV -->
+<nav class="flex items-center justify-between p-4 lg:px-8 border-b border-primary/10 backdrop-blur-md sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80">
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary text-3xl">route</span>
+    <h2 class="text-xl font-bold tracking-tight">JobPath AI</h2>
+  </div>
+  <div class="flex items-center gap-3">
+    <a href="#how" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">How It Works</a>
+    <a href="#roadmap" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">Roadmap</a>
+    <button onclick="toggleTheme()" id="themeToggleLanding" class="w-9 h-9 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
+      <span class="material-symbols-outlined text-lg" id="themeIconLanding">light_mode</span>
+    </button>
+    <button onclick="openSetup()" class="text-sm font-bold px-4 py-2 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all">Get Started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<main class="max-w-7xl mx-auto px-4 py-12">
+  <div class="flex flex-col gap-10">
+    <div class="flex flex-col gap-6 text-center items-center">
+      <h1 class="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight dark:text-slate-50">
+        Your Career Journey,<br/><span class="text-primary italic">Guided by Intelligence</span>
+      </h1>
+      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
+        AI-powered job search, tailored resumes, smart tracking — everything you need to go from search to offer, faster.
+      </p>
+      <div class="flex items-center gap-8 py-2">
+        <div class="text-center"><div class="text-2xl font-bold text-primary" data-target="9">0</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">AI Tools</div></div>
+        <div class="w-px h-8 bg-primary/20"></div>
+        <div class="text-center"><div class="text-2xl font-bold text-primary" data-target="15">0</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Endpoints</div></div>
+        <div class="w-px h-8 bg-primary/20"></div>
+        <div class="text-center"><div class="text-2xl font-bold text-primary">100%</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Private</div></div>
+        <div class="w-px h-8 bg-primary/20"></div>
+        <div class="text-center"><div class="text-2xl font-bold text-primary" data-target="3">0</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Resume Tones</div></div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 pt-2 w-full max-w-sm">
+        <button onclick="openSetup()" class="flex-1 bg-primary text-background-dark font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-base flex items-center justify-center gap-2">
+          Begin Your Search <span class="material-symbols-outlined text-base">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+    <div class="relative w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-2xl">
+      <div class="absolute inset-0 bg-gradient-to-t from-background-dark/90 via-background-dark/20 to-transparent z-10"></div>
+      <div class="w-full aspect-[16/9] bg-surface-dark flex items-end">
+        <div class="absolute inset-0 p-6 flex flex-col gap-3 pt-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-primary text-sm">search</span>
+            <span class="text-xs text-primary font-bold uppercase tracking-wider">Live AI Job Matches</span>
+          </div>
+          <div class="grid gap-2">
+            <div class="bg-white/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
+              <div><div class="text-sm font-semibold text-slate-200">Senior Product Manager</div><div class="text-[11px] text-slate-500 mt-0.5">Shopify · Ottawa, ON · Remote</div></div>
+              <div class="bg-primary/15 text-primary text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0">92</div>
+            </div>
+            <div class="bg-white/5 border border-sage/20 rounded-xl p-3 flex items-center justify-between">
+              <div><div class="text-sm font-semibold text-slate-200">Lead Software Engineer</div><div class="text-[11px] text-slate-500 mt-0.5">Stripe · San Francisco · Hybrid</div></div>
+              <div class="bg-primary/15 text-primary text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0">88</div>
+            </div>
+            <div class="bg-white/5 border border-sage/10 rounded-xl p-3 flex items-center gap-2 opacity-60">
+              <div class="spinner"></div>
+              <span class="text-xs text-slate-500">Scanning 2,400 more roles…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-3">
+        <div class="flex -space-x-2">
+          <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-primary/40 flex items-center justify-center text-xs font-bold text-background-dark">A</div>
+          <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-sage/40 flex items-center justify-center text-xs font-bold text-slate-200">M</div>
+          <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-primary/30 flex items-center justify-center text-xs font-bold text-slate-200">J</div>
+        </div>
+        <p class="text-xs text-slate-300 font-medium">Join professionals who found their next role with JobPath AI</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- STEP 1: THE PROBLEM -->
+<section class="py-20 bg-slate-100 dark:bg-primary/5 relative" id="how">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-12 space-y-4 reveal">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary text-background-dark font-bold mb-4 shadow-lg shadow-primary/20">1</div>
+      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">The Problem</h2>
+      <h3 class="text-3xl font-bold dark:text-slate-50">What's holding you back?</h3>
+      <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Every job seeker faces a different wall. JobPath AI tears them all down.</p>
+    </div>
+    <div class="grid grid-cols-1 gap-4 reveal">
+      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
+        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all"><span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">mist</span></div>
+        <div><h4 class="text-lg font-bold">The Black Hole</h4><p class="text-sm text-slate-500 dark:text-slate-400">"I apply to dozens of jobs but never hear anything back."</p></div>
+        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
+      </div>
+      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
+        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all"><span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">description</span></div>
+        <div><h4 class="text-lg font-bold">Generic Documents</h4><p class="text-sm text-slate-500 dark:text-slate-400">"My resume looks the same as everyone else's — I can't stand out."</p></div>
+        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
+      </div>
+      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
+        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all"><span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">battery_low</span></div>
+        <div><h4 class="text-lg font-bold">Application Chaos</h4><p class="text-sm text-slate-500 dark:text-slate-400">"I've lost track of where I applied and what stage each is at."</p></div>
+        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 2: THE SOLUTION -->
+<section class="py-20 bg-background-light dark:bg-background-dark relative overflow-hidden">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-16 space-y-4 reveal">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sage text-white font-bold mb-4 shadow-lg shadow-sage/20 step-anchor relative">2</div>
+      <h2 class="text-sage font-bold uppercase tracking-[0.2em] text-xs">The Solution</h2>
+      <h3 class="text-3xl font-bold dark:text-slate-50">How JobPath AI bridges the gap</h3>
+      <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Six intelligent tools that cover every step of your job search.</p>
+    </div>
+    <div class="flex flex-col gap-6 reveal">
+      <div class="bg-sage/5 border-l-4 border-sage p-8 rounded-r-2xl">
+        <div class="flex items-center gap-3 mb-6"><span class="material-symbols-outlined text-sage">search</span><h4 class="text-xl font-bold">Intelligent Discovery</h4></div>
+        <div class="grid gap-5">
+          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sage text-sm">done_all</span></div><div><p class="font-bold">AI Job Search &amp; Scoring</p><p class="text-sm text-slate-500 dark:text-slate-400">Every result is scored 0–100 against your profile. Know exactly which roles to prioritise.</p></div></div>
+          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sage text-sm">analytics</span></div><div><p class="font-bold">Market Intelligence</p><p class="text-sm text-slate-500 dark:text-slate-400">Regional salary data, in-demand skills, and culturally-aware tips for any market worldwide.</p></div></div>
+        </div>
+      </div>
+      <div class="bg-primary/5 border-l-4 border-primary p-8 rounded-r-2xl">
+        <div class="flex items-center gap-3 mb-6"><span class="material-symbols-outlined text-primary">volunteer_activism</span><h4 class="text-xl font-bold">Tailored Applications</h4></div>
+        <div class="grid gap-5">
+          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary text-sm">description</span></div><div><p class="font-bold">Resume &amp; Cover Letter Generator</p><p class="text-sm text-slate-500 dark:text-slate-400">Custom documents for every role in seconds — professional, creative, or technical tone.</p></div></div>
+          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary text-sm">checklist</span></div><div><p class="font-bold">Application Tracker &amp; Analytics</p><p class="text-sm text-slate-500 dark:text-slate-400">Log every application. Claude analyses your history to surface patterns and sharpen strategy.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="py-20 bg-slate-100 dark:bg-primary/5" id="roadmap">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-12 space-y-3 reveal">
+      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">Roadmap</h2>
+      <h3 class="text-3xl font-bold dark:text-slate-50">Built in public, shipping fast</h3>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 reveal">
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-sage/40 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-sage"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sage bg-sage/10 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-sage rounded-full"></span> Live Now</div>
+        <div class="font-bold mb-3">Core Platform</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>AI job search &amp; scoring</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Resume &amp; cover letter gen</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Application tracker</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Market intelligence</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Resume upload &amp; AI parse</li>
+        </ul>
+      </div>
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/40 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span> Coming Next</div>
+        <div class="font-bold mb-3">Auto-Apply</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>Browser form automation</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>LinkedIn Easy Apply</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>AI screening answers</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>One-click apply queue</li>
+        </ul>
+      </div>
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-slate-700/40 relative overflow-hidden opacity-80">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-600"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-white/5 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-slate-600 rounded-full"></span> Next</div>
+        <div class="font-bold mb-3">Integrations</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>LinkedIn &amp; Indeed APIs</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>Email notifications</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>Calendar sync</li>
+        </ul>
+      </div>
+      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-slate-700/20 relative overflow-hidden opacity-50">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-700"></div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-white/5 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-slate-700 rounded-full"></span> Future</div>
+        <div class="font-bold mb-3">Intelligence+</div>
+        <ul class="space-y-2 text-sm text-slate-500">
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Interview prep coach</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Salary negotiation</li>
+          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Career path planning</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3: CTA BANNER -->
+<section class="py-20 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-primary rounded-[2.5rem] overflow-hidden relative shadow-2xl shadow-primary/20">
+      <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 2px 2px,black 1px,transparent 0);background-size:24px 24px;"></div>
+      <div class="relative z-10 p-8 md:p-16 flex flex-col items-center text-center gap-8">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-background-dark text-primary font-bold shadow-lg step-anchor relative">3</div>
+        <h2 class="text-3xl md:text-5xl font-bold text-background-dark leading-tight max-w-2xl">Ready to reclaim your <span class="underline decoration-slate-900/20 italic">career narrative</span>?</h2>
+        <div class="bg-background-dark/10 p-1 rounded-2xl w-full max-w-md backdrop-blur-sm">
+          <div class="bg-background-dark p-8 rounded-xl space-y-6">
+            <div class="text-center"><p class="text-primary font-bold text-2xl">Start for Free</p><p class="text-slate-400 text-sm">Set up your profile in 2 minutes</p></div>
+            <ul class="space-y-3 text-left">
+              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>AI job search &amp; scoring</li>
+              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>Tailored resume &amp; cover letters</li>
+              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>Application tracker &amp; analytics</li>
+            </ul>
+            <button onclick="openSetup()" class="w-full bg-primary text-background-dark font-bold py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all text-lg shadow-lg">Create Your Account</button>
+            <p class="text-center text-slate-500 text-xs">No credit card required. Private by default.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-primary/10 py-16 bg-slate-50 dark:bg-slate-900/30">
+  <div class="max-w-4xl mx-auto px-4 flex flex-col items-center gap-10">
+    <div class="flex flex-col items-center text-center gap-4">
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-4xl">route</span><h2 class="text-3xl font-bold tracking-tight">JobPath AI</h2></div>
+      <p class="text-slate-500 max-w-xs">Strategic career infrastructure for the empowered professional. Built by Avien Solutions.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-x-16 gap-y-6 text-center">
+      <div class="space-y-3"><h5 class="font-bold text-sm">Platform</h5><ul class="space-y-2 text-slate-500 text-sm"><li><a href="#how" class="hover:text-primary transition-colors">How It Works</a></li><li><a href="#roadmap" class="hover:text-primary transition-colors">Roadmap</a></li></ul></div>
+      <div class="space-y-3"><h5 class="font-bold text-sm">Company</h5><ul class="space-y-2 text-slate-500 text-sm"><li><a href="mailto:avien@aviensolutions.com" class="hover:text-primary transition-colors">Contact</a></li><li><a href="https://www.aviensolutions.com" class="hover:text-primary transition-colors">Avien Solutions</a></li></ul></div>
+    </div>
+    <div class="pt-6 border-t border-slate-200 dark:border-slate-800 w-full text-center text-slate-500 text-xs">© 2026 Avien Solutions Inc · avien@aviensolutions.com · www.aviensolutions.com</div>
+  </div>
+</footer>
+</div><!-- /landing -->
+
+<!-- ════════════════════════════════
+     SETUP MODAL
+════════════════════════════════ -->
+<div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="setupModal">
+  <div class="bg-background-dark border border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl">
+    <div class="flex items-center gap-2 mb-5">
+      <span class="material-symbols-outlined text-primary">route</span>
+      <span class="text-xs font-bold uppercase tracking-widest text-sage">JobPath AI · Avien Solutions</span>
+    </div>
+    <div class="flex gap-1 mb-6">
+      <div class="h-1 flex-1 rounded-full bg-primary transition-all" id="sb0"></div>
+      <div class="h-1 flex-1 rounded-full bg-white/10 transition-all" id="sb1"></div>
+      <div class="h-1 flex-1 rounded-full bg-white/10 transition-all" id="sb2"></div>
+    </div>
+    <h2 class="text-xl font-bold mb-1" id="setupTitle">Create your profile</h2>
+    <p class="text-sm text-slate-500 mb-6" id="setupSub">Tell us about you so AI can find and rank the best opportunities.</p>
+
+    <!-- STEP 0 -->
+    <div id="step0">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2 flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Full Name *</label><input id="pName" placeholder="Jane Doe"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Email *</label><input id="pEmail" type="email" placeholder="jane@example.com"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Phone</label><input id="pPhone" placeholder="+1 555 000 0000"/></div>
+        <div class="col-span-2 flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Location *</label><input id="pLocation" placeholder="City, Country"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Experience Level *</label><select id="pExpLevel" required><option value="">Select level…</option><option value="entry">Entry</option><option value="mid">Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Years of Experience *</label><input id="pYears" type="number" placeholder="e.g. 3" min="0" required/></div>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step1" style="display:none">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Skills (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="skillsTagsInput">
+            <input id="skillsInput" placeholder="Python, React, SQL…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Desired Roles (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="rolesTagsInput">
+            <input id="rolesInput" placeholder="Software Engineer…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Job Types</label>
+          <div class="flex flex-wrap gap-2" id="jobTypesGroup">
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="full_time" class="accent-primary" checked/> Full Time</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="part_time" class="accent-primary"/> Part Time</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="contract" class="accent-primary"/> Contract</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="remote" class="accent-primary"/> Remote</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="internship" class="accent-primary"/> Internship</label>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Preferred Currency</label>
+          <select id="pCurrency"><option value="CAD">🇨🇦 CAD — Canadian Dollar</option><option value="USD">🇺🇸 USD — US Dollar</option><option value="GBP">🇬🇧 GBP — British Pound</option><option value="EUR">🇪🇺 EUR — Euro</option></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Min Salary</label><input id="pSalMin" type="number" placeholder="e.g. 60000"/></div>
+          <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Max Salary</label><input id="pSalMax" type="number" placeholder="e.g. 120000"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" style="display:none">
+      <div class="flex flex-col gap-4">
+        <!-- RESUME UPLOAD -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-primary text-lg">upload_file</span>
+            <span class="text-sm font-bold text-slate-200">Upload Resume</span>
+            <span class="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-bold ml-auto">AI Auto-fill</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">Upload your resume and AI will auto-fill all profile fields instantly.</p>
+          <div class="upload-dropzone" id="resumeDropzone">
+            <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx,.txt" onchange="handleResumeUpload(event,'setup')"/>
+            <span class="material-symbols-outlined text-primary/40 text-3xl mb-2 block">description</span>
+            <p class="text-sm text-slate-400 font-medium">Click to upload or drag &amp; drop</p>
+            <p class="text-[11px] text-slate-600 mt-1">PDF, DOC, DOCX, TXT</p>
+          </div>
+          <div id="resumeParseStatus" style="display:none" class="mt-3 flex items-center gap-2 text-xs text-primary">
+            <div class="spinner"></div> <span id="resumeParseMsg">Parsing resume…</span>
+          </div>
+        </div>
+        <!-- LINKEDIN IMPORT -->
+        <div class="bg-sage/5 border border-sage/20 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-sage text-lg">person_search</span>
+            <span class="text-sm font-bold text-slate-200">LinkedIn Profile</span>
+          </div>
+          <div class="flex gap-2">
+            <input id="pLinkedin" placeholder="https://linkedin.com/in/yourname" style="flex:1;"/>
+            <button onclick="openLinkedIn()" class="flex-shrink-0 flex items-center gap-1 bg-sage/10 text-sage border border-sage/20 font-bold py-2.5 px-3 rounded-xl hover:bg-sage/20 transition-all text-xs">
+              <span class="material-symbols-outlined text-sm">open_in_new</span> Open
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-600 mt-2 flex items-center gap-1"><span class="material-symbols-outlined text-xs">info</span>URL is used to personalise AI outputs. Full import coming soon.</p>
+        </div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Portfolio URL</label><input id="pPortfolio" placeholder="https://yoursite.com"/></div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Certifications (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="certsTagsInput">
+            <input id="certsInput" placeholder="AWS Certified…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Languages</label>
+          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="langsTagsInput">
+            <input id="langsInput" placeholder="English, French…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-7">
+      <button class="flex items-center gap-1 text-sm font-medium px-4 py-2.5 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all" id="setupBackBtn" onclick="setupPrev()" style="display:none">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back
+      </button>
+      <button class="ml-auto flex items-center gap-1 bg-primary text-background-dark font-bold py-2.5 px-6 rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm" id="setupNextBtn" onclick="setupNext()">
+        Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- UPDATE STATUS MODAL -->
+<div class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4" id="updateModal">
+  <div class="bg-background-dark border border-sage/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <h3 class="font-bold text-base mb-4">Update Application</h3>
+    <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">New Status</label><select id="updateStatus"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select></div>
+    <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Employer Feedback</label><textarea id="updateFeedback" placeholder="What did they say?" rows="3"></textarea></div>
+    <div class="flex flex-col gap-1.5 mb-5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Notes</label><textarea id="updateNotes" placeholder="Additional notes…" rows="2"></textarea></div>
+    <div class="flex gap-2 justify-end">
+      <button onclick="closeUpdateModal()" class="text-sm font-medium px-4 py-2 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all">Cancel</button>
+      <button onclick="submitUpdate()" class="bg-primary text-background-dark font-bold py-2 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">Update <span class="material-symbols-outlined text-sm">check</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     DASHBOARD
+════════════════════════════════ -->
+<div id="app" style="display:none">
+  <div id="app-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside id="sidebar" class="bg-background-dark dark:bg-background-dark border-r border-primary/10 flex flex-col p-3">
+      <!-- Brand -->
+      <div class="flex items-center gap-2 px-2 py-3 mb-3 border-b border-primary/10 flex-shrink-0">
+        <span class="material-symbols-outlined text-primary flex-shrink-0">route</span>
+        <span class="font-bold tracking-tight text-sm brand-text nav-label">JobPath AI</span>
+      </div>
+      <!-- Nav groups -->
+      <div class="mb-4 flex-1 overflow-y-auto">
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 section-label nav-label">Discover</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer active-nav" onclick="nav('jobs')" id="nav-jobs">
+          <span class="material-symbols-outlined text-base flex-shrink-0">search</span><span class="nav-label">Job Search</span>
+        </div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('market')" id="nav-market">
+          <span class="material-symbols-outlined text-base flex-shrink-0">bar_chart</span><span class="nav-label">Market Intel</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Apply</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('docs')" id="nav-docs">
+          <span class="material-symbols-outlined text-base flex-shrink-0">description</span><span class="nav-label">Documents</span>
+        </div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('tracker')" id="nav-tracker">
+          <span class="material-symbols-outlined text-base flex-shrink-0">checklist</span><span class="nav-label">Tracker</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Insights</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('analytics')" id="nav-analytics">
+          <span class="material-symbols-outlined text-base flex-shrink-0">insights</span><span class="nav-label">Analytics</span>
+        </div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('feedback')" id="nav-feedback">
+          <span class="material-symbols-outlined text-base flex-shrink-0">chat_bubble</span><span class="nav-label">Feedback</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Assistant</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('chat')" id="nav-chat">
+          <span class="material-symbols-outlined text-base flex-shrink-0">smart_toy</span><span class="nav-label">AI Chat</span>
+        </div>
+      </div>
+      <!-- User footer -->
+      <div class="border-t border-primary/10 pt-3 flex-shrink-0">
+        <div class="sidebar-user flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 cursor-pointer transition-all" onclick="nav('profile')">
+          <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0" id="sidebarAvatar">?</div>
+          <div class="min-w-0 user-info nav-label">
+            <div class="text-sm font-semibold truncate" id="sidebarName">Loading…</div>
+            <div class="text-[10px] text-slate-500 truncate" id="sidebarRole">—</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN AREA ── -->
+    <div id="main-area">
+      <!-- TOPBAR -->
+      <div class="bg-background-dark border-b border-primary/10 px-4 md:px-6 h-14 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <!-- Sidebar toggle (desktop/tablet) -->
+          <button onclick="toggleSidebar()" class="hidden md:flex w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all items-center justify-center text-slate-400 hover:text-primary" title="Toggle sidebar">
+            <span class="material-symbols-outlined text-base">menu</span>
+          </button>
+          <div class="font-bold text-sm tracking-tight" id="pageTitle">Job Search</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleTheme()" class="w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
+            <span class="material-symbols-outlined text-base" id="themeIconDash">light_mode</span>
+          </button>
+          <div class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20" id="statusBadge">● Connecting…</div>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div id="content-scroll" class="p-4 md:p-5 bg-[#1a1810] dark:bg-[#1a1810]" style="background:#1a1810;">
+
+        <!-- JOB SEARCH -->
+        <div id="view-jobs" class="view-active">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Find Jobs</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">AI scores and ranks results against your profile</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+              <input id="jobLocation" placeholder="Location (e.g. Ottawa, Remote)"/>
+              <select id="jobRemote"><option value="true">Include Remote</option><option value="false">On-site Only</option></select>
+              <input id="jobMax" type="number" value="10" min="1" max="50" class="sm:col-span-1"/>
+              <button onclick="searchJobs()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1 sm:col-span-1">
+                <span class="material-symbols-outlined text-sm">search</span> Search Jobs
+              </button>
+            </div>
+            <div class="response-area empty" id="jobsResult"><span>Search for jobs to see AI-ranked results</span></div>
+            <div id="jobIdsBox" style="display:none" class="job-ids-box">
+              <div class="text-[10px] uppercase tracking-widest text-primary font-bold mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-sm">content_copy</span> Job IDs — use in Documents &amp; Tracker</div>
+              <div id="jobIdsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MARKET -->
+        <div id="view-market" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Market Intelligence</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Regional salary data, demand signals &amp; hiring culture</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+              <input id="mktRegion" placeholder="Region (e.g. North America)"/>
+              <input id="mktIndustry" placeholder="Industry (e.g. Technology)"/>
+              <button onclick="getMarket()" class="sm:col-span-2 bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">analytics</span> Get Report
+              </button>
+            </div>
+            <div class="response-area empty" id="marketResult"><span>Enter a region and industry</span></div>
+          </div>
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+            <div class="text-base font-bold mb-0.5">Application Tips by Region</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Culturally-aware advice for any market</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="tipsRegion" placeholder="Region (e.g. Japan, UK, Canada)" style="flex:1;"/>
+              <button onclick="getTips()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">travel_explore</span> Get Tips
+              </button>
+            </div>
+            <div class="response-area empty" id="tipsResult"><span>Get culturally-aware tips</span></div>
+          </div>
+        </div>
+
+        <!-- DOCUMENTS -->
+        <div id="view-docs" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Resume Generator</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Tailored to each role in seconds</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+              <input id="resumeJobId" placeholder="Job ID from search results"/>
+              <select id="resumeTone"><option value="professional">Professional</option><option value="creative">Creative</option><option value="technical">Technical</option></select>
+              <button onclick="genResume()" class="sm:col-span-2 bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">description</span> Generate Resume
+              </button>
+            </div>
+            <div class="response-area empty" id="resumeResult"><span>Your tailored resume will appear here</span></div>
+          </div>
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+            <div class="text-base font-bold mb-0.5">Cover Letter Generator</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Compelling, role-specific cover letters</div>
+            <div class="flex gap-2 mb-4 flex-wrap">
+              <input id="clJobId" placeholder="Job ID from search results" style="flex:1;"/>
+              <button onclick="genCoverLetter()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">mail</span> Generate
+              </button>
+            </div>
+            <div class="response-area empty" id="coverResult"><span>Your tailored cover letter will appear here</span></div>
+          </div>
+        </div>
+
+        <!-- TRACKER -->
+        <div id="view-tracker" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Track New Application</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Log a job application to start tracking progress</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+              <input id="trackJobId" placeholder="Job ID to track"/>
+              <input id="trackNotes" placeholder="Notes (optional)"/>
+              <button onclick="trackApp()" class="sm:col-span-2 bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">add_task</span> Track Application
+              </button>
+            </div>
+            <div class="response-area empty" id="trackResult"><span>Track a new application</span></div>
+          </div>
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+            <div class="text-base font-bold mb-0.5">Update Application Status</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Log interviews, offers, or rejections</div>
+            <div class="flex gap-2 flex-wrap">
+              <input id="updateAppId" placeholder="Application ID" style="flex:1;"/>
+              <button onclick="openUpdateModal()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">edit</span> Update Status
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANALYTICS -->
+        <div id="view-analytics" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+            <div class="text-base font-bold mb-0.5">Analytics &amp; Insights</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">AI-generated career performance metrics</div>
+            <div class="mb-4"><button onclick="loadAnalytics()" class="bg-primary text-background-dark font-bold py-2.5 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">insights</span> Load Analytics</button></div>
+            <div class="response-area empty" id="analyticsResult"><span>Click Load Analytics to see your metrics</span></div>
+          </div>
+        </div>
+
+        <!-- FEEDBACK -->
+        <div id="view-feedback" style="display:none">
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+            <div class="text-base font-bold mb-0.5">Employer Feedback Analysis</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Patterns and themes from your interview feedback</div>
+            <div class="mb-4"><button onclick="loadFeedback()" class="bg-primary text-background-dark font-bold py-2.5 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">chat_bubble</span> Analyse Feedback</button></div>
+            <div class="response-area empty" id="feedbackResult"><span>Click Analyse to see feedback patterns</span></div>
+          </div>
+        </div>
+
+        <!-- CHAT -->
+        <div id="view-chat" style="display:none">
+          <div class="flex justify-end mb-3">
+            <button onclick="resetChat()" class="bg-red-500/10 text-red-400 border border-red-500/20 py-2 px-4 rounded-xl hover:bg-red-500/20 transition-all text-xs flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">restart_alt</span> Reset Chat
+            </button>
+          </div>
+          <div id="chat-inner" style="display:flex;flex-direction:column;">
+            <div class="flex-1 overflow-y-auto flex flex-col gap-3 p-4 bg-background-dark border border-primary/10 rounded-2xl mb-3" id="chatMessages" style="scrollbar-width:none;min-height:300px;max-height:calc(100svh - 220px);">
+              <div class="flex gap-2">
+                <div class="w-7 h-7 rounded-lg bg-white/5 border border-sage/10 flex items-center justify-center text-sm flex-shrink-0">🤖</div>
+                <div class="max-w-[80%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed bg-white/5 border border-primary/10 text-slate-300">Hi! I'm your AI job application assistant. I can search for jobs, generate tailored documents, track your applications, and provide career insights. What would you like to do?</div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <textarea id="chatInput" rows="1" placeholder="Ask me anything about your job search…" onkeydown="chatKeydown(event)" style="flex:1;resize:none;border-radius:0.75rem;padding:12px 16px;font-size:0.875rem;min-height:44px;"></textarea>
+              <button onclick="sendChat()" class="bg-primary text-background-dark font-bold px-4 rounded-xl hover:brightness-110 transition-all flex items-center flex-shrink-0">
+                <span class="material-symbols-outlined">send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE / RESUME UPDATE -->
+        <div id="view-profile" style="display:none">
+          <!-- Resume update card -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-base font-bold mb-0.5">Resume Update</div>
+                <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Upload a new resume to refresh your profile with AI</div>
+              </div>
+              <span class="text-[10px] bg-primary/15 text-primary px-2 py-1 rounded-full font-bold flex-shrink-0 ml-3">AI Auto-fill</span>
+            </div>
+            <div class="upload-dropzone mb-3" id="dashResumeDropzone">
+              <input type="file" id="dashResumeUpload" accept=".pdf,.doc,.docx,.txt" onchange="handleResumeUpload(event,'dashboard')"/>
+              <span class="material-symbols-outlined text-primary/40 text-4xl mb-2 block">upload_file</span>
+              <p class="text-sm text-slate-300 font-semibold">Click to upload or drag &amp; drop</p>
+              <p class="text-xs text-slate-500 mt-1">PDF, DOC, DOCX, TXT — AI parses and updates your profile</p>
+            </div>
+            <div id="dashParseStatus" style="display:none" class="flex items-center gap-2 text-sm text-primary mb-3">
+              <div class="spinner"></div><span id="dashParseMsg">Parsing resume…</span>
+            </div>
+            <div id="dashParseResult" style="display:none" class="response-area text-sm"></div>
+          </div>
+
+          <!-- Current profile card -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-base font-bold mb-0.5">Current Profile</div>
+                <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Your active job-seeking profile</div>
+              </div>
+              <button onclick="openSetup()" class="text-xs font-bold px-3 py-1.5 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">edit</span> Edit
+              </button>
+            </div>
+            <div id="profileCard">
+              <div class="flex items-center gap-4 mb-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
+                <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-bold text-xl flex-shrink-0" id="profileCardAvatar">?</div>
+                <div>
+                  <div class="font-bold text-base" id="profileCardName">—</div>
+                  <div class="text-xs text-slate-500" id="profileCardRole">—</div>
+                </div>
+              </div>
+              <div id="profileCardFields"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content-scroll -->
+    </div><!-- /main-area -->
+  </div><!-- /app-layout -->
+
+  <!-- ── MOBILE BOTTOM NAV ── -->
+  <nav id="mobile-nav">
+    <div class="mn-item active" onclick="nav('jobs')" id="mn-jobs">
+      <span class="material-symbols-outlined">search</span>Jobs
+    </div>
+    <div class="mn-item" onclick="nav('docs')" id="mn-docs">
+      <span class="material-symbols-outlined">description</span>Docs
+    </div>
+    <div class="mn-item" onclick="nav('tracker')" id="mn-tracker">
+      <span class="material-symbols-outlined">checklist</span>Track
+    </div>
+    <div class="mn-item" onclick="nav('chat')" id="mn-chat">
+      <span class="material-symbols-outlined">smart_toy</span>Chat
+    </div>
+    <div class="mn-item" onclick="nav('profile')" id="mn-profile">
+      <span class="material-symbols-outlined">person</span>Profile
+    </div>
+  </nav>
+
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script>
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000' : '';
+let sessionId = localStorage.getItem('jpai_session');
+let setupPage = 0, updateTargetId = null;
+const skills = [], roles = [], certs = [], langs = ['English'];
+let currentProfile = null;
+
+// ── API helper ──────────────────────────────────────
+async function api(method, path, body = null) {
+  const h = { 'Content-Type': 'application/json' };
+  if (sessionId) h['X-Session-ID'] = sessionId;
+  const r = await fetch(API + path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 204) return null;
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.detail || 'API error');
+  return d;
+}
+
+// ── Toast ──────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show ' + type;
+  setTimeout(() => el.className = '', 3200);
+}
+
+// ── Markdown renderer ──────────────────────────────
+function md(t) {
+  if (!t) return '';
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^# (.+)$/gm,'<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^---+$/gm,'<hr/>')
+    .replace(/^[*-] (.+)$/gm,'<div class="md-bullet"><span class="md-bullet-dot">•</span><span>$1</span></div>')
+    .replace(/^(\d+)\. (.+)$/gm,'<div class="md-num"><span class="md-num-n">$1.</span><span>$2</span></div>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br/>');
+}
+
+// ── Loading / result helpers ───────────────────────
+function setLoading(id) {
+  const el = document.getElementById(id); if (!el) return;
+  el.className = 'response-area';
+  el.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>';
+}
+function setResult(id, t) {
+  const el = document.getElementById(id); if (!el) return;
+  el.className = 'response-area'; el.innerHTML = md(t);
+}
+
+// ── Health check ───────────────────────────────────
+async function checkHealth() {
+  const b = document.getElementById('statusBadge');
+  try {
+    const d = await api('GET', '/api/health');
+    b.textContent = '● Online · ' + d.sessions + ' session' + (d.sessions !== 1 ? 's' : '');
+    b.className = 'text-[11px] font-bold px-3 py-1.5 rounded-full bg-sage/10 text-sage border border-sage/20';
+  } catch {
+    b.textContent = '● Backend Offline';
+    b.className = 'text-[11px] font-bold px-3 py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20';
+  }
+}
+
+// ── Session ────────────────────────────────────────
+async function initSession() {
+  try { const d = await api('POST', '/api/session'); sessionId = d.session_id; localStorage.setItem('jpai_session', sessionId); return true; }
+  catch { return false; }
+}
+
+// ── Counter animations ─────────────────────────────
+function animateCounters() {
+  document.querySelectorAll('[data-target]').forEach(el => {
+    const t = parseInt(el.dataset.target); let c = 0;
+    const x = setInterval(() => { c = Math.min(c + t / 40, t); el.textContent = Math.floor(c); if (c >= t) clearInterval(x); }, 30);
+  });
+}
+const hObs = new IntersectionObserver(e => { if (e[0].isIntersecting) { animateCounters(); hObs.disconnect(); } }, { threshold: 0.5 });
+const hs = document.querySelector('[data-target]'); if (hs) hObs.observe(hs);
+
+// ── Scroll reveal ──────────────────────────────────
+const rObs = new IntersectionObserver(e => { e.forEach(x => { if (x.isIntersecting) x.target.classList.add('visible'); }); }, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => rObs.observe(el));
+
+// ── Setup modal ────────────────────────────────────
+function openSetup() { document.getElementById('setupModal').classList.remove('hidden'); }
+
+function setupTags(inp, con, arr) {
+  const i = document.getElementById(inp); if (!i) return;
+  i.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ',') && i.value.trim()) {
+      e.preventDefault(); const v = i.value.trim().replace(/,$/, '');
+      if (v && !arr.includes(v)) { arr.push(v); addTag(con, arr, v, inp); }
+      i.value = '';
+    }
+  });
+}
+function addTag(con, arr, val, inp) {
+  const c = document.getElementById(con); const i = document.getElementById(inp);
+  const t = document.createElement('div');
+  t.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:rgba(242,204,13,0.1);color:#f2cc0d;border:1px solid rgba(242,204,13,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:500;';
+  t.innerHTML = val + '<span style="cursor:pointer;opacity:0.6;margin-left:2px;font-size:12px;">×</span>';
+  t.querySelector('span').addEventListener('click', () => { const idx = arr.indexOf(val); if (idx > -1) arr.splice(idx, 1); t.remove(); });
+  c.insertBefore(t, i);
+}
+
+function setupNext() {
+  if (setupPage === 0) {
+    if (!document.getElementById('pName').value.trim() || !document.getElementById('pEmail').value.trim() || !document.getElementById('pLocation').value.trim()) { toast('Fill in name, email, and location', 'error'); return; }
+    if (!document.getElementById('pExpLevel').value) { toast('Please select your experience level', 'error'); return; }
+    if (!document.getElementById('pYears').value || parseInt(document.getElementById('pYears').value) < 0) { toast('Please enter your years of experience', 'error'); return; }
+    document.getElementById('step0').style.display = 'none'; document.getElementById('step1').style.display = '';
+    document.getElementById('sb1').className = 'h-1 flex-1 rounded-full bg-primary transition-all';
+    document.getElementById('setupTitle').textContent = 'Skills & Preferences';
+    document.getElementById('setupSub').textContent = 'What are you looking for and what do you bring?';
+    document.getElementById('setupBackBtn').style.display = ''; setupPage = 1;
+  } else if (setupPage === 1) {
+    document.getElementById('step1').style.display = 'none'; document.getElementById('step2').style.display = '';
+    document.getElementById('sb2').className = 'h-1 flex-1 rounded-full bg-primary transition-all';
+    document.getElementById('setupTitle').textContent = 'Final Details';
+    document.getElementById('setupSub').textContent = 'Add your links and certifications (optional).';
+    document.getElementById('setupNextBtn').innerHTML = 'Create Profile <span class="material-symbols-outlined text-sm">check</span>';
+    setupPage = 2;
+  } else { submitProfile(); }
+}
+function setupPrev() {
+  if (setupPage === 1) {
+    document.getElementById('step1').style.display = 'none'; document.getElementById('step0').style.display = '';
+    document.getElementById('sb1').className = 'h-1 flex-1 rounded-full bg-white/10 transition-all';
+    document.getElementById('setupTitle').textContent = 'Create your profile';
+    document.getElementById('setupSub').textContent = 'Tell us about you so AI can find the best opportunities.';
+    document.getElementById('setupBackBtn').style.display = 'none'; setupPage = 0;
+  } else if (setupPage === 2) {
+    document.getElementById('step2').style.display = 'none'; document.getElementById('step1').style.display = '';
+    document.getElementById('sb2').className = 'h-1 flex-1 rounded-full bg-white/10 transition-all';
+    document.getElementById('setupTitle').textContent = 'Skills & Preferences';
+    document.getElementById('setupSub').textContent = 'What are you looking for and what do you bring?';
+    document.getElementById('setupNextBtn').innerHTML = 'Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>';
+    setupPage = 1;
+  }
+}
+
+async function submitProfile() {
+  const btn = document.getElementById('setupNextBtn'); btn.disabled = true; btn.textContent = 'Saving…';
+  const jobTypes = Array.from(document.querySelectorAll('#jobTypesGroup input:checked')).map(i => i.value);
+  try {
+    if (!sessionId) await initSession();
+    const p = {
+      name: document.getElementById('pName').value.trim(),
+      email: document.getElementById('pEmail').value.trim(),
+      phone: document.getElementById('pPhone').value.trim() || null,
+      location: document.getElementById('pLocation').value.trim(),
+      experience_level: document.getElementById('pExpLevel').value,
+      years_of_experience: parseInt(document.getElementById('pYears').value) || 0,
+      skills, desired_roles: roles, desired_job_types: jobTypes,
+      preferred_currency: document.getElementById('pCurrency').value,
+      desired_salary_min: parseInt(document.getElementById('pSalMin').value) || null,
+      desired_salary_max: parseInt(document.getElementById('pSalMax').value) || null,
+      certifications: certs, languages: langs.length ? langs : ['English'],
+      linkedin_url: document.getElementById('pLinkedin').value.trim() || null,
+      portfolio_url: document.getElementById('pPortfolio').value.trim() || null
+    };
+    await api('POST', '/api/profile', p);
+    currentProfile = p;
+    launchDashboard(p);
+    document.getElementById('setupModal').classList.add('hidden');
+    toast('Welcome, ' + p.name.split(' ')[0] + '!', 'success');
+  } catch (err) {
+    toast('Failed: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Create Profile <span class="material-symbols-outlined text-sm">check</span>';
+  }
+}
+
+// ── Dashboard launch ───────────────────────────────
+function launchDashboard(p) {
+  currentProfile = p;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('sidebarName').textContent = p.name;
+  document.getElementById('sidebarRole').textContent = (p.desired_roles && p.desired_roles[0]) || p.experience_level;
+  document.getElementById('sidebarAvatar').textContent = p.name.charAt(0).toUpperCase();
+  updateProfileCard(p);
+  checkHealth();
+  initSidebarState();
+}
+
+function updateProfileCard(p) {
+  const avatar = document.getElementById('profileCardAvatar');
+  const name = document.getElementById('profileCardName');
+  const role = document.getElementById('profileCardRole');
+  const fields = document.getElementById('profileCardFields');
+  if (!avatar) return;
+  avatar.textContent = p.name ? p.name.charAt(0).toUpperCase() : '?';
+  if (name) name.textContent = p.name || '—';
+  if (role) role.textContent = (p.desired_roles && p.desired_roles[0]) ? p.desired_roles[0] + ' · ' + (p.experience_level || '') : (p.experience_level || '—');
+  if (fields) {
+    const rows = [
+      ['Email', p.email], ['Location', p.location],
+      ['Skills', (p.skills || []).slice(0, 6).join(', ') || '—'],
+      ['Experience', (p.years_of_experience || 0) + ' yrs · ' + (p.experience_level || '—')],
+      ['Roles', (p.desired_roles || []).join(', ') || '—'],
+      ['Currency', p.preferred_currency || 'USD'],
+      ['LinkedIn', p.linkedin_url || '—'],
+    ];
+    fields.innerHTML = rows.map(([l, v]) =>
+      `<div class="profile-field"><span class="profile-field-label">${l}</span><span class="profile-field-value">${v || '—'}</span></div>`
+    ).join('');
+  }
+}
+
+// ── Navigation ─────────────────────────────────────
+const VIEWS = ['jobs', 'market', 'docs', 'tracker', 'analytics', 'feedback', 'chat', 'profile'];
+const TITLES = { jobs: 'Job Search', market: 'Market Intelligence', docs: 'Documents', tracker: 'Application Tracker', analytics: 'Analytics', feedback: 'Feedback Analysis', chat: 'AI Chat', profile: 'My Profile' };
+
+function nav(page) {
+  VIEWS.forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (el) el.style.display = v === page ? 'block' : 'none';
+    const ni = document.getElementById('nav-' + v);
+    if (ni) { ni.classList.remove('active-nav'); if (v === page) ni.classList.add('active-nav'); }
+    const mn = document.getElementById('mn-' + v);
+    if (mn) { mn.classList.remove('active'); if (v === page) mn.classList.add('active'); }
+  });
+  document.getElementById('pageTitle').textContent = TITLES[page] || page;
+  // Refresh profile card when navigating there
+  if (page === 'profile' && currentProfile) updateProfileCard(currentProfile);
+}
+
+// ── Sidebar toggle ─────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const isCollapsed = sb.classList.toggle('collapsed');
+  localStorage.setItem('jpai_sidebar', isCollapsed ? 'collapsed' : 'expanded');
+}
+
+function initSidebarState() {
+  const sb = document.getElementById('sidebar');
+  const isMd = window.innerWidth >= 768 && window.innerWidth < 1024;
+  const isLg = window.innerWidth >= 1024;
+  if (isLg) {
+    // Restore saved state on desktop
+    const saved = localStorage.getItem('jpai_sidebar');
+    if (saved === 'collapsed') sb.classList.add('collapsed');
+    else sb.classList.remove('collapsed');
+  }
+  // Tablet auto-collapses via CSS, no JS needed
+}
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('app').style.display !== 'none') initSidebarState();
+});
+
+// ── API calls ──────────────────────────────────────
+async function searchJobs() {
+  setLoading('jobsResult'); document.getElementById('jobIdsBox').style.display = 'none';
+  try {
+    const d = await api('POST', '/api/jobs/search', { location_filter: document.getElementById('jobLocation').value.trim(), include_remote: document.getElementById('jobRemote').value === 'true', max_results: parseInt(document.getElementById('jobMax').value) || 10 });
+    setResult('jobsResult', d.response);
+    if (d.job_ids && d.job_ids.length) {
+      document.getElementById('jobIdsList').innerHTML = d.job_ids.map((id, i) =>
+        '<div class="job-id-item"><span>' + (i + 1) + '. ' + id + '</span><span class="job-id-copy" onclick="copyId(\'' + id + '\')">Copy</span></div>'
+      ).join('');
+      document.getElementById('jobIdsBox').style.display = 'block';
+      toast('Found ' + d.job_ids.length + ' jobs', 'success');
+    }
+  } catch (err) { setResult('jobsResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+function copyId(id) { navigator.clipboard.writeText(id).then(() => toast('Copied!', 'success')); }
+
+async function getMarket() {
+  const r = document.getElementById('mktRegion').value.trim(), i = document.getElementById('mktIndustry').value.trim();
+  if (!r || !i) { toast('Enter both region and industry', 'error'); return; }
+  setLoading('marketResult');
+  try { const d = await api('POST', '/api/market-insights', { region: r, industry: i }); setResult('marketResult', d.response); }
+  catch (err) { setResult('marketResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+async function getTips() {
+  const r = document.getElementById('tipsRegion').value.trim(); if (!r) { toast('Enter a region', 'error'); return; }
+  setLoading('tipsResult');
+  try { const d = await api('POST', '/api/application-tips', { region: r }); setResult('tipsResult', d.response); }
+  catch (err) { setResult('tipsResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+async function genResume() {
+  const id = document.getElementById('resumeJobId').value.trim(); if (!id) { toast('Enter a Job ID', 'error'); return; }
+  setLoading('resumeResult');
+  try { const d = await api('POST', '/api/documents/resume', { job_id: id, tone: document.getElementById('resumeTone').value }); setResult('resumeResult', d.response); }
+  catch (err) { setResult('resumeResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+async function genCoverLetter() {
+  const id = document.getElementById('clJobId').value.trim(); if (!id) { toast('Enter a Job ID', 'error'); return; }
+  setLoading('coverResult');
+  try { const d = await api('POST', '/api/documents/cover-letter', { job_id: id }); setResult('coverResult', d.response); }
+  catch (err) { setResult('coverResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+async function trackApp() {
+  const id = document.getElementById('trackJobId').value.trim(); if (!id) { toast('Enter a Job ID', 'error'); return; }
+  setLoading('trackResult');
+  try { const d = await api('POST', '/api/applications', { job_id: id, notes: document.getElementById('trackNotes').value.trim() }); setResult('trackResult', d.response); toast('Application tracked!', 'success'); }
+  catch (err) { setResult('trackResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+function openUpdateModal() {
+  const id = document.getElementById('updateAppId').value.trim();
+  if (!id) { toast('Enter an Application ID', 'error'); return; }
+  updateTargetId = id; document.getElementById('updateModal').classList.remove('hidden');
+}
+function closeUpdateModal() { document.getElementById('updateModal').classList.add('hidden'); updateTargetId = null; }
+async function submitUpdate() {
+  if (!updateTargetId) return;
+  try {
+    await api('PUT', '/api/applications/' + updateTargetId, { new_status: document.getElementById('updateStatus').value, feedback: document.getElementById('updateFeedback').value.trim() || null, notes: document.getElementById('updateNotes').value.trim() || null });
+    closeUpdateModal(); toast('Updated!', 'success');
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+async function loadAnalytics() {
+  setLoading('analyticsResult');
+  try { const d = await api('GET', '/api/analytics'); setResult('analyticsResult', d.response); }
+  catch (err) { setResult('analyticsResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+async function loadFeedback() {
+  setLoading('feedbackResult');
+  try { const d = await api('GET', '/api/feedback'); setResult('feedbackResult', d.response); }
+  catch (err) { setResult('feedbackResult', '⚠ ' + err.message); toast(err.message, 'error'); }
+}
+
+// ── Chat ───────────────────────────────────────────
+function appendChatMsg(role, html) {
+  const w = document.getElementById('chatMessages');
+  const init = document.getElementById('sidebarAvatar').textContent || '?';
+  const d = document.createElement('div');
+  d.style.cssText = 'display:flex;gap:8px;' + (role === 'user' ? 'flex-direction:row-reverse;' : 'flex-direction:row;');
+  const avatarStyle = role === 'user'
+    ? 'width:28px;height:28px;border-radius:8px;background:rgba(242,204,13,0.2);display:flex;align-items:center;justify-content:center;color:#f2cc0d;font-weight:700;font-size:12px;flex-shrink:0;'
+    : 'width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(141,163,153,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;';
+  const bubbleStyle = role === 'user'
+    ? 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#f2cc0d;color:#221f10;font-weight:500;'
+    : 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:rgba(255,255,255,0.05);border:1px solid rgba(242,204,13,0.08);color:#cbd5e1;';
+  d.innerHTML = '<div style="' + avatarStyle + '">' + (role === 'user' ? init : '🤖') + '</div><div style="' + bubbleStyle + '">' + html + '</div>';
+  w.appendChild(d); w.scrollTop = w.scrollHeight; return d;
+}
+
+async function sendChat() {
+  const i = document.getElementById('chatInput'); const m = i.value.trim(); if (!m) return; i.value = '';
+  appendChatMsg('user', m.replace(/</g, '&lt;'));
+  const el = appendChatMsg('agent', '<div style="display:flex;align-items:center;gap:8px;color:#475569;font-size:0.75rem;"><div class="spinner"></div>Thinking…</div>');
+  try { const d = await api('POST', '/api/chat', { message: m }); el.querySelectorAll('div')[1].innerHTML = md(d.response); }
+  catch (err) { el.querySelectorAll('div')[1].textContent = '⚠ ' + err.message; toast(err.message, 'error'); }
+}
+
+async function resetChat() {
+  try {
+    await api('DELETE', '/api/chat/reset');
+    document.getElementById('chatMessages').innerHTML = '';
+    appendChatMsg('agent', 'Conversation reset. How can I help you?');
+    toast('Chat reset', 'info');
+  } catch (err) { toast(err.message, 'error'); }
+}
+function chatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } }
+
+// ── Theme ──────────────────────────────────────────
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('jpai_theme', isDark ? 'dark' : 'light');
+  updateThemeIcons(isDark);
+}
+function updateThemeIcons(isDark) {
+  const icon = isDark ? 'light_mode' : 'dark_mode';
+  ['themeIconLanding', 'themeIconDash'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = icon; }
+  });
+}
+function initTheme() {
+  const saved = localStorage.getItem('jpai_theme');
+  const isDark = saved ? saved === 'dark' : true;
+  document.documentElement.classList.toggle('dark', isDark);
+  updateThemeIcons(isDark);
+}
+
+// ── LinkedIn helper ────────────────────────────────
+function openLinkedIn() {
+  const url = document.getElementById('pLinkedin').value.trim();
+  window.open(url || 'https://www.linkedin.com', '_blank');
+}
+
+// ══════════════════════════════════════════════════
+// RESUME UPLOAD + AI PARSE (setup & dashboard)
+// ══════════════════════════════════════════════════
+async function handleResumeUpload(e, context) {
+  const file = e.target.files[0]; if (!file) return;
+
+  // Determine which UI elements to update
+  const isSetup = context === 'setup';
+  const statusEl = document.getElementById(isSetup ? 'resumeParseStatus' : 'dashParseStatus');
+  const msgEl    = document.getElementById(isSetup ? 'resumeParseMsg'    : 'dashParseMsg');
+  const dropzone = document.getElementById(isSetup ? 'resumeDropzone'    : 'dashResumeDropzone');
+
+  if (statusEl) statusEl.style.display = 'flex';
+  if (msgEl)    msgEl.textContent = 'Reading file…';
+  if (dropzone) {
+    // Show filename in dropzone
+    const inner = dropzone.querySelector('p');
+    if (inner) inner.textContent = file.name;
+  }
+
+  try {
+    let parsedText = '';
+
+    if (file.type === 'application/pdf') {
+      // PDF: send as base64 document to Claude
+      const b64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(',')[1]);
+        r.onerror = () => rej(new Error('Read failed'));
+        r.readAsDataURL(file);
+      });
+      if (msgEl) msgEl.textContent = 'Sending to Claude AI…';
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } },
+              { type: 'text', text: 'Extract information from this resume. Return ONLY valid JSON, no markdown fences, no explanation:\n{"name":"","email":"","phone":"","location":"","experience_level":"entry|mid|senior|lead|executive","years_of_experience":0,"skills":[],"desired_roles":[],"certifications":[],"languages":[],"linkedin_url":"","portfolio_url":""}' }
+            ]
+          }]
+        })
+      });
+      const data = await resp.json();
+      parsedText = data.content?.find(b => b.type === 'text')?.text || '';
+    } else {
+      // Text files: read directly
+      const raw = await file.text();
+      if (msgEl) msgEl.textContent = 'Analysing with Claude AI…';
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: 'Extract from this resume. Return ONLY valid JSON, no markdown:\n{"name":"","email":"","phone":"","location":"","experience_level":"entry|mid|senior|lead|executive","years_of_experience":0,"skills":[],"desired_roles":[],"certifications":[],"languages":[],"linkedin_url":"","portfolio_url":""}\n\nResume:\n' + raw.substring(0, 4000) }]
+        })
+      });
+      const data = await resp.json();
+      parsedText = data.content?.find(b => b.type === 'text')?.text || '';
+    }
+
+    // Parse JSON
+    const clean = parsedText.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    if (isSetup) {
+      applyParsedResume(parsed);
+      if (msgEl) msgEl.textContent = '✓ Profile auto-filled!';
+      setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+      toast('Resume parsed — fields auto-filled!', 'success');
+    } else {
+      // Dashboard: update profile via API and refresh profile card
+      await applyDashboardResumeParse(parsed);
+    }
+  } catch (err) {
+    console.error(err);
+    if (msgEl) msgEl.textContent = 'Could not parse — please fill manually.';
+    toast('Could not auto-parse resume', 'error');
+    setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+  }
+}
+
+// Apply parsed resume to setup form fields
+function applyParsedResume(p) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  set('pName', p.name); set('pEmail', p.email); set('pPhone', p.phone);
+  set('pLocation', p.location); set('pLinkedin', p.linkedin_url); set('pPortfolio', p.portfolio_url);
+  if (p.experience_level) set('pExpLevel', p.experience_level);
+  if (p.years_of_experience) set('pYears', p.years_of_experience);
+  if (Array.isArray(p.skills)) p.skills.forEach(v => { if (v && !skills.includes(v)) { skills.push(v); addTag('skillsTagsInput', skills, v, 'skillsInput'); } });
+  if (Array.isArray(p.desired_roles)) p.desired_roles.forEach(v => { if (v && !roles.includes(v)) { roles.push(v); addTag('rolesTagsInput', roles, v, 'rolesInput'); } });
+  if (Array.isArray(p.certifications)) p.certifications.forEach(v => { if (v && !certs.includes(v)) { certs.push(v); addTag('certsTagsInput', certs, v, 'certsInput'); } });
+  if (Array.isArray(p.languages)) p.languages.forEach(v => { if (v && !langs.includes(v)) { langs.push(v); addTag('langsTagsInput', langs, v, 'langsInput'); } });
+}
+
+// Apply parsed resume to existing dashboard profile
+async function applyDashboardResumeParse(parsed) {
+  const statusEl = document.getElementById('dashParseStatus');
+  const msgEl    = document.getElementById('dashParseMsg');
+  const resultEl = document.getElementById('dashParseResult');
+
+  try {
+    if (msgEl) msgEl.textContent = 'Updating your profile…';
+
+    // Merge with existing profile
+    const updated = Object.assign({}, currentProfile);
+    if (parsed.name)                        updated.name = parsed.name;
+    if (parsed.email)                       updated.email = parsed.email;
+    if (parsed.phone)                       updated.phone = parsed.phone;
+    if (parsed.location)                    updated.location = parsed.location;
+    if (parsed.experience_level)            updated.experience_level = parsed.experience_level;
+    if (parsed.years_of_experience)         updated.years_of_experience = parsed.years_of_experience;
+    if (parsed.linkedin_url)                updated.linkedin_url = parsed.linkedin_url;
+    if (parsed.portfolio_url)               updated.portfolio_url = parsed.portfolio_url;
+    // Merge arrays (deduplicate)
+    if (Array.isArray(parsed.skills))       updated.skills = [...new Set([...(updated.skills||[]), ...parsed.skills])];
+    if (Array.isArray(parsed.certifications)) updated.certifications = [...new Set([...(updated.certifications||[]), ...parsed.certifications])];
+    if (Array.isArray(parsed.languages))    updated.languages = [...new Set([...(updated.languages||[]), ...parsed.languages])];
+    if (Array.isArray(parsed.desired_roles)) updated.desired_roles = [...new Set([...(updated.desired_roles||[]), ...parsed.desired_roles])];
+
+    await api('POST', '/api/profile', updated);
+    currentProfile = updated;
+
+    // Update sidebar & profile card
+    document.getElementById('sidebarName').textContent = updated.name;
+    document.getElementById('sidebarAvatar').textContent = updated.name.charAt(0).toUpperCase();
+    updateProfileCard(updated);
+
+    if (msgEl) msgEl.textContent = '✓ Profile updated!';
+    setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 2000);
+
+    // Show summary
+    if (resultEl) {
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = md(
+        '## ✓ Resume Parsed & Profile Updated\n\n' +
+        '**Name:** ' + (updated.name || '—') + '\n' +
+        '**Skills added:** ' + (parsed.skills || []).join(', ') + '\n' +
+        '**Roles:** ' + (updated.desired_roles || []).join(', ') + '\n' +
+        '**Experience:** ' + (updated.years_of_experience || 0) + ' yrs · ' + (updated.experience_level || '—')
+      );
+    }
+    toast('Profile updated from resume!', 'success');
+  } catch (err) {
+    if (msgEl) msgEl.textContent = '⚠ Update failed: ' + err.message;
+    toast('Profile update failed', 'error');
+  }
+}
+
+// ── Boot ───────────────────────────────────────────
+async function boot() {
+  initTheme();
+  setupTags('skillsInput', 'skillsTagsInput', skills);
+  setupTags('rolesInput', 'rolesTagsInput', roles);
+  setupTags('certsInput', 'certsTagsInput', certs);
+  setupTags('langsInput', 'langsTagsInput', langs);
+  if (sessionId) {
+    try {
+      const p = await api('GET', '/api/profile');
+      launchDashboard(p);
+      document.getElementById('landing').style.display = 'none';
+      return;
+    } catch (err) {
+      localStorage.removeItem('jpai_session');
+      sessionId = null;
+      await initSession();
+    }
+  } else { await initSession(); }
+  checkHealth();
+}
+boot();
+setInterval(checkHealth, 30000);
+</script>
+</body>
+</html>
