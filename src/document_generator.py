@@ -36,7 +36,7 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime, timezone
-from typing import cast
+from typing import Any, cast
 
 import anthropic
 from anthropic.types import TextBlock
@@ -78,27 +78,6 @@ class DocumentGenerator:
 
     # ── Public API ─────────────────────────────────────────────────────────
 
-    def generate_resume(
-        self,
-        profile: UserProfile,
-        job: JobListing,
-        tone: str = "professional",
-    ) -> GeneratedDocument:
-        """Generate a tailored resume for *job* based on *profile*."""
-        user_prompt = self._build_resume_prompt(profile, job, tone)
-        raw = self._call_model(_RESUME_SYSTEM, user_prompt)
-        content, notes = self._split_notes(raw)
-        return GeneratedDocument(
-            id=str(uuid.uuid4()),
-            user_id=profile.id,
-            job_id=job.id,
-            doc_type="resume",
-            content=content,
-            created_at=datetime.now(timezone.utc),
-            model_used=AGENT_MODEL,
-            tailoring_notes=notes,
-        )
-
     def generate_cover_letter(
         self,
         profile: UserProfile,
@@ -117,6 +96,91 @@ class DocumentGenerator:
             created_at=datetime.now(timezone.utc),
             model_used=AGENT_MODEL,
             tailoring_notes=notes,
+        )
+
+    def score_ats_match(
+        self,
+        resume_text: str,
+        job_description: str,
+    ) -> dict[str, Any]:
+        """Score how well a resume matches a job description for ATS systems.
+
+        Returns dict with ats_score (0-100), missing_keywords, and suggestions.
+        """
+        prompt = f"""Analyse the resume against the job description for ATS (Applicant Tracking System) compatibility.
+
+--- RESUME ---
+{resume_text[:3000]}
+
+--- JOB DESCRIPTION ---
+{job_description[:3000]}
+
+Return ONLY valid JSON (no markdown fences) with these keys:
+- "ats_score": integer 0-100 representing match percentage
+- "missing_keywords": list of important keywords from the JD missing in the resume
+- "matched_keywords": list of keywords found in both
+- "suggestions": list of 3-5 specific insertions to improve the score
+"""
+        try:
+            response = self._client.messages.create(
+                model=AGENT_MODEL,
+                max_tokens=1024,
+                system="You are an ATS optimisation expert. Respond ONLY with valid JSON.",
+                messages=[{"role": "user", "content": prompt}],
+            )
+            text = cast(TextBlock, response.content[0]).text.strip()
+            # Strip markdown fences if present
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+            data = json.loads(text)
+            score = max(0, min(100, int(data.get("ats_score", 0))))
+            return {
+                "ats_score": score,
+                "missing_keywords": data.get("missing_keywords", []),
+                "matched_keywords": data.get("matched_keywords", []),
+                "suggestions": data.get("suggestions", []),
+            }
+        except Exception:
+            return {
+                "ats_score": 0,
+                "missing_keywords": [],
+                "matched_keywords": [],
+                "suggestions": ["Unable to compute ATS score. Please try again."],
+            }
+
+    def generate_resume(
+        self,
+        profile: UserProfile,
+        job: JobListing,
+        tone: str = "professional",
+        auto_ats: bool = True,
+    ) -> GeneratedDocument:
+        """Generate a tailored resume for *job* based on *profile*.
+
+        When auto_ats is True, automatically scores the resume against the JD.
+        """
+        user_prompt = self._build_resume_prompt(profile, job, tone)
+        raw = self._call_model(_RESUME_SYSTEM, user_prompt)
+        content, notes = self._split_notes(raw)
+
+        ats_score: float | None = None
+        missing_keywords: list[str] = []
+        if auto_ats and job.description:
+            ats_result = self.score_ats_match(content, job.description)
+            ats_score = ats_result["ats_score"]
+            missing_keywords = ats_result["missing_keywords"]
+
+        return GeneratedDocument(
+            id=str(uuid.uuid4()),
+            user_id=profile.id,
+            job_id=job.id,
+            doc_type="resume",
+            content=content,
+            created_at=datetime.now(timezone.utc),
+            model_used=AGENT_MODEL,
+            tailoring_notes=notes,
+            ats_score=ats_score,
+            missing_keywords=missing_keywords,
         )
 
     def suggest_improvements(

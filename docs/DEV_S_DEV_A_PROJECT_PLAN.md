@@ -406,37 +406,39 @@ Every task below specifies the owner, which layers are affected (Backend/Fronten
 
 ## 10) Task Summary Table
 
-| Task ID | Name | Owner | Layer | Depends On | Test File(s) |
-|---------|------|-------|-------|------------|--------------|
-| S0-01 | Supabase migration | Dev. A | Backend | -- | `tests/test_models.py`, `tests/test_privacy.py`, `tests/test_analytics.py` |
-| S0-02 | Supabase Auth integration | Dev. A | Backend (API) | S0-01 | `tests/test_api.py` |
-| S0-03 | Environment and config update | Dev. S | Backend | -- | `ruff check .`, `pyright` |
-| S1-01 | JSearch API integration | Dev. A | Backend | -- | `tests/test_job_search.py` |
-| S1-02 | Adzuna API integration | Dev. A | Backend | -- | `tests/test_job_search.py` |
-| S1-03 | ATS keyword scoring | Dev. A | Backend | -- | `tests/test_document_generator.py` |
-| S1-04 | PDF/DOCX export | Dev. S | Backend | -- | `tests/test_document_generator.py` |
-| S1-05 | Job search and export API routes | Dev. S | Backend (API) + Frontend | S1-01, S1-04 | `tests/test_api.py` |
-| S1-06 | Dashboard backend endpoints | Dev. A | Backend | -- | `tests/test_analytics.py` |
-| S1-07 | Dashboard API routes + frontend | Dev. S | Both | S1-06 | `tests/test_api.py` |
-| S2-01 | Career Dreamer backend | Dev. A | Backend | -- | `tests/test_career_dreamer.py` |
-| S2-02 | Career Dreamer data models | Dev. A | Backend | -- | `tests/test_models.py` |
-| S2-03 | Career Dreamer tool + API + frontend | Dev. A (tool), Dev. S (API/UI) | Both | S2-01, S2-02 | `tests/test_api.py` |
-| S2-04 | Salary benchmarks + BLS API | Dev. S | Backend | -- | `tests/test_salary_data.py` |
-| S2-05 | Skill gap analysis | Dev. A | Backend | -- | `tests/test_job_search.py` |
-| S2-06 | Resume upload + AI parse | Dev. A (parser), Dev. S (API/UI) | Both | -- | `tests/test_resume_parser.py`, `tests/test_api.py` |
-| S3-01 | GDPR compliance layer | Dev. A | Backend | -- | `tests/test_privacy.py` |
-| S3-02 | EU AI Act compliance controls | Dev. A | Backend | -- | `tests/test_bias.py` |
-| S3-03 | Employer portal coming soon | Dev. S | Frontend + API | -- | Manual |
-| S3-04 | Employer job posting backend | Dev. A | Backend | -- | `tests/test_employer.py` |
-| S3-05 | Fix datetime.utcnow() deprecation | Dev. S | Backend | -- | `pytest -W error::DeprecationWarning` |
-| S3-06 | Salary context + frontend polish | Dev. S | Frontend + API | S2-04 | Manual |
+| Task ID | Name | Owner | Layer | Depends On | Test File(s) | Status |
+|---------|------|-------|-------|------------|--------------|--------|
+| S0-01 | Supabase migration | Dev. A | Backend | -- | `tests/test_models.py`, `tests/test_privacy.py`, `tests/test_analytics.py` | TODO |
+| S0-02 | Supabase Auth integration | Dev. A | Backend (API) | S0-01 | `tests/test_api.py` | TODO |
+| S0-03 | Environment and config update | Dev. S | Backend | -- | `ruff check .`, `pyright` | TODO |
+| S1-01 | JSearch API integration | Dev. A | Backend | -- | `tests/test_job_search.py` | TODO |
+| S1-02 | Adzuna API integration | Dev. A | Backend | -- | `tests/test_job_search.py` | TODO |
+| S1-03 | ATS keyword scoring | Dev. A | Backend | -- | `tests/test_document_generator.py` | **DONE** |
+| S1-04 | PDF/DOCX export | Dev. S | Backend | -- | `tests/test_document_generator.py` | TODO |
+| S1-05 | Job search and export API routes | Dev. S | Backend (API) + Frontend | S1-01, S1-04 | `tests/test_api.py` | TODO |
+| S1-06 | Dashboard backend endpoints | Dev. A | Backend | -- | `tests/test_analytics.py` | TODO |
+| S1-07 | Dashboard API routes + frontend | Dev. S | Both | S1-06 | `tests/test_api.py` | TODO |
+| S2-01 | Career Dreamer backend | Dev. A | Backend | -- | `tests/test_career_dreamer.py` | **DONE** |
+| S2-02 | Career Dreamer data models | Dev. A | Backend | -- | `tests/test_models.py` | **DONE** |
+| S2-03 | Career Dreamer tool (agent wiring) | Dev. A (tool) | Backend | S2-01, S2-02 | `tests/test_career_dreamer.py` | **DONE** |
+| S2-03 | Career Dreamer API + frontend | Dev. S (API/UI) | Frontend + API | S2-03 tool | `tests/test_api.py` | TODO |
+| S2-04 | Salary benchmarks + BLS API | Dev. S | Backend | -- | `tests/test_salary_data.py` | TODO |
+| S2-05 | Skill gap analysis | Dev. A | Backend | -- | `tests/test_job_search.py` | **DONE** |
+| S2-06 | Resume parser (AI parse) | Dev. A (parser) | Backend | -- | `tests/test_resume_parser.py` | **DONE** |
+| S2-06 | Resume upload API + frontend | Dev. S (API/UI) | Frontend + API | S2-06 parser | `tests/test_api.py` | TODO |
+| S3-01 | GDPR compliance layer | Dev. A | Backend | -- | `tests/test_privacy.py` | TODO |
+| S3-02 | EU AI Act compliance controls | Dev. A | Backend | -- | `tests/test_bias.py` | TODO |
+| S3-03 | Employer portal coming soon | Dev. S | Frontend + API | -- | Manual | TODO |
+| S3-04 | Employer job posting backend | Dev. A | Backend | -- | `tests/test_employer.py` | TODO |
+| S3-05 | Fix datetime.utcnow() deprecation | Dev. S | Backend | -- | `pytest -W error::DeprecationWarning` | TODO |
+| S3-06 | Salary context + frontend polish | Dev. S | Frontend + API | S2-04 | Manual | TODO |
 
 ### Task count by owner
 
-| Owner | Total tasks | Backend core | API/Frontend | Shared |
-|-------|-------------|-------------|--------------|--------|
-| Dev. A | 14 | 12 | 0 | 2 |
-| Dev. S | 10 | 2 | 6 | 2 |
+| Owner | Total tasks | Done | Remaining | Backend core | API/Frontend | Shared |
+|-------|-------------|------|-----------|-------------|--------------|--------|
+| Dev. A | 14 | 6 | 8 | 12 | 0 | 2 |
+| Dev. S | 10 | 0 | 10 | 2 | 6 | 2 |
 
 ## 11) Parallel Lanes (Updated)
 

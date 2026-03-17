@@ -1,6 +1,7 @@
 """Tests for job search module (no external API calls)."""
 from __future__ import annotations
 
+import json
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -142,6 +143,45 @@ class TestJobSearchEngine:
         ]
         filtered = engine.filter_by_location(listings, "Berlin", include_remote=True)
         assert any("Berlin" in j.location for j in filtered)
+
+
+class TestSkillGapAnalysis:
+    @patch("src.job_search._jsearch_sync")
+    def test_analyze_skill_gaps(self, mock_sync):
+        mock_sync.return_value = [
+            _raw_job(job_id="a", job_description="We need Python, SQL, Spark, Kafka."),
+            _raw_job(job_id="b", job_description="Python, SQL, AWS, Docker required."),
+        ]
+        gap_response = json.dumps({
+            "must_have_gaps": [{"skill": "Spark", "frequency_pct": 80}],
+            "nice_to_have_gaps": [{"skill": "Kafka", "frequency_pct": 50}],
+            "hidden_strengths": ["SQL"],
+            "upskill_roi": [{"skill": "Spark", "estimated_salary_bump_pct": 15, "learning_effort": "medium"}],
+        })
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = MagicMock(
+            content=[MagicMock(type="text", text=gap_response)]
+        )
+        engine = JobSearchEngine(client=mock_client)
+        result = engine.analyze_skill_gaps(_profile())
+        assert len(result["must_have_gaps"]) >= 1
+        assert len(result["upskill_roi"]) >= 1
+
+    @patch("src.job_search._jsearch_sync")
+    def test_analyze_skill_gaps_no_jobs(self, mock_sync):
+        mock_sync.return_value = []
+        engine = JobSearchEngine(client=MagicMock())
+        result = engine.analyze_skill_gaps(_profile())
+        assert "analysis_note" in result
+
+    @patch("src.job_search._jsearch_sync")
+    def test_analyze_skill_gaps_api_error(self, mock_sync):
+        mock_sync.return_value = [_raw_job()]
+        mock_client = MagicMock()
+        mock_client.messages.create.side_effect = RuntimeError("API down")
+        engine = JobSearchEngine(client=mock_client)
+        result = engine.analyze_skill_gaps(_profile())
+        assert "error" in result
 
 
 class TestMarketIntelligenceService:

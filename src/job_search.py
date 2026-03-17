@@ -13,9 +13,10 @@ import json
 import logging
 import os
 import uuid
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import httpx
+from anthropic.types import TextBlock
 from pydantic import BaseModel
 
 from config.settings import AGENT_MODEL
@@ -236,6 +237,73 @@ class JobSearchEngine:
             if loc in j.location.lower() or (include_remote and j.remote_allowed)
         ]
         return result or listings   # fallback: return all if nothing matched
+
+    def analyze_skill_gaps(
+        self,
+        profile: UserProfile,
+        region: str = "",
+    ) -> dict[str, Any]:
+        """Analyse skill gaps by comparing the user's profile against live job postings.
+
+        Returns must-have gaps, nice-to-have gaps, hidden strengths, and upskill ROI.
+        """
+        listings = self.search(profile, location_filter=region, max_results=10)
+        if not listings:
+            return {
+                "must_have_gaps": [],
+                "nice_to_have_gaps": [],
+                "hidden_strengths": [],
+                "upskill_roi": [],
+                "analysis_note": "No job listings found to analyse. Try a broader search.",
+            }
+
+        descriptions = "\n---\n".join(
+            f"Title: {j.title}\nCompany: {j.company}\nDescription: {j.description[:500]}"
+            for j in listings[:8]
+        )
+
+        prompt = f"""Analyse skill gaps for this job seeker based on real job postings.
+
+=== CANDIDATE ===
+Skills: {", ".join(profile.skills)}
+Experience: {profile.experience_level.value} ({profile.years_of_experience} years)
+Target roles: {", ".join(profile.desired_roles)}
+
+=== JOB POSTINGS ({len(listings)} found) ===
+{descriptions}
+
+Return ONLY valid JSON with:
+- "must_have_gaps": list of skills in 70%+ of postings that the candidate lacks, each as {{"skill": str, "frequency_pct": int}}
+- "nice_to_have_gaps": list of skills in 30-70% of postings the candidate lacks, same format
+- "hidden_strengths": list of skills the candidate has that appear in <20% of postings (competitive advantage)
+- "upskill_roi": list of {{"skill": str, "estimated_salary_bump_pct": int, "learning_effort": "low"|"medium"|"high"}}
+"""
+        try:
+            response = self._client.messages.create(
+                model=AGENT_MODEL,
+                max_tokens=1024,
+                system="You are a career skills analyst. Respond ONLY with valid JSON.",
+                messages=[{"role": "user", "content": prompt}],
+            )
+            text = cast(TextBlock, response.content[0]).text.strip()
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+            data = json.loads(text)
+            return {
+                "must_have_gaps": data.get("must_have_gaps", []),
+                "nice_to_have_gaps": data.get("nice_to_have_gaps", []),
+                "hidden_strengths": data.get("hidden_strengths", []),
+                "upskill_roi": data.get("upskill_roi", []),
+            }
+        except Exception:
+            logger.exception("Skill gap analysis failed")
+            return {
+                "must_have_gaps": [],
+                "nice_to_have_gaps": [],
+                "hidden_strengths": [],
+                "upskill_roi": [],
+                "error": "Skill gap analysis temporarily unavailable.",
+            }
 
 
 class MarketIntelligenceService:

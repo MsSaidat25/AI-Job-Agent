@@ -53,11 +53,13 @@ from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS, LLM_API_KEY, LLM_BASE_URL
 from src.analytics import ApplicationTracker
+from src.career_dreamer import CareerDreamer
 from src.document_generator import DocumentGenerator
 from src.job_search import JobSearchEngine, MarketIntelligenceService
 from src.models import (
     ApplicationRecord,
     ApplicationStatus,
+    DreamScenario,
     UserProfile,
     init_db,
 )
@@ -185,6 +187,52 @@ TOOLS: list[dict[str, Any]] = [
         "description": "Analyse patterns across all employer feedback received.",
         "input_schema": {"type": "object", "properties": {}, "required": []},
     },
+    {
+        "name": "career_dreamer",
+        "description": (
+            "Explore a dream career transition. Analyses skill gaps, scores feasibility, "
+            "and builds a week-by-week plan to reach the dream role."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "dream_role": {"type": "string", "description": "The dream job title, e.g. 'Machine Learning Engineer'"},
+                "dream_industry": {"type": "string", "description": "Target industry, e.g. 'AI/ML'", "default": ""},
+                "dream_location": {"type": "string", "description": "Target location, e.g. 'San Francisco, CA'", "default": ""},
+                "timeline_months": {"type": "integer", "description": "Months to achieve the transition (default 12)", "default": 12},
+            },
+            "required": ["dream_role"],
+        },
+    },
+    {
+        "name": "analyze_skill_gaps",
+        "description": (
+            "Analyse skill gaps by comparing the user's profile against live job postings. "
+            "Returns must-have gaps, nice-to-have gaps, hidden strengths, and upskill ROI."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "region": {"type": "string", "description": "Region to search jobs in, e.g. 'Berlin, Germany'", "default": ""},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "score_ats_match",
+        "description": (
+            "Score how well a resume matches a job description for ATS (Applicant Tracking System) compatibility. "
+            "Returns match percentage, missing keywords, and improvement suggestions."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "job_id": {"type": "string", "description": "ID of the job listing to score against."},
+                "resume_text": {"type": "string", "description": "The resume text to score. If omitted, uses the last generated resume.", "default": ""},
+            },
+            "required": ["job_id"],
+        },
+    },
 ]
 
 
@@ -197,6 +245,9 @@ Your capabilities:
 • Search and rank job listings based on the user's skills and preferences
 • Provide region-specific market intelligence and application tips
 • Generate tailored resumes and cover letters for specific roles
+• Score resumes for ATS (Applicant Tracking System) compatibility
+• Analyse skill gaps against live job postings
+• Explore dream career transitions with gap analysis and timelines
 • Track application progress and analyse success patterns
 • Offer unbiased, skill-based recommendations
 
@@ -235,6 +286,7 @@ class JobAgent:
         self._market_svc = MarketIntelligenceService(self._client)
         self._doc_gen = DocumentGenerator(self._client)
         self._tracker = ApplicationTracker(self._session, self._client)
+        self._career_dreamer = CareerDreamer(self._client)
 
         # In-memory caches for the current session
         # Values may be JobListing (from agent tool loop) or raw dicts (from api.py live search)
@@ -320,6 +372,12 @@ class JobAgent:
                 return self._tool_get_analytics()
             elif name == "get_feedback_analysis":
                 return self._tool_feedback_analysis()
+            elif name == "career_dreamer":
+                return self._tool_career_dreamer(**args)
+            elif name == "analyze_skill_gaps":
+                return self._tool_analyze_skill_gaps(**args)
+            elif name == "score_ats_match":
+                return self._tool_score_ats_match(**args)
             else:
                 return json.dumps({"error": f"Unknown tool: {name}"})
         except Exception:
@@ -442,3 +500,45 @@ class JobAgent:
 
     def _tool_feedback_analysis(self) -> str:
         return self._tracker.employer_feedback_analysis(self.profile.id)
+
+    def _tool_career_dreamer(
+        self,
+        dream_role: str,
+        dream_industry: str = "",
+        dream_location: str = "",
+        timeline_months: int = 12,
+    ) -> str:
+        scenario = DreamScenario(
+            current_role=self.profile.desired_roles[0] if self.profile.desired_roles else "",
+            dream_role=dream_role,
+            dream_industry=dream_industry,
+            dream_location=dream_location,
+            timeline_months=timeline_months,
+        )
+        gap_report = self._career_dreamer.build_gap_report(self.profile, scenario)
+        timeline = self._career_dreamer.build_timeline(gap_report, timeline_months)
+        return json.dumps({
+            "dream_role": dream_role,
+            "feasibility_score": gap_report.feasibility_score,
+            "feasibility_rationale": gap_report.feasibility_rationale,
+            "overlapping_skills": gap_report.overlapping_skills,
+            "missing_skills": gap_report.missing_skills,
+            "salary_current": gap_report.salary_current,
+            "salary_dream": gap_report.salary_dream,
+            "recommendations": gap_report.recommendations,
+            "timeline_weeks": timeline.total_weeks,
+            "milestones": timeline.milestones,
+        }, indent=2)
+
+    def _tool_analyze_skill_gaps(self, region: str = "") -> str:
+        result = self._search_engine.analyze_skill_gaps(self.profile, region)
+        return json.dumps(result, indent=2)
+
+    def _tool_score_ats_match(self, job_id: str, resume_text: str = "") -> str:
+        job = self._job_cache.get(job_id)
+        if not job:
+            return json.dumps({"error": "Job not found in current session. Run search_jobs first."})
+        if not resume_text:
+            return json.dumps({"error": "No resume text provided. Generate a resume first or pass the text."})
+        result = self._doc_gen.score_ats_match(resume_text, job.description)
+        return json.dumps(result, indent=2)

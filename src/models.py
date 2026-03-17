@@ -177,6 +177,42 @@ class GeneratedDocument(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     model_used: str = ""
     tailoring_notes: str = ""      # why specific edits were made
+    ats_score: Optional[float] = None          # 0-100 ATS match percentage
+    missing_keywords: list[str] = Field(default_factory=list)
+
+
+# ── Career Dreamer models ─────────────────────────────────────────────────
+
+class DreamScenario(BaseModel):
+    """Input describing the user's dream career goal."""
+
+    current_role: str = ""
+    dream_role: str
+    dream_industry: str = ""
+    dream_location: str = ""
+    timeline_months: int = 12
+
+
+class GapReport(BaseModel):
+    """Analysis of the gap between current profile and dream role."""
+
+    dream_role: str
+    overlapping_skills: list[str] = Field(default_factory=list)
+    missing_skills: list[dict[str, Any]] = Field(default_factory=list)  # [{skill, learning_time_weeks, priority}]
+    salary_current: Optional[int] = None
+    salary_dream: Optional[int] = None
+    feasibility_score: float = 0.0      # 0-100
+    feasibility_rationale: str = ""
+    recommendations: list[str] = Field(default_factory=list)
+
+
+class DreamTimeline(BaseModel):
+    """Week-by-week plan to achieve the dream role."""
+
+    dream_role: str
+    total_weeks: int = 0
+    milestones: list[dict[str, Any]] = Field(default_factory=list)  # [{week, goal, actions, deliverable}]
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── SQLAlchemy ORM ─────────────────────────────────────────────────────────
@@ -284,6 +320,23 @@ class GeneratedDocumentORM(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     model_used = Column(String, default="")
     tailoring_notes = Column(Text, default="")
+    ats_score = Column(Float, nullable=True)
+    missing_keywords = Column(JSON, default=list)
+
+
+class CareerDreamORM(Base):
+    __tablename__ = "career_dreams"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("user_profiles.id"))
+    dream_role = Column(String)
+    dream_industry = Column(String, default="")
+    dream_location = Column(String, default="")
+    timeline_months = Column(Integer, default=12)
+    gap_report = Column(JSON, nullable=True)
+    timeline_plan = Column(JSON, nullable=True)
+    feasibility_score = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 # ── Database bootstrap ─────────────────────────────────────────────────────
