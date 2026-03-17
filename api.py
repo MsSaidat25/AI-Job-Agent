@@ -54,7 +54,7 @@ from fastapi import FastAPI, Header, HTTPException, Request, UploadFile, status 
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.responses import FileResponse, JSONResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
-from pydantic import BaseModel, Field  # noqa: E402
+from pydantic import BaseModel, EmailStr, Field, field_validator  # noqa: E402
 from slowapi import Limiter  # noqa: E402
 from slowapi.errors import RateLimitExceeded  # noqa: E402
 from slowapi.util import get_remote_address  # noqa: E402
@@ -182,7 +182,7 @@ def _require_session_header(x_session_id: Optional[str]) -> str:
 
 class ProfileRequest(BaseModel):
     name: str = Field(..., max_length=200)
-    email: str = Field(..., max_length=320)
+    email: EmailStr
     phone: Optional[str] = Field(default=None, max_length=30)
     location: str = Field(..., max_length=200)
     skills: list[str] = Field(default_factory=list, max_length=100)
@@ -200,40 +200,59 @@ class ProfileRequest(BaseModel):
     portfolio_url: Optional[str] = Field(default=None, max_length=500)
     linkedin_url: Optional[str] = Field(default=None, max_length=500)
 
+    @field_validator("portfolio_url", "linkedin_url", mode="before")
+    @classmethod
+    def validate_urls(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        if not v.startswith(("https://", "http://")):
+            raise ValueError("URL must start with https:// or http://")
+        return v
+
 
 class JobSearchRequest(BaseModel):
-    location_filter: str = ""
+    location_filter: str = Field(default="", max_length=200)
     include_remote: bool = True
-    max_results: int = 10
+    max_results: int = Field(default=10, ge=1, le=50)
 
 
 class MarketInsightsRequest(BaseModel):
-    region: str
-    industry: str
+    region: str = Field(..., max_length=200)
+    industry: str = Field(..., max_length=200)
 
 
 class ApplicationTipsRequest(BaseModel):
-    region: str
+    region: str = Field(..., max_length=200)
+
+
+_ALLOWED_TONES = {"professional", "creative", "technical", "executive", "academic"}
 
 
 class ResumeRequest(BaseModel):
-    job_id: str
+    job_id: str = Field(..., max_length=200)
     tone: str = "professional"
+
+    @field_validator("tone")
+    @classmethod
+    def validate_tone(cls, v: str) -> str:
+        if v.lower() not in _ALLOWED_TONES:
+            raise ValueError(f"tone must be one of: {', '.join(sorted(_ALLOWED_TONES))}")
+        return v.lower()
 
 
 class CoverLetterRequest(BaseModel):
-    job_id: str
+    job_id: str = Field(..., max_length=200)
 
 
 class TrackApplicationRequest(BaseModel):
-    job_id: str
-    notes: str = ""
+    job_id: str = Field(..., max_length=200)
+    notes: str = Field(default="", max_length=2000)
 
 
 class UpdateApplicationRequest(BaseModel):
     new_status: ApplicationStatus
-    feedback: Optional[str] = None
-    notes: Optional[str] = None
+    feedback: Optional[str] = Field(default=None, max_length=5000)
+    notes: Optional[str] = Field(default=None, max_length=2000)
 
 
 class ChatRequest(BaseModel):
