@@ -13,6 +13,11 @@ def _isolate_db(tmp_path, monkeypatch):
     db_path = tmp_path / "test_api.db"
     monkeypatch.setattr("config.settings.DB_PATH", db_path)
     monkeypatch.setattr("src.models.DB_PATH", db_path)
+    # Ensure DATABASE_URL doesn't override DB_PATH in tests
+    monkeypatch.setattr("config.settings.DATABASE_URL", "")
+    monkeypatch.setattr("config.settings.DATABASE_URL_FAILOVER", "")
+    monkeypatch.setattr("src.models.DATABASE_URL", "")
+    monkeypatch.setattr("src.models.DATABASE_URL_FAILOVER", "")
     # Disable rate limiting in tests so session creation doesn't 429
     import api as api_mod
     monkeypatch.setattr(api_mod.limiter, "enabled", False)
@@ -175,8 +180,8 @@ class TestSecurityHeaders:
         r = client.get("/api/health")
         assert r.headers.get("x-frame-options") == "DENY"
         assert r.headers.get("x-content-type-options") == "nosniff"
-        assert r.headers.get("x-xss-protection") == "1; mode=block"
         assert r.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+        assert "default-src" in r.headers.get("content-security-policy", "")
 
 
 class TestParseResume:
@@ -209,7 +214,7 @@ class TestParseResume:
         assert r.status_code == 400
         assert "too large" in r.json()["detail"].lower()
 
-    @patch("api.anthropic.Anthropic")
+    @patch("api.get_llm_client")
     def test_parse_resume_text_success(self, mock_cls, client, session_id):
         import io
         mock_client = mock_cls.return_value
@@ -229,7 +234,7 @@ class TestParseResume:
         assert "experience_level" in data
         assert "languages" in data
 
-    @patch("api.anthropic.Anthropic")
+    @patch("api.get_llm_client")
     def test_parse_resume_bad_json(self, mock_cls, client, session_id):
         import io
         mock_client = mock_cls.return_value
@@ -242,3 +247,170 @@ class TestParseResume:
             headers={"X-Session-ID": session_id},
         )
         assert r.status_code == 502
+
+
+class TestDashboardEndpoints:
+    """Dashboard endpoints return structured JSON without LLM calls."""
+
+    def test_dashboard_summary_requires_agent(self, client, session_id):
+        r = client.get("/api/dashboard/summary", headers={"X-Session-ID": session_id})
+        assert r.status_code == 404
+
+    def test_dashboard_applications_requires_agent(self, client, session_id):
+        r = client.get("/api/dashboard/applications", headers={"X-Session-ID": session_id})
+        assert r.status_code == 404
+
+    def test_dashboard_activity_requires_agent(self, client, session_id):
+        r = client.get("/api/dashboard/activity", headers={"X-Session-ID": session_id})
+        assert r.status_code == 404
+
+    def test_dashboard_skills_requires_agent(self, client, session_id):
+        r = client.get("/api/dashboard/skills", headers={"X-Session-ID": session_id})
+        assert r.status_code == 404
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_dashboard_summary_with_profile(self, mock_init, client, session_id):
+        from unittest.mock import MagicMock
+        from src.models import UserProfile
+
+        body = {
+            "name": "Test User",
+            "email": "test@example.com",
+            "location": "Berlin",
+            "skills": ["Python", "FastAPI"],
+        }
+        r = client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
+        assert r.status_code == 201
+
+        import api as api_mod
+        agent = api_mod._sessions[session_id]["agent"]
+        agent.profile = UserProfile(**body)
+        mock_tracker = MagicMock()
+        mock_tracker.compute_metrics.return_value = {"total": 0, "message": "No applications yet."}
+        agent._tracker = mock_tracker
+        agent._job_cache = {}
+
+        r = client.get("/api/dashboard/summary", headers={"X-Session-ID": session_id})
+        assert r.status_code == 200
+        data = r.json()
+        assert "total_applications" in data
+        assert "response_rate" in data
+        assert "by_status" in data
+        assert "cached_jobs" in data
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_dashboard_applications_empty(self, mock_init, client, session_id):
+        from unittest.mock import MagicMock
+        from src.models import UserProfile
+
+        body = {
+            "name": "Test User",
+            "email": "test@example.com",
+            "location": "Berlin",
+            "skills": ["Python"],
+        }
+        client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
+
+        import api as api_mod
+        agent = api_mod._sessions[session_id]["agent"]
+        agent.profile = UserProfile(**body)
+        mock_tracker = MagicMock()
+        mock_tracker.get_applications.return_value = []
+        agent._tracker = mock_tracker
+        agent._job_cache = {}
+
+        r = client.get("/api/dashboard/applications", headers={"X-Session-ID": session_id})
+        assert r.status_code == 200
+        data = r.json()
+        assert data["applications"] == []
+        assert data["total"] == 0
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_dashboard_activity_empty(self, mock_init, client, session_id):
+        from unittest.mock import MagicMock
+        from src.models import UserProfile
+
+        body = {
+            "name": "Test User",
+            "email": "test@example.com",
+            "location": "Berlin",
+            "skills": ["Python"],
+        }
+        client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
+
+        import api as api_mod
+        agent = api_mod._sessions[session_id]["agent"]
+        agent.profile = UserProfile(**body)
+        mock_tracker = MagicMock()
+        mock_tracker.get_applications.return_value = []
+        agent._tracker = mock_tracker
+        agent._job_cache = {}
+
+        r = client.get("/api/dashboard/activity", headers={"X-Session-ID": session_id})
+        assert r.status_code == 200
+        data = r.json()
+        assert data["activity"] == []
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_dashboard_skills_empty_cache(self, mock_init, client, session_id):
+        from src.models import UserProfile
+
+        body = {
+            "name": "Test User",
+            "email": "test@example.com",
+            "location": "Berlin",
+            "skills": ["Python", "Docker"],
+        }
+        client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
+
+        import api as api_mod
+        agent = api_mod._sessions[session_id]["agent"]
+        agent.profile = UserProfile(
+            name="Test User", email="test@example.com",
+            location="Berlin", skills=["Python", "Docker"],
+        )
+        agent._job_cache = {}
+
+        r = client.get("/api/dashboard/skills", headers={"X-Session-ID": session_id})
+        assert r.status_code == 200
+        data = r.json()
+        assert data["user_skills"] == ["Python", "Docker"]
+        assert isinstance(data["in_demand_skills"], list)
+        assert isinstance(data["gap_skills"], list)
+
+
+class TestAdzunaIntegration:
+    """Adzuna normaliser and search integration."""
+
+    def test_adzuna_normalise(self):
+        from src.job_search import _adzuna_normalise
+        raw = {
+            "id": "12345",
+            "title": "Python Developer",
+            "company": {"display_name": "Acme Corp"},
+            "description": "Build awesome Python apps",
+            "location": {"area": ["US", "California", "San Francisco"]},
+            "salary_min": 80000,
+            "salary_max": 120000,
+            "contract_type": "full_time",
+            "created": "2026-03-20T10:00:00Z",
+            "redirect_url": "https://adzuna.com/job/12345",
+        }
+        normalised = _adzuna_normalise(raw)
+        assert normalised["job_id"] == "adzuna-12345"
+        assert normalised["job_title"] == "Python Developer"
+        assert normalised["employer_name"] == "Acme Corp"
+        assert normalised["job_city"] == "San Francisco"
+        assert normalised["job_state"] == "California"
+        assert normalised["job_min_salary"] == 80000
+        assert normalised["job_max_salary"] == 120000
+        assert normalised["job_publisher"] == "Adzuna"
+        assert normalised["job_apply_link"] == "https://adzuna.com/job/12345"
+
+    def test_adzuna_normalise_minimal(self):
+        from src.job_search import _adzuna_normalise
+        raw = {"id": "99", "title": "Tester", "description": "Testing"}
+        normalised = _adzuna_normalise(raw)
+        assert normalised["job_id"] == "adzuna-99"
+        assert normalised["job_title"] == "Tester"
+        assert normalised["employer_name"] == ""

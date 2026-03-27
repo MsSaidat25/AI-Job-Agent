@@ -120,11 +120,8 @@ def test_generated_document_ats_fields():
     assert "Kubernetes" in doc.missing_keywords
 
 
-def test_db_init_creates_tables(tmp_path, monkeypatch):
+def test_db_init_creates_tables(fresh_db):
     """init_db should create tables without error in a temp dir."""
-    db_path = tmp_path / "test.db"
-    monkeypatch.setattr("config.settings.DB_PATH", db_path)
-    monkeypatch.setattr("src.models.DB_PATH", db_path)
     from src.models import Base, get_engine
     engine = get_engine()
     Base.metadata.create_all(engine)

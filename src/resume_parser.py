@@ -15,11 +15,13 @@ import logging
 import mimetypes
 from typing import Any, cast
 
-import anthropic
+from anthropic import Anthropic
 from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
+from src.llm_client import create_message_with_failover, get_llm_client
 from src.models import ExperienceLevel, UserProfile
+from src.utils import strip_json_fences
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +75,8 @@ def _extract_text_from_docx(file_bytes: bytes) -> str:
 class ResumeParser:
     """Parse resumes in PDF, DOCX, or image format into structured UserProfile data."""
 
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: Anthropic | None = None) -> None:
+        self._client = client or get_llm_client()
 
     def parse(
         self,
@@ -146,16 +148,15 @@ class ResumeParser:
 
         truncated = text[:6000]
         try:
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system=_PARSE_SYSTEM,
                 messages=[{"role": "user", "content": f"Parse this resume:\n\n{truncated}"}],
             )
             raw = cast(TextBlock, response.content[0]).text.strip()
-            if raw.startswith("```"):
-                raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-            return json.loads(raw)
+            return json.loads(strip_json_fences(raw))
         except (json.JSONDecodeError, IndexError):
             logger.exception("Failed to parse LLM response as JSON")
             return {"error": "Failed to parse resume content. The format may not be supported."}
@@ -186,16 +187,15 @@ class ResumeParser:
                     },
                 ],
             }])
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system=_PARSE_SYSTEM,
                 messages=messages,
             )
             raw = cast(TextBlock, response.content[0]).text.strip()
-            if raw.startswith("```"):
-                raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-            return json.loads(raw)
+            return json.loads(strip_json_fences(raw))
         except (json.JSONDecodeError, IndexError):
             logger.exception("Failed to parse Vision response as JSON")
             return {"error": "Failed to parse resume image. Try a clearer scan or PDF."}

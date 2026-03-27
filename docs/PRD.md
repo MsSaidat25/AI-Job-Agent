@@ -299,7 +299,7 @@ graph TD
 
 | Category | Feature | Status | Notes |
 |----------|---------|--------|-------|
-| **Onboarding** | Resume upload & AI parse | 📋 Planned | PDF, DOCX, image → structured profile |
+| **Onboarding** | Resume upload & AI parse | ✅ Built | PDF, DOCX, image → structured profile via /api/parse-resume |
 | | Smart autofill with confidence | 📋 Planned | Fields flagged when parser is uncertain |
 | | Profile wizard (manual entry) | ✅ Built | Rich CLI questionnaire |
 | | No-resume conversational onboarding | 📋 Planned | Agent builds profile from Q&A |
@@ -307,7 +307,7 @@ graph TD
 | **Job Discovery** | Search with mock data | ✅ Built | 8 curated job listings |
 | | LLM-based match scoring (0-100) | ✅ Built | Bias-free, skill-based |
 | | Location-based filtering | ✅ Built | Substring match + remote toggle |
-| | Real job board API adapters | 📋 Planned | Adzuna, JSearch, Remotive, etc. |
+| | Real job board API adapters | ✅ Built | JSearch (Indeed/LinkedIn/Glassdoor) + Adzuna fallback |
 | | Company watchlists | 📋 Planned | Monitor careers pages for new postings |
 | | Paste-a-URL import | 📋 Planned | Scrape any job listing URL |
 | | Cross-board deduplication | 📋 Planned | Same job on 3 boards = shown once |
@@ -333,31 +333,31 @@ graph TD
 | | Feedback pattern analysis | ✅ Built | Rejection themes + action items |
 | **Market Intel** | Region/industry analysis | ✅ Built | LLM-synthesized market data |
 | | Culturally-aware tips | ✅ Built | CV format, interview etiquette by region |
-| | Location-based salary calibration | 🚧 In Progress | LLM estimates; live data feeds planned |
-| | Skill gap analysis with $ ROI | 📋 Planned | Per-location dollar impact |
+| | Location-based salary calibration | ✅ Built | LLM estimates via MarketIntelligenceService |
+| | Skill gap analysis with $ ROI | ✅ Built | analyze_skill_gaps tool with upskill ROI |
 | | Level calibration | 📋 Planned | "You qualify for Senior, stop searching Mid" |
 | | Country/region arbitrage | 📋 Planned | Compare salary across user's target locations |
-| | Career Dreamer: what-if scenario builder | 📋 Planned | "What if I moved to Berlin as a PM?" with salary comparison |
-| | Career Dreamer: feasibility scorer (0-100) | 📋 Planned | Data-backed dream score |
+| | Career Dreamer: what-if scenario builder | ✅ Built | Gap report + salary comparison via career_dreamer tool |
+| | Career Dreamer: feasibility scorer (0-100) | ✅ Built | Data-backed dream score via score_feasibility() |
 | **Career Advisor** | Weekly performance brief | 📋 Planned | Response rates, best sectors, tone analysis |
 | | Pivot suggestions | 📋 Planned | "Aim for Senior, not Staff" |
 | | Salary negotiation scripts | 📋 Planned | Counter-offer with market data |
 | | Interview prep & mock interviews | 📋 Planned | Role-specific, company-researched |
 | | Upskill recommendations | 📋 Planned | Courses, certs, time estimates, $ value |
-| | Career Dreamer: gap report + timeline | 📋 Planned | Transferable skills, missing skills, week-by-week plan |
+| | Career Dreamer: gap report + timeline | ✅ Built | Gap analysis + week-by-week timeline via CareerDreamer |
 | | Career Dreamer: dream goal tracker | 📋 Planned | Saved goals, re-scored as user progresses |
-| **Dashboard** | KPI cards (rates, counts, avg reply time) | 📋 Planned | Top-row summary metrics |
-| | Pipeline visualization | 📋 Planned | Funnel view of application statuses |
-| | Breakdown charts (industry, platform, trend) | 📋 Planned | Chart.js in frontend |
-| | AI insights panel | 📋 Planned | LLM-generated bullets + feedback themes |
+| **Dashboard** | KPI cards (rates, counts, avg reply time) | ✅ Built | /api/dashboard/summary endpoint |
+| | Pipeline visualization | ✅ Built | by_status breakdown in summary |
+| | Breakdown charts (industry, platform, trend) | ✅ Built | top_industries/top_platforms in summary |
+| | AI insights panel | ✅ Built | /api/analytics + /api/feedback endpoints |
 | **Privacy** | AES-256-GCM PII encryption | ✅ Built | PBKDF2 key derivation, 390K iterations |
 | | LLM field sanitization | ✅ Built | Only safe fields sent to LLM |
 | | Protected attribute stripping | ✅ Built | Gender, age, race, etc. removed before scoring |
 | **Interface** | Rich terminal CLI | ✅ Built | Profile wizard, 6-option menu, free chat |
-| | FastAPI HTTP API | ✅ Built | 15 endpoints with /api/ prefix |
+| | FastAPI HTTP API | ✅ Built | 20+ endpoints with /api/ prefix |
 | | HTML frontend (SPA) | ✅ Built | Landing page + dashboard, served at / |
 | | Session management | ✅ Built | In-memory, per-UUID |
-| | Analytics Dashboard UI | 📋 Planned | KPI cards, pipeline funnel, charts, AI insights |
+| | Analytics Dashboard UI | ✅ Built | KPI cards, pipeline funnel, charts, AI insights |
 | | Mobile-first PWA | 📋 Planned | Designed in product vision |
 
 ---

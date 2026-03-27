@@ -38,4 +38,4 @@ Stack: FastAPI + Python + SQLAlchemy 2.0 + PostgreSQL + Alembic
 - [ ] Functions are reasonably sized (< 50 lines)
 
 ## Output
-For each issue: **File** | **Line** | **Severity** (critical/warning/info) | **Issue** | **Fix**
+For each issue: **File** | **Line** | **Severity** (critical/high/medium/low) | **Issue** | **Fix**

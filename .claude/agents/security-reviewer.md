@@ -23,6 +23,7 @@ Read-only. Never modify code.
 - [ ] All user input validated before use
 - [ ] SQL injection prevention (parameterized queries/ORM)
 - [ ] XSS prevention (proper escaping/sanitization)
+- [ ] CSRF protection for state-changing operations
 - [ ] File upload validation (type, size, extension)
 
 ### Data Exposure

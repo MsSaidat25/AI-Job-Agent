@@ -24,6 +24,7 @@ Design decisions
 """
 from __future__ import annotations
 
+import threading
 import uuid
 from datetime import date, datetime, timezone
 from enum import Enum
@@ -31,6 +32,7 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import (
+    Index,
     JSON,
     Boolean,
     Column,
@@ -43,9 +45,14 @@ from sqlalchemy import (
     Text,
     create_engine,
 )
+from sqlalchemy.exc import DBAPIError, OperationalError
 from sqlalchemy.orm import DeclarativeBase, Session, relationship, sessionmaker
 
-from config.settings import DB_PATH
+import logging
+
+from config.settings import DATABASE_URL, DATABASE_URL_FAILOVER, DB_PATH
+
+logger = logging.getLogger(__name__)
 
 
 # ── Enumerations ───────────────────────────────────────────────────────────
@@ -224,11 +231,11 @@ class Base(DeclarativeBase):
 class UserProfileORM(Base):
     __tablename__ = "user_profiles"
 
-    id = Column(String, primary_key=True)
-    name_enc = Column(Text)           # encrypted blob
-    email_enc = Column(Text)          # encrypted blob
+    id = Column(String(36), primary_key=True)
+    name_enc = Column(Text, nullable=False)
+    email_enc = Column(Text, nullable=False)
     phone_enc = Column(Text, nullable=True)
-    location = Column(String)
+    location = Column(String(200), nullable=False)
     skills = Column(JSON)
     experience_level = Column(String)
     years_of_experience = Column(Integer, default=0)
@@ -242,6 +249,7 @@ class UserProfileORM(Base):
     certifications = Column(JSON)
     portfolio_url = Column(String, nullable=True)
     linkedin_url = Column(String, nullable=True)
+    preferred_currency = Column(String(5), default="USD")
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     applications = relationship("ApplicationRecordORM", back_populates="user")
@@ -250,14 +258,14 @@ class UserProfileORM(Base):
 class JobListingORM(Base):
     __tablename__ = "job_listings"
 
-    id = Column(String, primary_key=True)
-    title = Column(String)
-    company = Column(String)
-    location = Column(String)
+    id = Column(String(36), primary_key=True)
+    title = Column(String(500), nullable=False)
+    company = Column(String(300), nullable=False)
+    location = Column(String(200), nullable=False)
     remote_allowed = Column(Boolean, default=False)
-    job_type = Column(String)
-    experience_level = Column(String)
-    description = Column(Text)
+    job_type = Column(String(50))
+    experience_level = Column(String(50))
+    description = Column(Text, nullable=False)
     requirements = Column(JSON)
     nice_to_have = Column(JSON)
     salary_min = Column(Integer, nullable=True)
@@ -277,15 +285,22 @@ class JobListingORM(Base):
 
 class ApplicationRecordORM(Base):
     __tablename__ = "application_records"
+    __table_args__ = (
+        Index("ix_application_records_user_status", "user_id", "status"),
+    )
 
-    id = Column(String, primary_key=True)
-    user_id = Column(String, ForeignKey("user_profiles.id"))
-    job_id = Column(String, ForeignKey("job_listings.id"))
-    status = Column(String, default=ApplicationStatus.DRAFT.value)
+    id = Column(String(36), primary_key=True)
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(String(36), ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    status = Column(String(30), default=ApplicationStatus.DRAFT.value, nullable=False, index=True)
     resume_version = Column(String, nullable=True)
     cover_letter_version = Column(String, nullable=True)
     submitted_at = Column(DateTime, nullable=True)
-    last_updated = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_updated = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
     employer_feedback = Column(Text, nullable=True)
     interview_dates = Column(JSON)
     notes = Column(Text, default="")
@@ -298,8 +313,8 @@ class MarketInsightORM(Base):
     __tablename__ = "market_insights"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    region = Column(String)
-    industry = Column(String)
+    region = Column(String(200), nullable=False, index=True)
+    industry = Column(String(200), nullable=False, index=True)
     top_skills_in_demand = Column(JSON)
     avg_salary_usd = Column(Integer, nullable=True)
     job_growth_pct = Column(Float, nullable=True)
@@ -312,11 +327,11 @@ class MarketInsightORM(Base):
 class GeneratedDocumentORM(Base):
     __tablename__ = "generated_documents"
 
-    id = Column(String, primary_key=True)
-    user_id = Column(String, ForeignKey("user_profiles.id"))
-    job_id = Column(String, ForeignKey("job_listings.id"))
-    doc_type = Column(String)
-    content = Column(Text)
+    id = Column(String(36), primary_key=True)
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(String(36), ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    doc_type = Column(String(30), nullable=False)
+    content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     model_used = Column(String, default="")
     tailoring_notes = Column(Text, default="")
@@ -327,9 +342,9 @@ class GeneratedDocumentORM(Base):
 class CareerDreamORM(Base):
     __tablename__ = "career_dreams"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("user_profiles.id"))
-    dream_role = Column(String)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    dream_role = Column(String, nullable=False)
     dream_industry = Column(String, default="")
     dream_location = Column(String, default="")
     timeline_months = Column(Integer, default=12)
@@ -341,11 +356,138 @@ class CareerDreamORM(Base):
 
 # ── Database bootstrap ─────────────────────────────────────────────────────
 
-def get_engine():
-    return create_engine(f"sqlite:///{DB_PATH}", echo=False)
+_active_engine = None
+_init_lock = threading.RLock()
+_tables_created = False
+_SessionFactory: sessionmaker | None = None
+
+
+def reset_db_state() -> None:
+    """Reset cached engine and session factory. Used by tests for isolation."""
+    global _active_engine, _tables_created, _SessionFactory
+    with _init_lock:
+        _active_engine = None
+        _tables_created = False
+        _SessionFactory = None
+
+def get_active_engine():
+    """Return the currently cached engine, or None if not yet initialised."""
+    return _active_engine
+
+
+def _enable_sqlite_fk(dbapi_conn, connection_record):  # type: ignore[no-untyped-def]
+    """Enable foreign key enforcement for SQLite connections."""
+    import sqlite3
+
+    if isinstance(dbapi_conn, sqlite3.Connection):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")
+        cursor.close()
+
+
+def get_engine(failover: bool = False):
+    """Return a cached SQLAlchemy engine, creating one if needed.
+
+    Priority:
+      1. DATABASE_URL (Cloud SQL PostgreSQL) -- primary
+      2. DATABASE_URL_FAILOVER (Supabase PostgreSQL) -- failover
+      3. sqlite:///data/job_agent.db -- local development
+    """
+    global _active_engine
+    if _active_engine is not None and not failover:
+        return _active_engine
+    with _init_lock:
+        # Double-check after acquiring lock
+        if _active_engine is not None and not failover:
+            return _active_engine
+        url = DATABASE_URL_FAILOVER if failover else DATABASE_URL
+        if failover and not DATABASE_URL_FAILOVER:
+            logger.error(
+                "Failover requested but DATABASE_URL_FAILOVER is not configured; "
+                "refusing to silently fall back to SQLite."
+            )
+            raise ValueError(
+                "DATABASE_URL_FAILOVER must be set when failover=True is requested"
+            )
+        if url:
+            engine = create_engine(
+                url,
+                pool_size=5,
+                max_overflow=10,
+                pool_pre_ping=True,
+                echo=False,
+            )
+        else:
+            from sqlalchemy import event
+
+            engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)
+            event.listen(engine, "connect", _enable_sqlite_fk)
+        _active_engine = engine
+        return engine
+
+
+def _run_migrations(engine) -> None:  # type: ignore[no-untyped-def]
+    """Run Alembic migrations to HEAD, falling back to create_all for fresh DBs."""
+    try:
+        from alembic import command
+        from alembic.config import Config
+
+        alembic_cfg = Config("alembic.ini")
+        with engine.begin() as conn:
+            alembic_cfg.attributes["connection"] = conn
+            command.upgrade(alembic_cfg, "head")
+        logger.info("Alembic migrations applied successfully")
+    except Exception:
+        # Fallback: if Alembic is unavailable or migrations fail (e.g. fresh DB
+        # without alembic_version table), create tables directly and stamp HEAD.
+        logger.warning("Alembic migration failed, falling back to create_all", exc_info=True)
+        Base.metadata.create_all(engine)
+        try:
+            from alembic import command
+            from alembic.config import Config
+
+            alembic_cfg = Config("alembic.ini")
+            command.stamp(alembic_cfg, "head")
+            logger.info("Stamped database at Alembic HEAD after create_all fallback")
+        except Exception:
+            logger.warning("Could not stamp Alembic HEAD", exc_info=True)
 
 
 def init_db() -> Session:
-    engine = get_engine()
-    Base.metadata.create_all(engine)
-    return sessionmaker(bind=engine)()
+    """Initialise the database, with automatic failover on connection error.
+
+    Tries the primary database first.  If it's unreachable and a failover
+    URL is configured, retries against the failover.  Falls back to SQLite
+    when no DATABASE_URL is set at all.
+
+    Returns a new Session bound to the cached engine.
+    """
+    global _active_engine, _tables_created, _SessionFactory
+    from sqlalchemy import text
+
+    with _init_lock:
+        for attempt_failover in (False, True):
+            try:
+                engine = get_engine(failover=attempt_failover)
+                # Verify the connection is alive
+                with engine.connect() as conn:
+                    conn.execute(text("SELECT 1"))
+                if not _tables_created:
+                    _run_migrations(engine)
+                    _tables_created = True
+                if _SessionFactory is None or _SessionFactory.kw.get("bind") is not engine:
+                    _SessionFactory = sessionmaker(bind=engine)
+                if attempt_failover:
+                    logger.warning("Using failover database")
+                return _SessionFactory()
+            except (OperationalError, DBAPIError) as exc:
+                if not attempt_failover and DATABASE_URL_FAILOVER:
+                    logger.warning("Primary database unreachable, trying failover: %s", exc)
+                    # Reset cached engine so failover creates a new one
+                    _active_engine = None
+                    _tables_created = False
+                    _SessionFactory = None
+                    continue
+                raise
+    # Unreachable, but satisfies the type checker
+    raise RuntimeError("Database initialisation failed")

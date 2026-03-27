@@ -8,7 +8,7 @@ if [ -z "$FILE_PATH" ]; then
 fi
 
 if [[ "$FILE_PATH" == *.py ]]; then
-  cd backend && ruff check --fix "$FILE_PATH" 2>&1 || true
+  ruff check --fix "$FILE_PATH" 2>&1 || true
 fi
 
 exit 0

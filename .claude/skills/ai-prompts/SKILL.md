@@ -33,6 +33,7 @@ description: AI/LLM integration patterns and best practices
 ## Security
 - Never include user secrets in prompts
 - Sanitize user input before including in prompts
+- Protect against prompt injection attacks (delimiter tokens, input validation, output filtering)
 - Validate and sanitize AI output before using
 - Don't trust AI output for security decisions
 

@@ -16,7 +16,7 @@ description: API security best practices
 - Validate all input with Pydantic models
 - Set max lengths on string fields
 - Validate email formats, URLs, phone numbers
-- Reject unexpected fields (Pydantic does this by default)
+- Reject unexpected fields (set `extra = "forbid"` in Pydantic model config)
 - Validate file uploads (size, type, extension)
 
 ## SQL Injection Prevention
@@ -38,7 +38,7 @@ description: API security best practices
 - Never expose stack traces to clients
 - Use generic error messages for auth failures
 - Log detailed errors server-side only
-- Return structured error responses: `{ error: { code, message } }`
+- Return structured error responses: `{ "error": { "code": "ERR_CODE", "message": "Error description" } }`
 
 ## Secrets Management
 - Store secrets in environment variables, never in code

@@ -41,6 +41,7 @@ from anthropic.types import TextBlock
 from sqlalchemy.orm import Session, joinedload
 
 from config.settings import AGENT_MODEL
+from src.llm_client import create_message_with_failover
 from src.models import (
     ApplicationRecord,
     ApplicationRecordORM,
@@ -63,6 +64,11 @@ class ApplicationTracker:
     ) -> None:
         self._session = session or init_db()
         self._client = client or anthropic.Anthropic()
+
+    def close(self) -> None:
+        """Close the underlying DB session to release connections."""
+        if self._session:
+            self._session.close()
 
     # ── CRUD ───────────────────────────────────────────────────────────────
 
@@ -130,24 +136,24 @@ class ApplicationTracker:
     # ── Analytics ──────────────────────────────────────────────────────────
 
     def compute_metrics(self, user_id: str) -> dict:
-        """
-        Return a metrics dict:
-        {
-          "total":              int,
-          "response_rate":      float (0–1),
-          "interview_rate":     float,
-          "offer_rate":         float,
-          "avg_days_to_reply":  float | None,
-          "by_status":          {status: count},
-          "top_industries":     [(industry, count)],
-          "top_platforms":      [(platform, count)],
-        }
-        """
-        apps = self.get_applications(user_id)
-        total = len(apps)
-        if total == 0:
+        """Return a metrics dict with rates, status counts, and breakdowns."""
+        app_orms = (
+            self._session.query(ApplicationRecordORM)
+            .options(joinedload(ApplicationRecordORM.job))
+            .filter_by(user_id=user_id)
+            .all()
+        )
+        apps = [self._orm_to_model(orm) for orm in app_orms]
+        if not apps:
             return {"total": 0, "message": "No applications yet."}
 
+        rates = self._compute_rates(apps)
+        breakdowns = self._compute_breakdowns(app_orms)
+        return {**rates, **breakdowns}
+
+    @staticmethod
+    def _compute_rates(apps: list[ApplicationRecord]) -> dict:
+        """Compute response/interview/offer rates and avg reply time."""
         submitted = [a for a in apps if a.status != ApplicationStatus.DRAFT]
         got_reply = [
             a for a in submitted
@@ -155,32 +161,32 @@ class ApplicationTracker:
         ]
         interviewed = [
             a for a in apps
-            if a.status in {
-                ApplicationStatus.INTERVIEW_SCHEDULED,
-                ApplicationStatus.OFFER_RECEIVED,
-            }
+            if a.status in {ApplicationStatus.INTERVIEW_SCHEDULED, ApplicationStatus.OFFER_RECEIVED}
         ]
         offered = [a for a in apps if a.status == ApplicationStatus.OFFER_RECEIVED]
+        n_sub = max(len(submitted), 1)
 
-        by_status: dict[str, int] = Counter(a.status.value for a in apps)
+        reply_days = [
+            (a.last_updated - a.submitted_at).days
+            for a in got_reply
+            if a.submitted_at and a.last_updated and (a.last_updated - a.submitted_at).days >= 0
+        ]
 
-        # days-to-reply: approximate via last_updated vs submitted_at
-        reply_days = []
-        for a in got_reply:
-            if a.submitted_at and a.last_updated:
-                delta = (a.last_updated - a.submitted_at).days
-                if delta >= 0:
-                    reply_days.append(delta)
+        return {
+            "total": len(apps),
+            "submitted": len(submitted),
+            "response_rate": len(got_reply) / n_sub,
+            "interview_rate": len(interviewed) / n_sub,
+            "offer_rate": len(offered) / n_sub,
+            "avg_days_to_reply": round(sum(reply_days) / len(reply_days), 1) if reply_days else None,
+            "by_status": dict(Counter(a.status.value for a in apps)),
+        }
 
-        # Industry / platform breakdown via eager-loaded job records
+    @staticmethod
+    def _compute_breakdowns(app_orms: list) -> dict:  # type: ignore[type-arg]
+        """Extract industry and platform breakdowns from eager-loaded ORM records."""
         industry_counter: Counter = Counter()
         platform_counter: Counter = Counter()
-        app_orms = (
-            self._session.query(ApplicationRecordORM)
-            .options(joinedload(ApplicationRecordORM.job))
-            .filter_by(user_id=user_id)
-            .all()
-        )
         for orm in app_orms:
             job_orm = orm.job  # type: ignore[union-attr]
             if job_orm:
@@ -188,17 +194,7 @@ class ApplicationTracker:
                     industry_counter[job_orm.industry] += 1
                 if job_orm.source_platform:  # type: ignore[truthy-bool]
                     platform_counter[job_orm.source_platform] += 1
-
         return {
-            "total": total,
-            "submitted": len(submitted),
-            "response_rate": len(got_reply) / max(len(submitted), 1),
-            "interview_rate": len(interviewed) / max(len(submitted), 1),
-            "offer_rate": len(offered) / max(len(submitted), 1),
-            "avg_days_to_reply": (
-                round(sum(reply_days) / len(reply_days), 1) if reply_days else None
-            ),
-            "by_status": dict(by_status),
             "top_industries": industry_counter.most_common(5),
             "top_platforms": platform_counter.most_common(5),
         }
@@ -221,7 +217,8 @@ Write 3–5 bullet points of specific, actionable advice based on these numbers.
 Be honest about weaknesses (e.g. low response rate) and suggest concrete fixes.
 Keep each bullet under 2 sentences. Do NOT repeat the raw numbers verbatim.
 """
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}],
@@ -250,7 +247,8 @@ Provide:
 2. Most common reason for rejection (if apparent)
 3. Two specific action items the candidate should focus on
 """
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],

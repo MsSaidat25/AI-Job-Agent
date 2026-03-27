@@ -16,7 +16,8 @@ Read-only. Never modify code.
    a. Verify the feature exists in the codebase
    b. Check if there's a corresponding automated test
    c. If automated test exists, verify it covers the scenario's steps
-   d. Flag gaps: scenarios without tests, tests without scenarios
+   d. Flag scenarios without automated tests
+3. Scan test files to identify orphaned tests (tests without corresponding UAT scenarios)
 
 ## Output: Traceability Matrix
 
@@ -29,9 +30,13 @@ Read-only. Never modify code.
 - Automated: X
 - Manual only: X
 - Coverage: X%
+- Orphaned tests: X
 
 ## Gaps
 List scenarios that need automated tests, prioritized by UAT priority (P0 first).
+
+## Orphaned Tests
+List automated tests that don't map to any UAT scenario, organized by test file.
 
 ## Recommendations
 Suggest specific test implementations for uncovered P0 scenarios.

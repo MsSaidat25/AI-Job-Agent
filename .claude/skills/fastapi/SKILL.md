@@ -29,7 +29,7 @@ description: FastAPI + SQLAlchemy 2.0 + Pydantic v2 patterns
 - Raise `AppError` subclasses, never `HTTPException` with raw strings
 - Global exception handler catches unhandled errors
 - Never expose stack traces or internal details to clients
-- Use structured error format: `{ error: { code, message } }`
+- Use structured error format: `{ "error": { "code": "ERR_CODE", "message": "Error description" } }`
 
 ## Testing
 - Use `httpx.AsyncClient` with `ASGITransport` for async tests

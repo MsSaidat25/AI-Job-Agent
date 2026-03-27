@@ -38,11 +38,13 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, cast
 
-import anthropic
+from anthropic import Anthropic
 from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
+from src.llm_client import create_message_with_failover, get_llm_client
 from src.models import GeneratedDocument, JobListing, UserProfile
+from src.utils import strip_json_fences
 
 
 _RESUME_SYSTEM = """You are an expert resume writer with 15+ years of experience
@@ -73,8 +75,8 @@ Rules:
 
 
 class DocumentGenerator:
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: Anthropic | None = None) -> None:
+        self._client = client or get_llm_client()
 
     # ── Public API ─────────────────────────────────────────────────────────
 
@@ -122,17 +124,15 @@ Return ONLY valid JSON (no markdown fences) with these keys:
 - "suggestions": list of 3-5 specific insertions to improve the score
 """
         try:
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=1024,
                 system="You are an ATS optimisation expert. Respond ONLY with valid JSON.",
                 messages=[{"role": "user", "content": prompt}],
             )
             text = cast(TextBlock, response.content[0]).text.strip()
-            # Strip markdown fences if present
-            if text.startswith("```"):
-                text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-            data = json.loads(text)
+            data = json.loads(strip_json_fences(text))
             score = max(0, min(100, int(data.get("ats_score", 0))))
             return {
                 "ats_score": score,
@@ -201,7 +201,8 @@ at {job.company}.
 Provide 5–7 specific, actionable improvement suggestions as a numbered list.
 Focus on: keyword optimisation, impact quantification, relevance, and structure.
 """
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
@@ -211,7 +212,8 @@ Focus on: keyword optimisation, impact quantification, relevance, and structure.
     # ── Private helpers ────────────────────────────────────────────────────
 
     def _call_model(self, system: str, user_content: str) -> str:
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=MAX_TOKENS,
             system=system,

@@ -1037,9 +1037,8 @@
         <h2>Four things competitors cannot easily copy</h2>
         <p class="subtitle">
             Our moats are structural, not feature-based. See the
-            <a href="docs/PRD.html" style="color: #7c3aed; text-decoration: underline;">PRD</a>
-            for detailed competitive analysis.
-        </p>
+            <a href="PRD.html" style="color: #7c3aed; text-decoration: underline;">PRD</a>
+            for detailed competitive analysis.        </p>
 
         <div class="moat-grid">
             <div class="moat-card">
@@ -1129,12 +1128,11 @@
 <footer>
     <p>&copy; 2025 AVIEN SOLUTIONS. All rights reserved.</p>
     <p style="margin-top: 8px;">
-        <a href="docs/PRD.html">Product Requirements</a>
+    <p style="margin-top: 8px;">
+        <a href="PRD.html">Product Requirements</a>
         &nbsp;&middot;&nbsp;
         <a href="user-story.html">User Stories</a>
     </p>
-</footer>
-
 <script>
     // Smooth scroll for nav links
     document.querySelectorAll('nav a[href^="#"]').forEach(function(link) {
@@ -1170,7 +1168,11 @@
             document.querySelectorAll('.journey-tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.journey-panel').forEach(function(p) { p.classList.remove('active'); });
             this.classList.add('active');
-            document.getElementById(this.getAttribute('data-journey')).classList.add('active');
+            var targetId = this.getAttribute('data-journey');
+            var target = document.getElementById(targetId);
+            if (target) {
+                target.classList.add('active');
+            }
         });
     });
 

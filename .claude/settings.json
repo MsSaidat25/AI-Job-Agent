@@ -9,6 +9,15 @@
             "command": "bash .claude/hooks/guard-protected-files.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/guard-protected-files.mjs"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -20,9 +29,26 @@
             "command": "bash .claude/hooks/autofix-python.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/autofix-python.mjs"
+          }
+        ]
       }
     ],
     "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ruff check . 2>&1 && pyright 2>&1"
+          }
+        ]
+      },
       {
         "hooks": [
           {

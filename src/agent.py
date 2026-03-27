@@ -48,10 +48,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Optional, cast
 
-import anthropic
 from anthropic.types import TextBlock
 
-from config.settings import AGENT_MODEL, MAX_TOKENS, LLM_API_KEY, LLM_BASE_URL
+from config.settings import AGENT_MODEL, MAX_TOKENS
+from src.llm_client import create_message_with_failover, get_llm_client
 from src.analytics import ApplicationTracker
 from src.career_dreamer import CareerDreamer
 from src.document_generator import DocumentGenerator
@@ -129,7 +129,7 @@ TOOLS: list[dict[str, Any]] = [
                 "job_id": {"type": "string", "description": "ID of the target job listing."},
                 "tone": {
                     "type": "string",
-                    "enum": ["professional", "creative", "technical"],
+                    "enum": ["professional", "creative", "technical", "executive", "academic"],
                     "description": "Desired tone of the resume.",
                     "default": "professional",
                 },
@@ -277,10 +277,7 @@ class JobAgent:
 
     def __init__(self, profile: UserProfile) -> None:
         self.profile = profile
-        client_kwargs: dict[str, Any] = {"api_key": LLM_API_KEY}
-        if LLM_BASE_URL:
-            client_kwargs["base_url"] = LLM_BASE_URL
-        self._client = anthropic.Anthropic(**client_kwargs)
+        self._client = get_llm_client()
         self._session = init_db()
         self._search_engine = JobSearchEngine(self._client)
         self._market_svc = MarketIntelligenceService(self._client)
@@ -291,12 +288,19 @@ class JobAgent:
         # In-memory caches for the current session
         # Values may be JobListing (from agent tool loop) or raw dicts (from api.py live search)
         self._job_cache: dict[str, Any] = {}
+        self._job_cache_max = 200  # Prevent unbounded memory growth
         self._app_cache: dict[str, ApplicationRecord] = {}
 
-        # Conversation history
+        # Conversation history (capped to prevent unbounded memory growth)
         self._messages: list[dict[str, Any]] = []
+        self._max_history = 50
 
     # ── Public API ─────────────────────────────────────────────────────────
+
+    def close(self) -> None:
+        """Close the underlying database session to release connections."""
+        if self._session:
+            self._session.close()
 
     def chat(self, user_message: str) -> str:
         """
@@ -304,6 +308,9 @@ class JobAgent:
         Runs the agentic tool-use loop internally.
         """
         self._messages.append({"role": "user", "content": user_message})
+        # Trim history to prevent unbounded memory growth (keep first message for context)
+        if len(self._messages) > self._max_history:
+            self._messages = self._messages[:1] + self._messages[-(self._max_history - 1):]
         return self._agent_loop()
 
     def reset_conversation(self) -> None:
@@ -315,7 +322,8 @@ class JobAgent:
     def _agent_loop(self, max_turns: int = 20) -> str:
         """Run Claude tool-use loop until a final text response is produced."""
         for _turn in range(max_turns):
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system=_SYSTEM_PROMPT,
@@ -397,8 +405,11 @@ class JobAgent:
             listings = self._search_engine.filter_by_location(
                 listings, location_filter, include_remote
             )
-        # Cache for downstream tools
+        # Cache for downstream tools (evict oldest if over cap)
         for j in listings:
+            if len(self._job_cache) >= self._job_cache_max:
+                oldest_key = next(iter(self._job_cache))
+                del self._job_cache[oldest_key]
             self._job_cache[j.id] = j
         return json.dumps(
             [
@@ -429,7 +440,7 @@ class JobAgent:
         tips = self._market_svc.get_application_tips(region)
         return tips
 
-    _ALLOWED_TONES = {"professional", "creative", "technical"}
+    _ALLOWED_TONES = {"professional", "creative", "technical", "executive", "academic"}
 
     def _tool_generate_resume(self, job_id: str, tone: str = "professional") -> str:
         if tone not in self._ALLOWED_TONES:
@@ -540,5 +551,10 @@ class JobAgent:
             return json.dumps({"error": "Job not found in current session. Run search_jobs first."})
         if not resume_text:
             return json.dumps({"error": "No resume text provided. Generate a resume first or pass the text."})
-        result = self._doc_gen.score_ats_match(resume_text, job.description)
+        # Handle both JobListing objects and raw dicts from API live search
+        if isinstance(job, dict):
+            description = job.get("job_description", "") or job.get("description", "")
+        else:
+            description = job.description
+        result = self._doc_gen.score_ats_match(resume_text, description)
         return json.dumps(result, indent=2)

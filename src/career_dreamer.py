@@ -10,30 +10,24 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, cast
+from typing import cast
 
-import anthropic
+from anthropic import Anthropic
 from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
+from src.llm_client import create_message_with_failover, get_llm_client
 from src.models import DreamScenario, DreamTimeline, GapReport, UserProfile
+from src.utils import parse_json_response as _parse_json_response
 
 logger = logging.getLogger(__name__)
-
-
-def _parse_json_response(text: str) -> dict[str, Any]:
-    """Extract JSON from an LLM response, stripping markdown fences if present."""
-    text = text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-    return json.loads(text)
 
 
 class CareerDreamer:
     """AI-powered career transition analysis and planning."""
 
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: Anthropic | None = None) -> None:
+        self._client = client or get_llm_client()
 
     def build_gap_report(
         self,
@@ -67,7 +61,8 @@ Return ONLY valid JSON with these keys:
 - "recommendations": list of 3-5 actionable next steps
 """
         try:
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system="You are an expert career transition coach. Respond ONLY with valid JSON.",
@@ -115,7 +110,8 @@ Salary jump: {gap_report.salary_current} -> {gap_report.salary_dream}
 Return ONLY valid JSON: {{"feasibility_score": <int>, "rationale": "<reason>"}}
 """
         try:
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=256,
                 system="You are a career feasibility analyst. Respond ONLY with valid JSON.",
@@ -162,7 +158,8 @@ Return ONLY valid JSON with:
 Create 6-10 milestones spread across the timeline. Group weeks logically.
 """
         try:
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system="You are a career transition planner. Respond ONLY with valid JSON.",

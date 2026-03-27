@@ -11,27 +11,38 @@ from __future__ import annotations
 
 import json
 import logging
-import os
+import re
 import uuid
+from datetime import date as _date
 from typing import Any, Optional, cast
 
 import httpx
 from anthropic.types import TextBlock
 from pydantic import BaseModel
 
-from config.settings import AGENT_MODEL
+from config.settings import (
+    AGENT_MODEL,
+    ADZUNA_APP_ID,
+    ADZUNA_APP_KEY,
+    ADZUNA_COUNTRY,
+    JSEARCH_API_KEY,
+)
+from src.llm_client import create_message_with_failover
 from src.models import JobListing, JobType, UserProfile
+from src.utils import strip_json_fences
 
 logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-JSEARCH_API_KEY  = os.getenv("JSEARCH_API_KEY", "")
 JSEARCH_BASE_URL = "https://jsearch.p.rapidapi.com/search"
 JSEARCH_HEADERS  = {
     "X-RapidAPI-Key":  JSEARCH_API_KEY,
     "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
 }
+
+# Adzuna (fallback / parallel job search provider)
+ADZUNA_BASE_URL = "https://api.adzuna.com/v1/api/jobs/{country}/search/1"
 
 
 # ── Market insight model ──────────────────────────────────────────────────────
@@ -64,7 +75,17 @@ def _score_job(job: dict, profile: UserProfile) -> tuple[int, str]:
     desc    = (job.get("job_description") or "").lower()
     title   = (job.get("job_title")       or "").lower()
 
-    matched = [s for s in (profile.skills or []) if s.lower() in desc or s.lower() in title]
+    def _skill_pattern(skill: str) -> str:
+        escaped = re.escape(skill.lower())
+        if re.fullmatch(r'\w+', skill):
+            return r'(?<!\w)' + escaped + r'(?!\w)'
+        return r'(?<![A-Za-z0-9_])' + escaped + r'(?![A-Za-z0-9_])'
+
+    matched = [
+        s for s in (profile.skills or [])
+        if re.search(_skill_pattern(s), desc)
+        or re.search(_skill_pattern(s), title)
+    ]
     score  += min(len(matched) * 5, 30)
     if matched:
         reasons.append(f"Skills: {', '.join(matched[:4])}")
@@ -114,7 +135,6 @@ def _to_listing(job: dict, profile: UserProfile) -> JobListing:
         job_type = JobType.FULL_TIME
 
     raw_date = (job.get("job_posted_at_datetime_utc") or "")[:10] or None
-    from datetime import date as _date
     posted_date: _date | None = None
     if raw_date:
         try:
@@ -194,6 +214,84 @@ async def _jsearch_async(query: str) -> list[dict]:
         return []
 
 
+# ── Adzuna helpers ───────────────────────────────────────────────────────────
+
+def _adzuna_normalise(result: dict) -> dict:
+    """Convert an Adzuna result dict to the JSearch-compatible format.
+
+    This lets the existing _to_listing / _score_job pipeline work unchanged.
+    """
+    location = result.get("location", {})
+    area = location.get("area", [])
+    city = area[-1] if area else ""
+    state = area[-2] if len(area) >= 2 else ""
+    country = area[0] if area else ""
+
+    return {
+        "job_id": f"adzuna-{result.get('id', uuid.uuid4())}",
+        "job_title": result.get("title", ""),
+        "employer_name": result.get("company", {}).get("display_name", ""),
+        "job_description": result.get("description", ""),
+        "job_city": city,
+        "job_state": state,
+        "job_country": country,
+        "job_is_remote": "remote" in (result.get("title", "") + result.get("description", "")).lower(),
+        "job_employment_type": result.get("contract_type", "full_time"),
+        "job_min_salary": result.get("salary_min"),
+        "job_max_salary": result.get("salary_max"),
+        "job_posted_at_datetime_utc": result.get("created", ""),
+        "job_apply_link": result.get("redirect_url", ""),
+        "job_google_link": "",
+        "job_publisher": "Adzuna",
+    }
+
+
+def _adzuna_params(query: str) -> dict[str, str]:
+    """Build Adzuna API query parameters."""
+    return {
+        "app_id": ADZUNA_APP_ID,
+        "app_key": ADZUNA_APP_KEY,
+        "results_per_page": "20",
+        "what": query,
+        "max_days_old": "30",
+        "content-type": "application/json",
+    }
+
+
+def _adzuna_url() -> str:
+    return ADZUNA_BASE_URL.format(country=ADZUNA_COUNTRY)
+
+
+def _adzuna_sync(query: str) -> list[dict]:
+    """Blocking Adzuna HTTP call."""
+    if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
+        return []
+    try:
+        with httpx.Client(timeout=15.0) as c:
+            r = c.get(_adzuna_url(), params=_adzuna_params(query))
+            r.raise_for_status()
+            results = r.json().get("results", [])
+            return [_adzuna_normalise(item) for item in results]
+    except Exception:
+        logger.exception("Adzuna sync request failed for query: %s", query)
+        return []
+
+
+async def _adzuna_async(query: str) -> list[dict]:
+    """Async Adzuna HTTP call."""
+    if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
+        return []
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as c:
+            r = await c.get(_adzuna_url(), params=_adzuna_params(query))
+            r.raise_for_status()
+            results = r.json().get("results", [])
+            return [_adzuna_normalise(item) for item in results]
+    except Exception:
+        logger.exception("Adzuna async request failed for query: %s", query)
+        return []
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  CLASS-BASED INTERFACE  (used by src/agent.py — synchronous)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -201,7 +299,7 @@ async def _jsearch_async(query: str) -> list[dict]:
 class JobSearchEngine:
     """
     Synchronous job search used by JobAgent.
-    Fetches real listings from JSearch and maps them to JobListing models.
+    Fetches real listings from JSearch and Adzuna, merges, and maps to JobListing models.
     The `client` shim is kept for API compatibility but not used for searching.
     """
 
@@ -215,13 +313,21 @@ class JobSearchEngine:
         include_remote:  bool = True,
         max_results:     int  = 10,
     ) -> list[JobListing]:
-        query   = _build_query(profile, location_filter)
-        raw     = _jsearch_sync(query)
+        query = _build_query(profile, location_filter)
+        raw = _jsearch_sync(query) + _adzuna_sync(query)
         if not raw:
             return []
+        # Deduplicate by job_id
+        seen: set[str] = set()
+        unique: list[dict] = []
+        for j in raw:
+            jid = j.get("job_id", "")
+            if jid not in seen:
+                seen.add(jid)
+                unique.append(j)
         listings = sorted(
-            [_to_listing(j, profile) for j in raw],
-            key=lambda x: x.match_score or 0, reverse=True
+            [_to_listing(j, profile) for j in unique],
+            key=lambda x: x.match_score or 0, reverse=True,
         )
         return listings[:max_results]
 
@@ -279,16 +385,15 @@ Return ONLY valid JSON with:
 - "upskill_roi": list of {{"skill": str, "estimated_salary_bump_pct": int, "learning_effort": "low"|"medium"|"high"}}
 """
         try:
-            response = self._client.messages.create(
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=1024,
                 system="You are a career skills analyst. Respond ONLY with valid JSON.",
                 messages=[{"role": "user", "content": prompt}],
             )
             text = cast(TextBlock, response.content[0]).text.strip()
-            if text.startswith("```"):
-                text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-            data = json.loads(text)
+            data = json.loads(strip_json_fences(text))
             return {
                 "must_have_gaps": data.get("must_have_gaps", []),
                 "nice_to_have_gaps": data.get("nice_to_have_gaps", []),
@@ -314,7 +419,8 @@ class MarketIntelligenceService:
 
     def get_insights(self, region: str, industry: str) -> MarketInsightLLM:
         try:
-            resp = self._client.messages.create(
+            resp = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL, max_tokens=1024,
                 system="You are a job market analyst. Respond ONLY with valid JSON — no markdown fences.",
                 messages=[{"role": "user", "content": (
@@ -326,15 +432,17 @@ class MarketIntelligenceService:
             text = next((b.text for b in resp.content if b.type == "text"), "{}")
             data = json.loads(text.strip())
             return MarketInsightLLM(region=region, industry=industry, **data)
-        except Exception as e:
+        except Exception:
+            logger.exception("Market insight generation failed for %s / %s", region, industry)
             return MarketInsightLLM(
                 region=region, industry=industry,
-                summary=f"Market data for {industry} in {region} temporarily unavailable. ({e})"
+                summary=f"Market data for {industry} in {region} temporarily unavailable."
             )
 
     def get_application_tips(self, region: str) -> str:
         try:
-            resp = self._client.messages.create(
+            resp = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL, max_tokens=1024,
                 system="You are an expert career coach with deep global hiring knowledge.",
                 messages=[{"role": "user", "content": (
@@ -344,8 +452,9 @@ class MarketIntelligenceService:
                 )}],
             )
             return next((b.text for b in resp.content if b.type == "text"), "No tips available.")
-        except Exception as e:
-            return f"Tips for {region} temporarily unavailable. ({e})"
+        except Exception:
+            logger.exception("Application tips generation failed for %s", region)
+            return f"Tips for {region} temporarily unavailable."
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -360,24 +469,58 @@ async def search_jobs_live(
 ) -> tuple[str, list[str], list[dict]]:
     """
     Async live job search for api.py endpoints.
+    Queries JSearch and Adzuna in parallel and merges results.
     Returns: (markdown_text, job_ids, raw_jobs)
     """
-    if not JSEARCH_API_KEY:
-        return ("⚠ JSEARCH_API_KEY not set. Add it to your .env file.", [], [])
+    import asyncio as _aio
+
+    has_jsearch = bool(JSEARCH_API_KEY)
+    has_adzuna = bool(ADZUNA_APP_ID and ADZUNA_APP_KEY)
+
+    if not has_jsearch and not has_adzuna:
+        return ("⚠ No job search API configured. Set JSEARCH_API_KEY or ADZUNA_APP_ID/ADZUNA_APP_KEY.", [], [])
 
     query = _build_query(profile, location_filter)
-    raw   = await _jsearch_async(query)
+
+    async def _noop() -> list[dict]:
+        return []
+
+    # Fire both providers in parallel
+    jsearch_coro = _jsearch_async(query) if has_jsearch else _noop()
+    adzuna_coro = _adzuna_async(query) if has_adzuna else _noop()
+    jsearch_result, adzuna_result = await _aio.gather(jsearch_coro, adzuna_coro)
+
+    raw: list[dict] = jsearch_result + adzuna_result
 
     if not raw:
         return (f"No jobs found for **{query}**. Try a broader location or different role.", [], [])
 
+    # Deduplicate by job_id
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for j in raw:
+        jid = j.get("job_id", "")
+        if jid not in seen:
+            seen.add(jid)
+            unique.append(j)
+
     listings = sorted(
-        [_to_listing(j, profile) for j in raw],
-        key=lambda x: x.match_score or 0, reverse=True
+        [_to_listing(j, profile) for j in unique],
+        key=lambda x: x.match_score or 0, reverse=True,
     )[:max_results]
 
-    raw_by_id = {j["job_id"]: j for j in raw if j.get("job_id")}
-    header    = f"# Job Search Results\n**Query:** {query} · **Found:** {len(listings)} roles\n\n"
+    raw_by_id = {j["job_id"]: j for j in unique if j.get("job_id")}
+    sources = set()
+    if has_jsearch and jsearch_result:
+        sources.add("JSearch")
+    if has_adzuna and adzuna_result:
+        sources.add("Adzuna")
+    source_label = " + ".join(sorted(sources)) if sources else "search"
+
+    header = (
+        f"# Job Search Results\n"
+        f"**Query:** {query} · **Found:** {len(listings)} roles · **Sources:** {source_label}\n\n"
+    )
     parts, job_ids, sorted_raw = [], [], []
 
     for i, listing in enumerate(listings, 1):
