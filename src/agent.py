@@ -1,4 +1,19 @@
 """
+Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com).
+All Rights Reserved.
+No part of this software or any of its contents may be reproduced, copied,
+modified or adapted, without the prior written consent of the author, unless
+otherwise indicated for stand-alone materials.
+For permission requests, write to the publisher at the email address below:
+avien@aviensolutions.com
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
 AI Job Agent — Main Orchestrator.
 
 This module wires together every sub-system and exposes a single
@@ -28,30 +43,33 @@ Tools exposed to the model
 from __future__ import annotations
 
 import json
+import logging
 import uuid
-from datetime import datetime
-from typing import Any, Optional
+from datetime import datetime, timezone
+from typing import Any, Optional, cast
 
-import anthropic
+from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
+from src.llm_client import create_message_with_failover, get_llm_client
 from src.analytics import ApplicationTracker
+from src.career_dreamer import CareerDreamer
 from src.document_generator import DocumentGenerator
 from src.job_search import JobSearchEngine, MarketIntelligenceService
 from src.models import (
     ApplicationRecord,
     ApplicationStatus,
-    ExperienceLevel,
-    JobListing,
-    JobType,
+    DreamScenario,
     UserProfile,
     init_db,
 )
 
+logger = logging.getLogger(__name__)
+
 
 # ── Tool schemas (JSON Schema for Claude's tool-use API) ───────────────────
 
-TOOLS: list[dict] = [
+TOOLS: list[dict[str, Any]] = [
     {
         "name": "search_jobs",
         "description": (
@@ -111,7 +129,7 @@ TOOLS: list[dict] = [
                 "job_id": {"type": "string", "description": "ID of the target job listing."},
                 "tone": {
                     "type": "string",
-                    "enum": ["professional", "creative", "technical"],
+                    "enum": ["professional", "creative", "technical", "executive", "academic"],
                     "description": "Desired tone of the resume.",
                     "default": "professional",
                 },
@@ -169,6 +187,52 @@ TOOLS: list[dict] = [
         "description": "Analyse patterns across all employer feedback received.",
         "input_schema": {"type": "object", "properties": {}, "required": []},
     },
+    {
+        "name": "career_dreamer",
+        "description": (
+            "Explore a dream career transition. Analyses skill gaps, scores feasibility, "
+            "and builds a week-by-week plan to reach the dream role."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "dream_role": {"type": "string", "description": "The dream job title, e.g. 'Machine Learning Engineer'"},
+                "dream_industry": {"type": "string", "description": "Target industry, e.g. 'AI/ML'", "default": ""},
+                "dream_location": {"type": "string", "description": "Target location, e.g. 'San Francisco, CA'", "default": ""},
+                "timeline_months": {"type": "integer", "description": "Months to achieve the transition (default 12)", "default": 12},
+            },
+            "required": ["dream_role"],
+        },
+    },
+    {
+        "name": "analyze_skill_gaps",
+        "description": (
+            "Analyse skill gaps by comparing the user's profile against live job postings. "
+            "Returns must-have gaps, nice-to-have gaps, hidden strengths, and upskill ROI."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "region": {"type": "string", "description": "Region to search jobs in, e.g. 'Berlin, Germany'", "default": ""},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "score_ats_match",
+        "description": (
+            "Score how well a resume matches a job description for ATS (Applicant Tracking System) compatibility. "
+            "Returns match percentage, missing keywords, and improvement suggestions."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "job_id": {"type": "string", "description": "ID of the job listing to score against."},
+                "resume_text": {"type": "string", "description": "The resume text to score. If omitted, uses the last generated resume.", "default": ""},
+            },
+            "required": ["job_id"],
+        },
+    },
 ]
 
 
@@ -181,6 +245,9 @@ Your capabilities:
 • Search and rank job listings based on the user's skills and preferences
 • Provide region-specific market intelligence and application tips
 • Generate tailored resumes and cover letters for specific roles
+• Score resumes for ATS (Applicant Tracking System) compatibility
+• Analyse skill gaps against live job postings
+• Explore dream career transitions with gap analysis and timelines
 • Track application progress and analyse success patterns
 • Offer unbiased, skill-based recommendations
 
@@ -210,21 +277,30 @@ class JobAgent:
 
     def __init__(self, profile: UserProfile) -> None:
         self.profile = profile
-        self._client = anthropic.Anthropic()
+        self._client = get_llm_client()
         self._session = init_db()
         self._search_engine = JobSearchEngine(self._client)
         self._market_svc = MarketIntelligenceService(self._client)
         self._doc_gen = DocumentGenerator(self._client)
         self._tracker = ApplicationTracker(self._session, self._client)
+        self._career_dreamer = CareerDreamer(self._client)
 
         # In-memory caches for the current session
-        self._job_cache: dict[str, JobListing] = {}
+        # Values may be JobListing (from agent tool loop) or raw dicts (from api.py live search)
+        self._job_cache: dict[str, Any] = {}
+        self._job_cache_max = 200  # Prevent unbounded memory growth
         self._app_cache: dict[str, ApplicationRecord] = {}
 
-        # Conversation history
-        self._messages: list[dict] = []
+        # Conversation history (capped to prevent unbounded memory growth)
+        self._messages: list[dict[str, Any]] = []
+        self._max_history = 50
 
     # ── Public API ─────────────────────────────────────────────────────────
+
+    def close(self) -> None:
+        """Close the underlying database session to release connections."""
+        if self._session:
+            self._session.close()
 
     def chat(self, user_message: str) -> str:
         """
@@ -232,6 +308,9 @@ class JobAgent:
         Runs the agentic tool-use loop internally.
         """
         self._messages.append({"role": "user", "content": user_message})
+        # Trim history to prevent unbounded memory growth (keep first message for context)
+        if len(self._messages) > self._max_history:
+            self._messages = self._messages[:1] + self._messages[-(self._max_history - 1):]
         return self._agent_loop()
 
     def reset_conversation(self) -> None:
@@ -240,15 +319,16 @@ class JobAgent:
 
     # ── Agentic loop ───────────────────────────────────────────────────────
 
-    def _agent_loop(self) -> str:
+    def _agent_loop(self, max_turns: int = 20) -> str:
         """Run Claude tool-use loop until a final text response is produced."""
-        while True:
-            response = self._client.messages.create(
+        for _turn in range(max_turns):
+            response = create_message_with_failover(
+                self._client,
                 model=AGENT_MODEL,
                 max_tokens=MAX_TOKENS,
                 system=_SYSTEM_PROMPT,
-                tools=TOOLS,
-                messages=self._messages,
+                tools=cast(Any, TOOLS),
+                messages=cast(Any, self._messages),
             )
 
             # Append assistant turn to history
@@ -257,7 +337,7 @@ class JobAgent:
             if response.stop_reason == "end_turn":
                 # Extract the text response
                 for block in response.content:
-                    if hasattr(block, "text"):
+                    if isinstance(block, TextBlock):
                         return block.text
                 return ""
 
@@ -276,7 +356,7 @@ class JobAgent:
                 # Unexpected stop reason
                 break
 
-        return "I encountered an unexpected issue. Please try again."
+        return "I reached the maximum number of processing steps. Please try a simpler request."
 
     # ── Tool dispatcher ────────────────────────────────────────────────────
 
@@ -300,10 +380,17 @@ class JobAgent:
                 return self._tool_get_analytics()
             elif name == "get_feedback_analysis":
                 return self._tool_feedback_analysis()
+            elif name == "career_dreamer":
+                return self._tool_career_dreamer(**args)
+            elif name == "analyze_skill_gaps":
+                return self._tool_analyze_skill_gaps(**args)
+            elif name == "score_ats_match":
+                return self._tool_score_ats_match(**args)
             else:
                 return json.dumps({"error": f"Unknown tool: {name}"})
-        except Exception as exc:
-            return json.dumps({"error": str(exc)})
+        except Exception:
+            logger.exception("Tool %s failed", name)
+            return json.dumps({"error": f"Tool '{name}' encountered an internal error."})
 
     # ── Tool implementations ───────────────────────────────────────────────
 
@@ -318,8 +405,11 @@ class JobAgent:
             listings = self._search_engine.filter_by_location(
                 listings, location_filter, include_remote
             )
-        # Cache for downstream tools
+        # Cache for downstream tools (evict oldest if over cap)
         for j in listings:
+            if len(self._job_cache) >= self._job_cache_max:
+                oldest_key = next(iter(self._job_cache))
+                del self._job_cache[oldest_key]
             self._job_cache[j.id] = j
         return json.dumps(
             [
@@ -350,7 +440,11 @@ class JobAgent:
         tips = self._market_svc.get_application_tips(region)
         return tips
 
+    _ALLOWED_TONES = {"professional", "creative", "technical", "executive", "academic"}
+
     def _tool_generate_resume(self, job_id: str, tone: str = "professional") -> str:
+        if tone not in self._ALLOWED_TONES:
+            tone = "professional"
         job = self._job_cache.get(job_id)
         if not job:
             return json.dumps({"error": "Job not found in current session. Run search_jobs first."})
@@ -380,8 +474,8 @@ class JobAgent:
             user_id=self.profile.id,
             job_id=job_id,
             status=ApplicationStatus.SUBMITTED,
-            submitted_at=datetime.utcnow(),
-            last_updated=datetime.utcnow(),
+            submitted_at=datetime.now(timezone.utc),
+            last_updated=datetime.now(timezone.utc),
             notes=notes,
         )
         self._tracker.add_application(record)
@@ -395,6 +489,11 @@ class JobAgent:
         feedback: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> str:
+        # Validate application_id format to prevent prompt injection
+        try:
+            uuid.UUID(application_id)
+        except ValueError:
+            return json.dumps({"error": "Invalid application ID format."})
         updated = self._tracker.update_status(
             application_id,
             ApplicationStatus(new_status),
@@ -412,3 +511,50 @@ class JobAgent:
 
     def _tool_feedback_analysis(self) -> str:
         return self._tracker.employer_feedback_analysis(self.profile.id)
+
+    def _tool_career_dreamer(
+        self,
+        dream_role: str,
+        dream_industry: str = "",
+        dream_location: str = "",
+        timeline_months: int = 12,
+    ) -> str:
+        scenario = DreamScenario(
+            current_role=self.profile.desired_roles[0] if self.profile.desired_roles else "",
+            dream_role=dream_role,
+            dream_industry=dream_industry,
+            dream_location=dream_location,
+            timeline_months=timeline_months,
+        )
+        gap_report = self._career_dreamer.build_gap_report(self.profile, scenario)
+        timeline = self._career_dreamer.build_timeline(gap_report, timeline_months)
+        return json.dumps({
+            "dream_role": dream_role,
+            "feasibility_score": gap_report.feasibility_score,
+            "feasibility_rationale": gap_report.feasibility_rationale,
+            "overlapping_skills": gap_report.overlapping_skills,
+            "missing_skills": gap_report.missing_skills,
+            "salary_current": gap_report.salary_current,
+            "salary_dream": gap_report.salary_dream,
+            "recommendations": gap_report.recommendations,
+            "timeline_weeks": timeline.total_weeks,
+            "milestones": timeline.milestones,
+        }, indent=2)
+
+    def _tool_analyze_skill_gaps(self, region: str = "") -> str:
+        result = self._search_engine.analyze_skill_gaps(self.profile, region)
+        return json.dumps(result, indent=2)
+
+    def _tool_score_ats_match(self, job_id: str, resume_text: str = "") -> str:
+        job = self._job_cache.get(job_id)
+        if not job:
+            return json.dumps({"error": "Job not found in current session. Run search_jobs first."})
+        if not resume_text:
+            return json.dumps({"error": "No resume text provided. Generate a resume first or pass the text."})
+        # Handle both JobListing objects and raw dicts from API live search
+        if isinstance(job, dict):
+            description = job.get("job_description", "") or job.get("description", "")
+        else:
+            description = job.description
+        result = self._doc_gen.score_ats_match(resume_text, description)
+        return json.dumps(result, indent=2)

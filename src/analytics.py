@@ -1,4 +1,19 @@
 """
+Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com).
+All Rights Reserved.
+No part of this software or any of its contents may be reproduced, copied,
+modified or adapted, without the prior written consent of the author, unless
+otherwise indicated for stand-alone materials.
+For permission requests, write to the publisher at the email address below:
+avien@aviensolutions.com
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
 Application Analytics Tracker.
 
 Tracks every application the user submits, monitors status changes,
@@ -17,25 +32,26 @@ Privacy note: All data lives in the local SQLite database only.
 from __future__ import annotations
 
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional, cast
 
 import anthropic
-from sqlalchemy.orm import Session
+from anthropic.types import TextBlock
+from sqlalchemy.orm import Session, joinedload
 
 from config.settings import AGENT_MODEL
+from src.llm_client import create_message_with_failover
 from src.models import (
     ApplicationRecord,
     ApplicationRecordORM,
     ApplicationStatus,
-    JobListingORM,
     init_db,
 )
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(timezone.utc)
 
 
 class ApplicationTracker:
@@ -48,6 +64,11 @@ class ApplicationTracker:
     ) -> None:
         self._session = session or init_db()
         self._client = client or anthropic.Anthropic()
+
+    def close(self) -> None:
+        """Close the underlying DB session to release connections."""
+        if self._session:
+            self._session.close()
 
     # ── CRUD ───────────────────────────────────────────────────────────────
 
@@ -85,12 +106,12 @@ class ApplicationTracker:
         )
         if orm is None:
             return None
-        orm.status = new_status.value
-        orm.last_updated = _utcnow()
+        orm.status = new_status.value  # type: ignore[assignment]
+        orm.last_updated = _utcnow()  # type: ignore[assignment]
         if feedback is not None:
-            orm.employer_feedback = feedback
+            orm.employer_feedback = feedback  # type: ignore[assignment]
         if notes is not None:
-            orm.notes = notes
+            orm.notes = notes  # type: ignore[assignment]
         self._session.commit()
         return self._orm_to_model(orm)
 
@@ -104,30 +125,35 @@ class ApplicationTracker:
         return [self._orm_to_model(r) for r in rows]
 
     def get_application(self, application_id: str) -> Optional[ApplicationRecord]:
-        orm = self._session.query(ApplicationRecordORM).filter_by(id=application_id).first()
+        orm = (
+            self._session.query(ApplicationRecordORM)
+            .options(joinedload(ApplicationRecordORM.job))
+            .filter_by(id=application_id)
+            .first()
+        )
         return self._orm_to_model(orm) if orm else None
 
     # ── Analytics ──────────────────────────────────────────────────────────
 
     def compute_metrics(self, user_id: str) -> dict:
-        """
-        Return a metrics dict:
-        {
-          "total":              int,
-          "response_rate":      float (0–1),
-          "interview_rate":     float,
-          "offer_rate":         float,
-          "avg_days_to_reply":  float | None,
-          "by_status":          {status: count},
-          "top_industries":     [(industry, count)],
-          "top_platforms":      [(platform, count)],
-        }
-        """
-        apps = self.get_applications(user_id)
-        total = len(apps)
-        if total == 0:
+        """Return a metrics dict with rates, status counts, and breakdowns."""
+        app_orms = (
+            self._session.query(ApplicationRecordORM)
+            .options(joinedload(ApplicationRecordORM.job))
+            .filter_by(user_id=user_id)
+            .all()
+        )
+        apps = [self._orm_to_model(orm) for orm in app_orms]
+        if not apps:
             return {"total": 0, "message": "No applications yet."}
 
+        rates = self._compute_rates(apps)
+        breakdowns = self._compute_breakdowns(app_orms)
+        return {**rates, **breakdowns}
+
+    @staticmethod
+    def _compute_rates(apps: list[ApplicationRecord]) -> dict:
+        """Compute response/interview/offer rates and avg reply time."""
         submitted = [a for a in apps if a.status != ApplicationStatus.DRAFT]
         got_reply = [
             a for a in submitted
@@ -135,46 +161,40 @@ class ApplicationTracker:
         ]
         interviewed = [
             a for a in apps
-            if a.status in {
-                ApplicationStatus.INTERVIEW_SCHEDULED,
-                ApplicationStatus.OFFER_RECEIVED,
-            }
+            if a.status in {ApplicationStatus.INTERVIEW_SCHEDULED, ApplicationStatus.OFFER_RECEIVED}
         ]
         offered = [a for a in apps if a.status == ApplicationStatus.OFFER_RECEIVED]
+        n_sub = max(len(submitted), 1)
 
-        by_status: dict[str, int] = Counter(a.status.value for a in apps)
-
-        # days-to-reply: approximate via last_updated vs submitted_at
-        reply_days = []
-        for a in got_reply:
-            if a.submitted_at and a.last_updated:
-                delta = (a.last_updated - a.submitted_at).days
-                if delta >= 0:
-                    reply_days.append(delta)
-
-        # Industry / platform breakdown via joined job records
-        industry_counter: Counter = Counter()
-        platform_counter: Counter = Counter()
-        for a in apps:
-            job_orm: Optional[JobListingORM] = (
-                self._session.query(JobListingORM).filter_by(id=a.job_id).first()
-            )
-            if job_orm:
-                if job_orm.industry:
-                    industry_counter[job_orm.industry] += 1
-                if job_orm.source_platform:
-                    platform_counter[job_orm.source_platform] += 1
+        reply_days = [
+            (a.last_updated - a.submitted_at).days
+            for a in got_reply
+            if a.submitted_at and a.last_updated and (a.last_updated - a.submitted_at).days >= 0
+        ]
 
         return {
-            "total": total,
+            "total": len(apps),
             "submitted": len(submitted),
-            "response_rate": len(got_reply) / max(len(submitted), 1),
-            "interview_rate": len(interviewed) / max(len(submitted), 1),
-            "offer_rate": len(offered) / max(len(submitted), 1),
-            "avg_days_to_reply": (
-                round(sum(reply_days) / len(reply_days), 1) if reply_days else None
-            ),
-            "by_status": dict(by_status),
+            "response_rate": len(got_reply) / n_sub,
+            "interview_rate": len(interviewed) / n_sub,
+            "offer_rate": len(offered) / n_sub,
+            "avg_days_to_reply": round(sum(reply_days) / len(reply_days), 1) if reply_days else None,
+            "by_status": dict(Counter(a.status.value for a in apps)),
+        }
+
+    @staticmethod
+    def _compute_breakdowns(app_orms: list) -> dict:  # type: ignore[type-arg]
+        """Extract industry and platform breakdowns from eager-loaded ORM records."""
+        industry_counter: Counter = Counter()
+        platform_counter: Counter = Counter()
+        for orm in app_orms:
+            job_orm = orm.job  # type: ignore[union-attr]
+            if job_orm:
+                if job_orm.industry:  # type: ignore[truthy-bool]
+                    industry_counter[job_orm.industry] += 1
+                if job_orm.source_platform:  # type: ignore[truthy-bool]
+                    platform_counter[job_orm.source_platform] += 1
+        return {
             "top_industries": industry_counter.most_common(5),
             "top_platforms": platform_counter.most_common(5),
         }
@@ -197,12 +217,13 @@ Write 3–5 bullet points of specific, actionable advice based on these numbers.
 Be honest about weaknesses (e.g. low response rate) and suggest concrete fixes.
 Keep each bullet under 2 sentences. Do NOT repeat the raw numbers verbatim.
 """
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     def employer_feedback_analysis(self, user_id: str) -> str:
         """Aggregate employer feedback and extract patterns via Claude."""
@@ -226,29 +247,33 @@ Provide:
 2. Most common reason for rejection (if apparent)
 3. Two specific action items the candidate should focus on
 """
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     # ── Private helpers ────────────────────────────────────────────────────
 
     @staticmethod
     def _orm_to_model(orm: ApplicationRecordORM) -> ApplicationRecord:
+        orm_any = cast(Any, orm)
         return ApplicationRecord(
-            id=orm.id,
-            user_id=orm.user_id,
-            job_id=orm.job_id,
-            status=ApplicationStatus(orm.status),
-            resume_version=orm.resume_version,
-            cover_letter_version=orm.cover_letter_version,
-            submitted_at=orm.submitted_at,
-            last_updated=orm.last_updated,
-            employer_feedback=orm.employer_feedback,
+            id=orm_any.id,
+            user_id=orm_any.user_id,
+            job_id=orm_any.job_id,
+            status=ApplicationStatus(orm_any.status),
+            resume_version=orm_any.resume_version,
+            cover_letter_version=orm_any.cover_letter_version,
+            submitted_at=orm_any.submitted_at,
+            last_updated=orm_any.last_updated,
+            employer_feedback=orm_any.employer_feedback,
             interview_dates=[
-                datetime.fromisoformat(d) for d in (orm.interview_dates or [])
+                datetime.fromisoformat(d)
+                for d in (orm_any.interview_dates or [])
+                if isinstance(d, str)
             ],
-            notes=orm.notes or "",
+            notes=orm_any.notes or "",
         )

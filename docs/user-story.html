@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Agent - User Stories &amp; Journeys</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #ffffff;
+            color: #1a1a2e;
+            line-height: 1.7;
+        }
+
+        /* Nav */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0 24px;
+        }
+        nav .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        nav .nav-inner::-webkit-scrollbar { display: none; }
+        nav a {
+            display: block;
+            padding: 14px 14px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        nav a:hover, nav a.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+        nav .nav-logo {
+            font-weight: 700;
+            color: #7c3aed;
+            font-size: 0.9rem;
+            padding-right: 12px;
+            border-right: 1px solid #e5e7eb;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+
+        /* Sections */
+        section { padding: 80px 24px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
+        h2 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+        h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+        .subtitle { font-size: 1.1rem; color: #64748b; max-width: 680px; margin-bottom: 48px; }
+        .accent { color: #7c3aed; }
+        .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7c3aed;
+            background: #f3f0ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #f8f6ff 0%, #eef2ff 100%);
+            padding: 100px 24px 80px;
+            text-align: center;
+        }
+        .hero h1 { font-size: 2.8rem; max-width: 800px; margin: 0 auto 16px; }
+        .hero .subtitle { max-width: 600px; margin: 0 auto 32px; text-align: center; }
+        .hero-badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .hero-badge {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #475569;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 8px 18px;
+            border-radius: 24px;
+        }
+
+        /* Persona Cards */
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+        }
+        .persona-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .persona-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.08);
+        }
+        .persona-card.employer {
+            border-color: #c4b5fd;
+            background: linear-gradient(135deg, #faf8ff, #f3f0ff);
+        }
+        .persona-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+        .persona-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .persona-role {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .persona-goal {
+            font-size: 0.9rem;
+            padding: 12px 16px;
+            background: #f0fdf4;
+            border-left: 3px solid #22c55e;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+        }
+        .persona-goal strong { color: #15803d; }
+        .persona-pain {
+            font-size: 0.9rem;
+            padding: 12px 16px;
+            background: #fef2f2;
+            border-left: 3px solid #ef4444;
+            border-radius: 0 8px 8px 0;
+        }
+        .persona-pain strong { color: #dc2626; }
+        .persona-quote {
+            font-style: italic;
+            font-size: 0.88rem;
+            color: #475569;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .persona-quote::before { content: '\201C'; font-size: 1.5rem; color: #c4b5fd; margin-right: 4px; vertical-align: -4px; }
+
+        /* Journey */
+        .journey-section { background: #f8f6ff; }
+        .journey-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+        .journey-tabs::-webkit-scrollbar { display: none; }
+        .journey-tab {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            background: #fff;
+            color: #475569;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .journey-tab:hover { border-color: #c4b5fd; color: #7c3aed; }
+        .journey-tab.active {
+            background: #7c3aed;
+            color: #fff;
+            border-color: #7c3aed;
+        }
+        .journey-panel { display: none; }
+        .journey-panel.active { display: block; }
+        .journey-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .journey-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .journey-header-text h3 { margin-bottom: 2px; }
+        .journey-header-text p { font-size: 0.85rem; color: #64748b; margin: 0; }
+        .journey-steps {
+            position: relative;
+            padding-left: 40px;
+        }
+        .journey-steps::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #c4b5fd, #e9d5ff);
+        }
+        .journey-step {
+            position: relative;
+            margin-bottom: 28px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            border: 1px solid #e5e7eb;
+        }
+        .journey-step:last-child { margin-bottom: 0; }
+        .journey-step-number {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 32px;
+            height: 32px;
+            background: #7c3aed;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 1;
+            box-shadow: 0 0 0 4px #f8f6ff;
+        }
+        .journey-step h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1a1a2e;
+        }
+        .journey-step p {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin: 0;
+        }
+        .journey-step .step-highlight {
+            margin-top: 8px;
+            font-size: 0.82rem;
+            padding: 8px 12px;
+            background: #f3f0ff;
+            border-radius: 8px;
+            color: #6d28d9;
+            font-weight: 500;
+        }
+
+        /* Pain/Solution Cards */
+        .pain-grid {
+            display: grid;
+            gap: 20px;
+        }
+        .pain-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .pain-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .pain-col {
+            padding: 24px;
+        }
+        .pain-col:first-child {
+            background: #fef2f2;
+            border-right: 1px solid #fecaca;
+        }
+        .pain-col:nth-child(2) {
+            background: #f8fafc;
+            border-right: 1px solid #e5e7eb;
+        }
+        .pain-col:last-child {
+            background: #f0fdf4;
+        }
+        .pain-col-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+        .pain-col:first-child .pain-col-label { color: #dc2626; }
+        .pain-col:nth-child(2) .pain-col-label { color: #64748b; }
+        .pain-col:last-child .pain-col-label { color: #16a34a; }
+        .pain-col p {
+            font-size: 0.9rem;
+            color: #334155;
+        }
+
+        /* Moat Cards */
+        .moat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .moat-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .moat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.08);
+        }
+        .moat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 16px;
+        }
+        .moat-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+        .moat-card p {
+            font-size: 0.88rem;
+            color: #64748b;
+        }
+
+        /* Employer Portal Vision */
+        .marketplace-visual {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .marketplace-side {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 32px;
+        }
+        .marketplace-side h3 {
+            margin-bottom: 16px;
+        }
+        .marketplace-side ul {
+            list-style: none;
+            padding: 0;
+        }
+        .marketplace-side ul li {
+            font-size: 0.9rem;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+            color: #475569;
+        }
+        .marketplace-side ul li:last-child { border-bottom: none; }
+        .marketplace-side ul li::before {
+            content: '\2713';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .marketplace-side.seeker ul li::before {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .marketplace-side.employer ul li::before {
+            background: #f3f0ff;
+            color: #7c3aed;
+        }
+        .marketplace-bridge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #7c3aed;
+        }
+        .marketplace-bridge-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .marketplace-bridge span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #7c3aed;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .employer-pricing {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .employer-pricing-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        .employer-pricing-card.featured {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 1px #7c3aed;
+        }
+        .employer-pricing-card h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .employer-pricing-card .price {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #7c3aed;
+            margin-bottom: 4px;
+        }
+        .employer-pricing-card .price-note {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .employer-pricing-card p {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        /* Coming Soon Badge */
+        .coming-soon-badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #d97706;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* Section reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+        }
+        footer p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        footer a {
+            color: #7c3aed;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .pain-card {
+                grid-template-columns: 1fr;
+            }
+            .pain-col:first-child {
+                border-right: none;
+                border-bottom: 1px solid #fecaca;
+            }
+            .pain-col:nth-child(2) {
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .marketplace-visual {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .marketplace-bridge {
+                flex-direction: row;
+                gap: 8px;
+            }
+            .employer-pricing {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .hero h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            section { padding: 60px 16px; }
+            .persona-grid { grid-template-columns: 1fr; }
+            .moat-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <div class="nav-inner">
+        <span class="nav-logo">AI Job Agent</span>
+        <a href="#personas">Personas</a>
+        <a href="#journeys">Journeys</a>
+        <a href="#pain-solutions">Pain &rarr; Solutions</a>
+        <a href="#moats">Why Us</a>
+        <a href="#employer-portal">Employer Portal</a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <span class="tag">User Stories &amp; Journeys</span>
+        <h1>Real people. Real frustrations. A better way to find work.</h1>
+        <p class="subtitle">
+            This document is about the humans behind the product. Who they are,
+            what hurts them, and the step-by-step experiences that make their lives easier.
+        </p>
+        <div class="hero-badges">
+            <span class="hero-badge">5 Personas</span>
+            <span class="hero-badge">5 User Journeys</span>
+            <span class="hero-badge">7 Pain Points Solved</span>
+            <span class="hero-badge">Employer + Seeker</span>
+        </div>
+    </div>
+</section>
+
+<!-- Personas -->
+<section id="personas" class="reveal">
+    <div class="container">
+        <span class="tag">Who We Serve</span>
+        <h2>Meet the people we are building for</h2>
+        <p class="subtitle">
+            Each persona represents thousands of real job seekers (and one hiring manager)
+            whose daily frustrations shaped every feature in this product.
+        </p>
+
+        <div class="persona-grid">
+
+            <!-- Amara -->
+            <div class="persona-card">
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">A</div>
+                <div class="persona-name">Amara, The Remote Worker</div>
+                <div class="persona-role">Mid-Level Data Analyst &middot; Lagos, Nigeria</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Land a remote EU/US role without spending 3+ hours per day on job portals.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Resume copy-paste fatigue. 90% ghost rate. No salary benchmarking for cross-border roles.
+                </div>
+                <div class="persona-quote">
+                    I spend my evenings reformatting the same resume for every single portal. Then I never hear back.
+                </div>
+            </div>
+
+            <!-- Marcus -->
+            <div class="persona-card">
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">M</div>
+                <div class="persona-name">Marcus, The Underpaid Senior</div>
+                <div class="persona-role">Senior DevOps Engineer &middot; Berlin, Germany</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Understand his true market value and explore US relocation opportunities.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Zero salary visibility. Previous automation tools got his LinkedIn account flagged.
+                </div>
+                <div class="persona-quote">
+                    I tried one of those auto-apply tools. Two weeks later, my LinkedIn was restricted. Never again.
+                </div>
+            </div>
+
+            <!-- Priya -->
+            <div class="persona-card">
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #ec4899, #be185d);">P</div>
+                <div class="persona-name">Priya, The Career Changer</div>
+                <div class="persona-role">Marketing Manager &rarr; Product Management</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Identify which of her skills transfer and build a plan to close the gaps.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Does not know which skills transfer. Overwhelmed by job requirements that list 20 "must-haves."
+                </div>
+                <div class="persona-quote">
+                    Every PM job listing asks for SQL, A/B testing, and roadmapping. I do not even know where to start.
+                </div>
+            </div>
+
+            <!-- David -->
+            <div class="persona-card">
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #22c55e, #15803d);">D</div>
+                <div class="persona-name">David, The Fresh Graduate</div>
+                <div class="persona-role">CS Graduate &middot; Toronto, Canada</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Land his first tech job without insider connections or paid tools.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Caught in the "need experience to get experience" trap. Cannot afford $99/mo subscription tools.
+                </div>
+                <div class="persona-quote">
+                    I graduated four months ago. Every "entry level" posting wants 3 years of experience.
+                </div>
+            </div>
+
+            <!-- Sarah (Employer) -->
+            <div class="persona-card employer">
+                <div class="persona-avatar" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">S</div>
+                <div class="persona-name">Sarah, The Hiring Manager <span class="coming-soon-badge">Coming Soon</span></div>
+                <div class="persona-role">Engineering Manager &middot; Employer Portal Persona</div>
+                <div class="persona-goal">
+                    <strong>Goal:</strong> Find pre-qualified candidates without sifting through 500 unqualified applications.
+                </div>
+                <div class="persona-pain">
+                    <strong>Pain:</strong> Job boards send volume, not quality. Wants AI-matched candidates, not keyword spam.
+                </div>
+                <div class="persona-quote">
+                    I posted one role and got 487 applications. Maybe 12 were actually qualified. That is not sustainable.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- User Journeys -->
+<section id="journeys" class="journey-section reveal">
+    <div class="container">
+        <span class="tag">Step by Step</span>
+        <h2>User Journeys</h2>
+        <p class="subtitle">
+            Walk through the product as each persona would experience it,
+            from first sign-up to daily use.
+        </p>
+
+        <div class="journey-tabs">
+            <button class="journey-tab active" data-journey="j1">First-Time Setup</button>
+            <button class="journey-tab" data-journey="j2">Daily Job Search</button>
+            <button class="journey-tab" data-journey="j3">Career Dreaming</button>
+            <button class="journey-tab" data-journey="j4">First Job Hunt</button>
+            <button class="journey-tab" data-journey="j5">Employer Posting</button>
+        </div>
+
+        <!-- Journey 1: Amara -->
+        <div class="journey-panel active" id="j1">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">A</div>
+                <div class="journey-header-text">
+                    <h3>Amara's First-Time Setup</h3>
+                    <p>From zero to fully configured profile in under 10 minutes.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Sign Up</h4>
+                    <p>Amara signs up with email or Google via Supabase Auth. No credit card required.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>Upload Resume</h4>
+                    <p>She uploads her PDF resume. The AI parses it into a structured profile, showing confidence scores for each field.</p>
+                    <div class="step-highlight">AI Confidence: Name 99% &middot; Skills 94% &middot; Experience 91% &middot; Education 97%</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Review &amp; Correct</h4>
+                    <p>She reviews the parsed fields. A few items flagged as low-confidence are easy to correct inline.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Set Preferences</h4>
+                    <p>Desired roles, locations (remote EU/US), salary range, and remote-only preference.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Privacy Dashboard</h4>
+                    <p>The privacy panel shows exactly what is shared and what is encrypted.</p>
+                    <div class="step-highlight">"Your data is encrypted. Only skills and location are shared with AI."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 2: Marcus -->
+        <div class="journey-panel" id="j2">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">M</div>
+                <div class="journey-header-text">
+                    <h3>Marcus's Daily Job Search</h3>
+                    <p>From dashboard to downloaded application package in 5 minutes.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Dashboard Overview</h4>
+                    <p>Marcus opens his dashboard and sees KPI cards: total applications, response rate, interview rate.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>AI-Powered Search</h4>
+                    <p>He clicks "Find Jobs." The AI searches across JSearch, Adzuna, and Greenhouse/Lever APIs simultaneously.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Smart Results</h4>
+                    <p>Each result shows a match score, salary vs. market comparison, and company intelligence summary.</p>
+                    <div class="step-highlight">Match: 92% &middot; Salary: EUR 85k (Market avg: EUR 78k) &middot; Company: Series C, 200 employees</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Tailored Preview</h4>
+                    <p>He clicks a listing and sees a tailored resume preview with ATS compatibility score.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Download Package</h4>
+                    <p>One click downloads a PDF package: tailored resume, cover letter, and company cheat sheet.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">6</div>
+                    <h4>Apply Safely</h4>
+                    <p>Marcus applies on the actual job site himself. No browser automation, no account risk.</p>
+                    <div class="step-highlight">Zero automation on job platforms. His accounts stay safe.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 3: Priya -->
+        <div class="journey-panel" id="j3">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #ec4899, #be185d);">P</div>
+                <div class="journey-header-text">
+                    <h3>Priya's Career Dreaming</h3>
+                    <p>From "can I even do this?" to a concrete 12-month plan.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Open Career Dreamer</h4>
+                    <p>Priya enters her target: "Product Manager" in London with a 12-month timeline.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>AI Gap Analysis</h4>
+                    <p>The AI maps her existing skills to the target role and returns a detailed breakdown.</p>
+                    <div class="step-highlight">Skill overlap: 65% &middot; Missing: SQL, A/B testing, roadmapping &middot; Feasibility: 72/100</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Salary Comparison</h4>
+                    <p>Current salary ($75k Marketing Manager) vs. target ($95k Product Manager). Clear upside.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Learning Plan</h4>
+                    <p>A week-by-week plan: free courses, certifications, portfolio projects. Prioritized by impact.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Track Progress</h4>
+                    <p>Priya saves the dream and revisits it monthly to track progress and adjust the plan.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 4: David -->
+        <div class="journey-panel" id="j4">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #22c55e, #15803d);">D</div>
+                <div class="journey-header-text">
+                    <h3>David's First Job Hunt</h3>
+                    <p>From no resume and no connections to a structured daily job search.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Free Tier Sign-Up</h4>
+                    <p>David signs up on the free tier. No credit card, no trial expiration on core features.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>Build Resume from Scratch</h4>
+                    <p>He has no resume yet. The AI helps him build one from his coursework, projects, and hackathon experience.</p>
+                    <div class="step-highlight">AI turns "built a React weather app" into a professional achievement bullet.</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>Daily Matches</h4>
+                    <p>The AI identifies 5 high-match entry-level roles per day, filtered for "truly entry-level" (no 3-year experience traps).</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Tailored Applications</h4>
+                    <p>For each role, a tailored resume is generated with ATS scoring. He learns what works.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Track What Works</h4>
+                    <p>David tracks every application. Over time, he sees which resume styles and job types get responses.</p>
+                    <div class="step-highlight">Week 3: "Roles with company size &lt;50 have 3x response rate for you."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey 5: Sarah (Employer) -->
+        <div class="journey-panel" id="j5">
+            <div class="journey-header">
+                <div class="journey-header-avatar" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">S</div>
+                <div class="journey-header-text">
+                    <h3>Sarah's Employer Posting <span class="coming-soon-badge">Coming Soon</span></h3>
+                    <p>From job posting to qualified, opted-in candidates.</p>
+                </div>
+            </div>
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-step-number">1</div>
+                    <h4>Employer Sign-Up</h4>
+                    <p>Sarah signs up on the employer portal, a separate experience from the job seeker side.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">2</div>
+                    <h4>Post a Role</h4>
+                    <p>She posts a job with requirements, culture notes, and salary range.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">3</div>
+                    <h4>AI Matching</h4>
+                    <p>The AI matches her posting against anonymized candidate profiles. No names, no demographics. Just skills.</p>
+                    <div class="step-highlight">12 candidates matched at 80%+ &middot; Average match score: 87%</div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">4</div>
+                    <h4>Review Anonymized Profiles</h4>
+                    <p>Sarah sees match scores and anonymized skill profiles. She shortlists 5 candidates.</p>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-step-number">5</div>
+                    <h4>Candidate Opt-In</h4>
+                    <p>Shortlisted candidates receive a notification. They choose whether to reveal their identity and connect.</p>
+                    <div class="step-highlight">Candidates control their own data. They opt in, not the other way around.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Pain to Solution -->
+<section id="pain-solutions" class="reveal">
+    <div class="container">
+        <span class="tag">Pain &rarr; Solution</span>
+        <h2>Every feature exists because something hurts</h2>
+        <p class="subtitle">
+            What job seekers struggle with today, how competitors handle it,
+            and why our approach is fundamentally different.
+        </p>
+
+        <div class="pain-grid">
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I applied to 500 jobs and got 2 responses."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>LazyApply: blast even more applications. Results in 0.1% response rates.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>Quality matching: fewer, targeted applications with higher response rates.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I do not know if my resume will pass ATS."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>Jobscan: scan-only, no fixes. Costs $50/mo separately.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>ATS scoring and auto-fix built into resume generation. Included, not upsold.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"These tools send my personal data to their servers."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>All SaaS competitors store your data on their cloud. You have no control.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>AES-256-GCM encryption, EU hosting, PII scrubbing, and a transparency dashboard.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"My LinkedIn got flagged for using automation."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>AIHawk and LazyApply use browser automation. Known account risk.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>No browser automation, ever. API-only architecture. Zero account risk.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I cannot afford $99/month while job hunting."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>LazyApply charges $99-249/mo. Jobscan is $50/mo. Adds up fast.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>Free tier with real, usable features. Pro tier at $19/mo for power users.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I do not know what I am worth in another country."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>Nobody does cross-border salary benchmarking well. Data is scattered.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>BLS + Eurostat salary benchmarks with multi-currency comparison built in.</p>
+                </div>
+            </div>
+
+            <div class="pain-card">
+                <div class="pain-col">
+                    <div class="pain-col-label">The Pain</div>
+                    <p>"I do not know if my skills transfer to a new role."</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Competitors</div>
+                    <p>Nobody offers this. Career changers are on their own.</p>
+                </div>
+                <div class="pain-col">
+                    <div class="pain-col-label">Our Approach</div>
+                    <p>Career Dreamer: gap analysis, feasibility scoring, and a week-by-week learning timeline.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Competitive Moats -->
+<section id="moats" class="reveal" style="background: #f8fafc;">
+    <div class="container">
+        <span class="tag">Why Us</span>
+        <h2>Four things competitors cannot easily copy</h2>
+        <p class="subtitle">
+            Our moats are structural, not feature-based. See the
+            <a href="PRD.html" style="color: #7c3aed; text-decoration: underline;">PRD</a>
+            for detailed competitive analysis.        </p>
+
+        <div class="moat-grid">
+            <div class="moat-card">
+                <div class="moat-icon" style="background: #f0fdf4; color: #16a34a;">&#x1f512;</div>
+                <h3>Privacy-First</h3>
+                <p>Your data never leaves your control. AES-256-GCM encryption, PII scrubbing, EU-hosted.</p>
+            </div>
+            <div class="moat-card">
+                <div class="moat-icon" style="background: #f3f0ff; color: #7c3aed;">&#x1f3af;</div>
+                <h3>Quality over Quantity</h3>
+                <p>15 targeted applications outperform 500 spray-and-pray blasts. Every time.</p>
+            </div>
+            <div class="moat-card">
+                <div class="moat-icon" style="background: #eff6ff; color: #2563eb;">&#x1f9e0;</div>
+                <h3>Career Intelligence</h3>
+                <p>Not just jobs. Career strategy: gap analysis, salary benchmarks, feasibility scoring.</p>
+            </div>
+            <div class="moat-card">
+                <div class="moat-icon" style="background: #fffbeb; color: #d97706;">&#x1f6e1;&#xfe0f;</div>
+                <h3>EU Compliant</h3>
+                <p>Built for GDPR and the EU AI Act from day one. Not bolted on after the fact.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Employer Portal Vision -->
+<section id="employer-portal" class="reveal">
+    <div class="container">
+        <span class="tag">Two-Sided Marketplace</span>
+        <h2>The Employer Portal Vision <span class="coming-soon-badge">Coming Soon</span></h2>
+        <p class="subtitle">
+            A marketplace where job seekers get real listings and employers get
+            pre-qualified candidates. Both sides win.
+        </p>
+
+        <div class="marketplace-visual">
+            <div class="marketplace-side seeker">
+                <h3>Job Seekers Get</h3>
+                <ul>
+                    <li>Real employer listings with a "Direct" badge</li>
+                    <li>Faster response times from engaged employers</li>
+                    <li>Transparency into who is viewing their profile</li>
+                    <li>Full control over identity reveal</li>
+                </ul>
+            </div>
+            <div class="marketplace-bridge">
+                <div class="marketplace-bridge-icon">AI</div>
+                <span>Matching</span>
+            </div>
+            <div class="marketplace-side employer">
+                <h3>Employers Get</h3>
+                <ul>
+                    <li>Pre-qualified, AI-matched candidates</li>
+                    <li>Anonymized profiles until candidate opts in</li>
+                    <li>Match scores based on skills, not keywords</li>
+                    <li>No resume spam, only relevant candidates</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 16px; text-align: center; color: #64748b; font-weight: 500; font-size: 0.95rem;">Employer Pricing</h3>
+        <div class="employer-pricing">
+            <div class="employer-pricing-card">
+                <h4>Free</h4>
+                <div class="price">$0</div>
+                <div class="price-note">3 job posts / month</div>
+                <p>Try the platform with real candidate matching. No commitment.</p>
+            </div>
+            <div class="employer-pricing-card featured">
+                <h4>Pro</h4>
+                <div class="price">$99<span style="font-size: 0.8rem; font-weight: 400;">/mo</span></div>
+                <div class="price-note">Unlimited posts</div>
+                <p>Full AI matching, analytics dashboard, and priority candidate access.</p>
+            </div>
+            <div class="employer-pricing-card">
+                <h4>Enterprise</h4>
+                <div class="price">$499<span style="font-size: 0.8rem; font-weight: 400;">/mo</span></div>
+                <div class="price-note">Custom integrations</div>
+                <p>ATS integration, dedicated support, and custom matching rules.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2025 AVIEN SOLUTIONS. All rights reserved.</p>
+    <p style="margin-top: 8px;">
+    <p style="margin-top: 8px;">
+        <a href="PRD.html">Product Requirements</a>
+        &nbsp;&middot;&nbsp;
+        <a href="user-story.html">User Stories</a>
+    </p>
+<script>
+    // Smooth scroll for nav links
+    document.querySelectorAll('nav a[href^="#"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Active nav highlighting on scroll
+    var sections = document.querySelectorAll('section[id]');
+    var navLinks = document.querySelectorAll('nav a[href^="#"]');
+    window.addEventListener('scroll', function() {
+        var scrollPos = window.scrollY + 120;
+        sections.forEach(function(section) {
+            if (section.offsetTop <= scrollPos && section.offsetTop + section.offsetHeight > scrollPos) {
+                navLinks.forEach(function(link) {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + section.id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    });
+
+    // Journey tab switching
+    document.querySelectorAll('.journey-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.journey-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.journey-panel').forEach(function(p) { p.classList.remove('active'); });
+            this.classList.add('active');
+            var targetId = this.getAttribute('data-journey');
+            var target = document.getElementById(targetId);
+            if (target) {
+                target.classList.add('active');
+            }
+        });
+    });
+
+    // Section reveal on scroll
+    var revealElements = document.querySelectorAll('.reveal');
+    function checkReveal() {
+        var windowHeight = window.innerHeight;
+        revealElements.forEach(function(el) {
+            var top = el.getBoundingClientRect().top;
+            if (top < windowHeight - 60) {
+                el.classList.add('visible');
+            }
+        });
+    }
+    window.addEventListener('scroll', checkReveal);
+    window.addEventListener('load', checkReveal);
+</script>
+
+</body>
+</html>

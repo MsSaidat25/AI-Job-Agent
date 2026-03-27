@@ -1,20 +1,25 @@
 """Tests for data models."""
-import pytest
+from typing import Any
+
+from sqlalchemy import text
+
 from src.models import (
     ApplicationRecord,
     ApplicationStatus,
+    DreamScenario,
+    DreamTimeline,
     ExperienceLevel,
+    GapReport,
+    GeneratedDocument,
     JobListing,
     JobType,
     MarketInsight,
     UserProfile,
-    init_db,
 )
-from sqlalchemy import text
 
 
-def make_profile(**kwargs) -> UserProfile:
-    defaults = dict(
+def make_profile(**kwargs: Any) -> UserProfile:
+    defaults: dict[str, Any] = dict(
         name="Jane Doe",
         email="jane@example.com",
         location="Berlin, Germany",
@@ -28,8 +33,8 @@ def make_profile(**kwargs) -> UserProfile:
     return UserProfile(**defaults)
 
 
-def make_job(**kwargs) -> JobListing:
-    defaults = dict(
+def make_job(**kwargs: Any) -> JobListing:
+    defaults: dict[str, Any] = dict(
         title="Data Engineer",
         company="DataCo",
         location="Berlin, Germany",
@@ -78,10 +83,46 @@ def test_market_insight_fields():
     assert mi.competition_level == "high"
 
 
-def test_db_init_creates_tables(tmp_path, monkeypatch):
+def test_dream_scenario_defaults():
+    ds = DreamScenario(dream_role="ML Engineer")
+    assert ds.timeline_months == 12
+    assert ds.dream_industry == ""
+
+
+def test_gap_report_fields():
+    gr = GapReport(
+        dream_role="ML Engineer",
+        overlapping_skills=["Python"],
+        missing_skills=[{"skill": "PyTorch", "learning_time_weeks": 8, "priority": "high"}],
+        feasibility_score=72.5,
+    )
+    assert gr.dream_role == "ML Engineer"
+    assert gr.feasibility_score == 72.5
+    assert len(gr.missing_skills) == 1
+
+
+def test_dream_timeline_fields():
+    dt = DreamTimeline(
+        dream_role="ML Engineer",
+        total_weeks=48,
+        milestones=[{"week": 1, "goal": "Learn basics", "actions": [], "deliverable": "Course done"}],
+    )
+    assert dt.total_weeks == 48
+    assert len(dt.milestones) == 1
+
+
+def test_generated_document_ats_fields():
+    doc = GeneratedDocument(
+        user_id="u1", job_id="j1", doc_type="resume", content="Resume text",
+        ats_score=85.0, missing_keywords=["Kubernetes"],
+    )
+    assert doc.ats_score == 85.0
+    assert "Kubernetes" in doc.missing_keywords
+
+
+def test_db_init_creates_tables(fresh_db):
     """init_db should create tables without error in a temp dir."""
-    monkeypatch.setattr("config.settings.DB_PATH", tmp_path / "test.db")
-    from src.models import init_db, Base, get_engine
+    from src.models import Base, get_engine
     engine = get_engine()
     Base.metadata.create_all(engine)
     with engine.connect() as conn:
@@ -92,3 +133,4 @@ def test_db_init_creates_tables(tmp_path, monkeypatch):
     assert "user_profiles" in table_names
     assert "job_listings" in table_names
     assert "application_records" in table_names
+    assert "career_dreams" in table_names

@@ -1,5 +1,4 @@
 """Tests for privacy utilities."""
-import pytest
 from src.privacy import (
     decrypt,
     derive_key,

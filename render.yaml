@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: ai-job-agent
+    runtime: python
+    pythonVersion: "3.12"
+    buildCommand: pip install -r requirements.txt && mkdir -p data
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT --workers ${WEB_CONCURRENCY:-2}
+    healthCheckPath: /api/health
+    envVars:
+      # LLM
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: AGENT_MODEL
+        value: claude-sonnet-4-6
+      # GCP (enables Secret Manager + Vertex failover)
+      - key: GCP_PROJECT_ID
+        sync: false
+      - key: VERTEX_PROJECT
+        sync: false
+      - key: VERTEX_LOCATION
+        value: us-central1
+      - key: USE_VERTEX_FAILOVER
+        value: "true"
+      # Database (Cloud SQL primary, Supabase failover)
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_FAILOVER
+        sync: false
+      # Email
+      - key: RESEND_API_KEY
+        sync: false
+      # Auth -- set to "true" for production deployments
+      - key: AUTH_ENABLED
+        sync: false
+      # CORS -- comma-separated allowed origins
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Job search
+      - key: JSEARCH_API_KEY
+        sync: false
+      - key: ADZUNA_APP_ID
+        sync: false
+      - key: ADZUNA_APP_KEY
+        sync: false
+      - key: ADZUNA_COUNTRY
+        value: us

@@ -1,0 +1,4 @@
+UAT_ID,Feature,Priority,Status,Tester,Date,Defect_ID,Notes
+UAT-001,Health Check,P0,PASS,Claude Code,2026-03-16,,Automated: tests/test_api.py::TestHealthAndSession::test_health
+UAT-002,Structured Error Response,P1,PASS,Claude Code,2026-03-16,,FastAPI returns {detail: msg} JSON with no stack traces
+UAT-003,Graceful Shutdown,P1,MANUAL REQUIRED,,,,Requires running server + SIGTERM; cannot be automated in test suite

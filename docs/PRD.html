@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Agent - Technical PRD v2.0</title>
+    <style>
+        :root {
+            --accent: #7c3aed;
+            --accent-dark: #6d28d9;
+            --accent-deeper: #4f46e5;
+            --bg: #ffffff;
+            --bg-alt: #f8fafc;
+            --bg-card: #f8fafc;
+            --text: #1a1a2e;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --text-faint: #94a3b8;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --shadow: rgba(124, 58, 237, 0.06);
+            --red: #dc2626;
+            --red-bg: #fef2f2;
+            --red-border: #fecaca;
+            --orange: #ea580c;
+            --orange-bg: #fff7ed;
+            --orange-border: #fed7aa;
+            --yellow: #ca8a04;
+            --yellow-bg: #fefce8;
+            --yellow-border: #fef08a;
+            --green: #16a34a;
+            --green-bg: #f0fdf4;
+            --green-border: #bbf7d0;
+            --gray: #6b7280;
+            --gray-bg: #f9fafb;
+            --gray-border: #e5e7eb;
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg-alt: #1e293b;
+            --bg-card: #1e293b;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #94a3b8;
+            --text-faint: #64748b;
+            --border: #334155;
+            --border-light: #1e293b;
+            --shadow: rgba(0,0,0,0.3);
+            --red-bg: #1c1012;
+            --red-border: #7f1d1d;
+            --orange-bg: #1c1408;
+            --orange-border: #7c2d12;
+            --yellow-bg: #1c1a06;
+            --yellow-border: #713f12;
+            --green-bg: #071a0e;
+            --green-border: #14532d;
+            --gray-bg: #111827;
+            --gray-border: #374151;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Nav */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+        }
+        [data-theme="dark"] nav { background: rgba(15,23,42,0.95); }
+        nav .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        nav .nav-inner::-webkit-scrollbar { display: none; }
+        nav a {
+            display: block;
+            padding: 14px 10px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        nav a:hover, nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+        nav .nav-logo {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.9rem;
+            padding-right: 12px;
+            margin-right: 4px;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .theme-toggle {
+            margin-left: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Layout */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        section { padding: 56px 0; }
+        section + section { border-top: 1px solid var(--border-light); }
+        h2 { font-size: 1.6rem; color: var(--text); margin-bottom: 4px; }
+        .section-sub { color: var(--text-muted); margin-bottom: 32px; font-size: 0.92rem; }
+
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 50%, var(--accent-deeper) 100%);
+            padding: 72px 40px 64px;
+            text-align: center;
+            color: #fff;
+        }
+        .hero h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 12px; }
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.85);
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .hero .tagline {
+            margin-top: 24px;
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 8px 24px;
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.95);
+        }
+        .hero .version {
+            margin-top: 14px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.78rem;
+        }
+
+        /* Stat counters */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 36px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px 16px;
+        }
+        .stat-card .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 4px;
+        }
+
+        /* Threat cards */
+        .threat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .threat-card {
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .threat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--shadow); }
+        .threat-card h4 { font-size: 0.95rem; margin-bottom: 4px; color: var(--text); }
+        .threat-card p { font-size: 0.82rem; color: var(--text-secondary); }
+        .threat-card .threat-badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .threat-critical { background: var(--red-bg); border-color: var(--red); }
+        .threat-critical .threat-badge { background: #fee2e2; color: var(--red); }
+        [data-theme="dark"] .threat-critical .threat-badge { background: #7f1d1d; }
+        .threat-high { background: var(--orange-bg); border-color: var(--orange); }
+        .threat-high .threat-badge { background: #ffedd5; color: var(--orange); }
+        [data-theme="dark"] .threat-high .threat-badge { background: #7c2d12; }
+        .threat-moderate { background: var(--yellow-bg); border-color: var(--yellow); }
+        .threat-moderate .threat-badge { background: #fef9c3; color: var(--yellow); }
+        [data-theme="dark"] .threat-moderate .threat-badge { background: #713f12; }
+        .threat-emerging { background: var(--gray-bg); border-color: var(--gray); }
+        .threat-emerging .threat-badge { background: #f3f4f6; color: var(--gray); }
+        [data-theme="dark"] .threat-emerging .threat-badge { background: #374151; }
+        .threat-defunct { background: var(--gray-bg); border-color: var(--gray); opacity: 0.6; }
+        .threat-defunct h4 { text-decoration: line-through; }
+        .threat-defunct .threat-badge { background: #f3f4f6; color: var(--gray); }
+
+        /* Tables */
+        .table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th {
+            background: var(--bg-alt);
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 16px;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+        tr:hover td { background: rgba(124,58,237,0.03); }
+        [data-theme="dark"] tr:hover td { background: rgba(124,58,237,0.08); }
+        tr:last-child td { border-bottom: none; }
+
+        /* Tabs */
+        .tabs { margin: 16px 0; }
+        .tab-btns {
+            display: flex;
+            gap: 4px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tab-btns::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--accent); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-panel { display: none; padding: 24px 0; }
+        .tab-panel.active { display: block; }
+
+        /* Collapsible */
+        details {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        details[open] {
+            background: var(--bg);
+            border-color: #c4b5fd;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+        [data-theme="dark"] details[open] { border-color: #4c1d95; }
+        details summary {
+            padding: 18px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        details summary::-webkit-details-marker { display: none; }
+        details summary::before {
+            content: '\25B6';
+            font-size: 0.65rem;
+            color: var(--accent);
+            transition: transform 0.2s;
+        }
+        details[open] summary::before { transform: rotate(90deg); }
+        details .detail-body { padding: 0 24px 20px 48px; }
+        details .detail-body p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 10px; }
+
+        /* Callouts */
+        .callout { border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 0.88rem; }
+        .callout-red { background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); }
+        .callout-green { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+        .callout-purple { background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; }
+        [data-theme="dark"] .callout-purple { background: #1e1338; border-color: #4c1d95; color: #c4b5fd; }
+        .callout-amber { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+        [data-theme="dark"] .callout-amber { background: #1c1a06; border-color: #713f12; color: #fbbf24; }
+
+        /* Cards grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--shadow); }
+        .card h4 { color: var(--accent); font-size: 0.95rem; margin-bottom: 8px; }
+        .card p { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* Architecture diagram */
+        .arch-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            color: var(--text-secondary);
+            white-space: pre;
+        }
+        .arch-diagram .hl { color: var(--accent); font-weight: 700; }
+        .arch-diagram .hl-green { color: var(--green); font-weight: 600; }
+        .arch-diagram .hl-orange { color: var(--orange); font-weight: 600; }
+
+        /* Checklist */
+        .checklist { list-style: none; padding: 0; }
+        .checklist li {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            user-select: none;
+        }
+        .checklist li:hover { border-color: var(--accent); background: rgba(124,58,237,0.02); }
+        .checklist li .check-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.72rem;
+            color: transparent;
+        }
+        .checklist li.checked .check-box {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .checklist li.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        .checklist li .article-ref {
+            margin-left: auto;
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Progress bar */
+        .progress-wrap { margin: 8px 0; }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-deeper));
+            transition: width 1.5s ease;
+            width: 0;
+        }
+
+        /* Pricing cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px var(--shadow); }
+        .pricing-card.featured {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 14px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+        .pricing-card h3 { font-size: 1.1rem; color: var(--text); margin-bottom: 4px; }
+        .pricing-card .price { font-size: 2rem; font-weight: 800; color: var(--accent); margin: 12px 0 4px; }
+        .pricing-card .price-sub { font-size: 0.78rem; color: var(--text-faint); margin-bottom: 16px; }
+        .pricing-card ul { list-style: none; text-align: left; padding: 0; }
+        .pricing-card li {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .pricing-card li::before { content: '\2713'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+        .pricing-card li:last-child { border-bottom: none; }
+
+        /* Risk cards */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+        }
+        .risk-card {
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .risk-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px var(--shadow); }
+        .risk-card h4 { font-size: 0.92rem; margin-bottom: 6px; color: var(--text); }
+        .risk-card p { font-size: 0.82rem; color: var(--text-secondary); }
+        .risk-card .risk-badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .risk-high { background: var(--red-bg); border-color: var(--red); }
+        .risk-high .risk-badge { background: #fee2e2; color: var(--red); }
+        [data-theme="dark"] .risk-high .risk-badge { background: #7f1d1d; }
+        .risk-medium { background: var(--yellow-bg); border-color: var(--yellow); }
+        .risk-medium .risk-badge { background: #fef9c3; color: var(--yellow); }
+        [data-theme="dark"] .risk-medium .risk-badge { background: #713f12; }
+        .risk-low { background: var(--green-bg); border-color: var(--green); }
+        .risk-low .risk-badge { background: #dcfce7; color: var(--green); }
+        [data-theme="dark"] .risk-low .risk-badge { background: #14532d; }
+
+        /* Timeline */
+        .timeline { position: relative; padding: 24px 0; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: 24px;
+            left: 20px;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent-deeper));
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 56px;
+            margin-bottom: 32px;
+        }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 13px;
+            top: 6px;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--bg);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+        .timeline-item .tl-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+        .timeline-item h4 { font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
+        .timeline-item p { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* Feature status badges */
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+        .badge-done { background: #dcfce7; color: var(--green); }
+        .badge-planned { background: #fef9c3; color: var(--yellow); }
+        [data-theme="dark"] .badge-done { background: #14532d; }
+        [data-theme="dark"] .badge-planned { background: #713f12; }
+
+        /* Privacy comparison highlights */
+        .priv-us { color: var(--green); font-weight: 600; }
+        .priv-them { color: var(--text-faint); }
+
+        /* Door cards */
+        .door-closed {
+            background: var(--red-bg);
+            border: 1px solid var(--red-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+        .door-closed:hover { transform: translateY(-1px); }
+        .door-closed h4 { color: var(--red); font-size: 0.92rem; margin-bottom: 4px; }
+        .door-closed p { font-size: 0.82rem; color: var(--text-secondary); }
+
+        .door-open {
+            background: var(--green-bg);
+            border: 1px solid var(--green-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+        .door-open:hover { transform: translateY(-1px); }
+        .door-open h4 { color: var(--green); font-size: 0.92rem; margin-bottom: 4px; }
+        .door-open p { font-size: 0.82rem; color: var(--text-secondary); }
+
+        /* Section labels */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        /* Kill chart */
+        .kill-chart td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+
+        /* Tier label */
+        .tier-label {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        .tier-1 { background: #dcfce7; color: var(--green); }
+        .tier-2 { background: #dbeafe; color: #2563eb; }
+        .tier-3 { background: #f5f3ff; color: var(--accent); }
+        [data-theme="dark"] .tier-1 { background: #14532d; }
+        [data-theme="dark"] .tier-2 { background: #1e3a5f; }
+        [data-theme="dark"] .tier-3 { background: #2e1065; }
+
+        code {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            word-break: break-all;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-alt);
+            border-top: 1px solid var(--border);
+            padding: 32px 24px;
+            text-align: center;
+            color: var(--text-faint);
+            font-size: 0.82rem;
+        }
+        footer strong { color: var(--accent); }
+
+        /* Print */
+        @media print {
+            nav, .theme-toggle { display: none; }
+            .hero { padding: 32px 20px; }
+            section { padding: 24px 0; }
+            .reveal { opacity: 1; transform: none; }
+            .threat-card, .card, .pricing-card, .risk-card { break-inside: avoid; }
+            details { break-inside: avoid; }
+            details[open] .detail-body { display: block; }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero { padding: 48px 20px 40px; }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .threat-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .risk-grid { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 16px; }
+            h2 { font-size: 1.3rem; }
+            .arch-diagram { font-size: 0.68rem; padding: 16px; }
+            details .detail-body { padding-left: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <div class="nav-inner">
+        <span class="nav-logo">AI Job Agent</span>
+        <a href="#hero">Summary</a>
+        <a href="#threats">Threats</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#jobdata">Job Data</a>
+        <a href="#compliance">Compliance</a>
+        <a href="#features">Features</a>
+        <a href="#monetization">Monetization</a>
+        <a href="#risks">Risks</a>
+        <a href="#roadmap">Roadmap</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light theme">Dark / Light</button>
+    </div>
+</nav>
+
+<!-- SECTION 1: Hero / Executive Summary -->
+<header class="hero" id="hero">
+    <h1>AI Job Agent</h1>
+    <p class="subtitle">Privacy-first AI career strategist with real job data, intelligent matching, and EU AI Act compliance</p>
+    <div class="tagline">Technical Product Requirements Document</div>
+    <div class="version">v2.0 &middot; March 2026 &middot; AVIEN SOLUTIONS</div>
+    <div class="stat-grid">
+        <div class="stat-card">
+            <span class="stat-num" data-target="20" data-suffix="+">0</span>
+            <span class="stat-label">Competitors analyzed</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num" data-target="6" data-suffix="">0</span>
+            <span class="stat-label">Job data APIs integrated</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num" data-target="100" data-suffix="%">0</span>
+            <span class="stat-label">Local privacy</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num" data-target="1" data-suffix="" data-display="YES">0</span>
+            <span class="stat-label">EU AI Act ready</span>
+        </div>
+    </div>
+</header>
+
+<!-- SECTION 2: Threat Level Map -->
+<section id="threats">
+    <div class="container reveal">
+        <p class="section-label">Competitive Intelligence</p>
+        <h2>Threat Level Map</h2>
+        <p class="section-sub">Color-coded competitive analysis across 20+ players in the AI job application space.</p>
+
+        <details open>
+            <summary>Critical Threats</summary>
+            <div class="detail-body">
+                <div class="threat-grid">
+                    <div class="threat-card threat-critical">
+                        <span class="threat-badge">Critical</span>
+                        <h4>Jobright AI</h4>
+                        <p>100k+ Chrome extension users. AI agent with auto-apply. $15-40/mo. US-only market.</p>
+                    </div>
+                    <div class="threat-card threat-critical">
+                        <span class="threat-badge">Critical</span>
+                        <h4>ApplyPilot</h4>
+                        <p>8k GitHub stars in first week. Open source. Supports 83 sites. Free.</p>
+                    </div>
+                    <div class="threat-card threat-critical">
+                        <span class="threat-badge">Critical</span>
+                        <h4>Simplify</h4>
+                        <p>1M+ users, free tier. 100+ ATS portals: Workday, Greenhouse, iCIMS, Taleo, Avature, Lever, SmartRecruiters.</p>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>High Threats</summary>
+            <div class="detail-body">
+                <div class="threat-grid">
+                    <div class="threat-card threat-high">
+                        <span class="threat-badge">High</span>
+                        <h4>CareerSwift</h4>
+                        <p>Ranked #1 in 2026 lists. Human-in-the-loop quality approach. &euro;10/wk.</p>
+                    </div>
+                    <div class="threat-card threat-high">
+                        <span class="threat-badge">High</span>
+                        <h4>JobCopilot</h4>
+                        <p>Career-page crawling. 50 applications/day. $9-40/mo.</p>
+                    </div>
+                    <div class="threat-card threat-high">
+                        <span class="threat-badge">High</span>
+                        <h4>LazyApply</h4>
+                        <p>Volume king: 300+ apps/day. Greenhouse, Dice, Indeed, ZipRecruiter. $99-249/mo. But 0.1% interview rate.</p>
+                    </div>
+                    <div class="threat-card threat-high">
+                        <span class="threat-badge">High</span>
+                        <h4>Scale.jobs</h4>
+                        <p>Human virtual assistants. 25-47% callback rate. $199-399/mo.</p>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Moderate Threats</summary>
+            <div class="detail-body">
+                <div class="threat-grid">
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>Teal</h4>
+                        <p>Best CRM. 4.4 rating. 40+ boards. $29/mo.</p>
+                    </div>
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>Careerflow</h4>
+                        <p>LinkedIn optimizer + coaching. $24/mo.</p>
+                    </div>
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>Wobo AI</h4>
+                        <p>Digital twin "Persona". 45k users. $25-54/mo.</p>
+                    </div>
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>LoopCV</h4>
+                        <p>Multi-board + recruiter outreach. &euro;10-30/mo.</p>
+                    </div>
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>Jobscan</h4>
+                        <p>ATS optimization leader. $50/mo.</p>
+                    </div>
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>AIHawk</h4>
+                        <p>29.5k GitHub stars. LinkedIn-only. Open source, community-maintained.</p>
+                    </div>
+                    <div class="threat-card threat-moderate">
+                        <span class="threat-badge">Moderate</span>
+                        <h4>Massive</h4>
+                        <p>Full auto-apply. But 2.1/5 TrustPilot. $39/mo.</p>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Emerging &amp; Defunct</summary>
+            <div class="detail-body">
+                <div class="threat-grid">
+                    <div class="threat-card threat-emerging">
+                        <span class="threat-badge">Emerging</span>
+                        <h4>Flashfire, ApplyArc, JobHire.AI, Careery.pro, Skillora</h4>
+                        <p>Early-stage entrants. Limited traction data available. Worth monitoring quarterly.</p>
+                    </div>
+                    <div class="threat-card threat-defunct">
+                        <span class="threat-badge">Defunct</span>
+                        <h4>Sonara</h4>
+                        <p>Gone out of business (confirmed via user reports).</p>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Competitive Kill Chart</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table class="kill-chart">
+                        <thead><tr><th>Competitor</th><th>How We Beat Them</th></tr></thead>
+                        <tbody>
+                            <tr><td>Jobright</td><td>Privacy (they're cloud-only), international reach (they're US-only), deeper career intelligence</td></tr>
+                            <tr><td>ApplyPilot</td><td>No Node/Chrome dependency, privacy pipeline, career intelligence (they just auto-apply)</td></tr>
+                            <tr><td>AIHawk</td><td>Multi-board (they're LinkedIn-only), no account ban risk, active maintainer</td></tr>
+                            <tr><td>Simplify</td><td>No browser extension security risk, deeper AI agent, career strategy layer</td></tr>
+                            <tr><td>LazyApply</td><td>Quality over quantity (their 0.1% interview rate is terrible), privacy, no account bans</td></tr>
+                            <tr><td>Teal</td><td>AI agent does things (they're passive CRM), real job search, salary intelligence</td></tr>
+                            <tr><td>CareerSwift</td><td>Open source + free tier (they charge weekly), privacy-first, same quality philosophy</td></tr>
+                            <tr><td>Scale.jobs</td><td>Free vs $199-399, AI approaching human quality, instant vs 12-24hr turnaround</td></tr>
+                            <tr><td>Jobscan</td><td>ATS optimization + everything else (they only scan)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+    </div>
+</section>
+
+<!-- SECTION 3: Architecture -->
+<section id="architecture">
+    <div class="container reveal">
+        <p class="section-label">Technical Architecture</p>
+        <h2>System Architecture</h2>
+        <p class="section-sub">Tabbed view of system design, infrastructure decisions, database schema, and cost structure.</p>
+
+        <div class="tabs">
+            <div class="tab-btns" data-tabgroup="arch">
+                <button class="tab-btn active" data-tab="arch-system">System Architecture</button>
+                <button class="tab-btn" data-tab="arch-supabase">Why Supabase</button>
+                <button class="tab-btn" data-tab="arch-schema">Database Schema</button>
+                <button class="tab-btn" data-tab="arch-cost">Cost Structure</button>
+            </div>
+
+            <div class="tab-panel active" id="arch-system">
+                <div class="arch-diagram"><span class="hl">USERS</span>  &#8594;  Web App (PWA) + Employer Portal (Coming Soon)
+           &#8595;
+      <span class="hl">FastAPI Backend</span> (api.py)
+      &#9500;&#9472;&#9472; Supabase Auth (email, OAuth, SSO)
+      &#9500;&#9472;&#9472; Rate Limiting + Stripe Billing
+      &#9500;&#9472;&#9472; <span class="hl-green">GDPR Compliance Layer</span>
+      &#9474;   &#9500;&#9472;&#9472; Consent Manager
+      &#9474;   &#9500;&#9472;&#9472; Data Export API (Art. 20)
+      &#9474;   &#9500;&#9472;&#9472; Right to Erasure API (Art. 17)
+      &#9474;   &#9492;&#9472;&#9472; AI Decision Audit Log (Art. 12)
+      &#9492;&#9472;&#9472; <span class="hl">Agent Core</span>
+          &#9500;&#9472;&#9472; agent.py (Claude tool-use loop)
+          &#9500;&#9472;&#9472; job_search.py &#8594; JSearch API, Adzuna, TheirStack, ATS APIs
+          &#9500;&#9472;&#9472; document_generator.py (resume/cover letter + ATS scoring)
+          &#9500;&#9472;&#9472; analytics.py (tracker + career intelligence)
+          &#9500;&#9472;&#9472; career_dreamer.py (gap analysis, feasibility)
+          &#9500;&#9472;&#9472; salary_data.py (BLS + Eurostat)
+          &#9492;&#9472;&#9472; <span class="hl-green">privacy.py</span> (AES-256-GCM, PII scrubbing)
+                &#8595;
+      <span class="hl-orange">Supabase (Frankfurt EU)</span>
+      &#9500;&#9472;&#9472; PostgreSQL (RLS, per-tenant isolation)
+      &#9500;&#9472;&#9472; Auth (JWT, OAuth)
+      &#9500;&#9472;&#9472; Storage (encrypted resume files)
+      &#9492;&#9472;&#9472; Real-time (live status updates)
+                &#8595;
+      <span class="hl">External APIs</span>
+      &#9500;&#9472;&#9472; Claude API (Anthropic) - via OpenRouter
+      &#9500;&#9472;&#9472; JSearch (RapidAPI) - $25/mo
+      &#9500;&#9472;&#9472; Adzuna - free tier
+      &#9500;&#9472;&#9472; TheirStack - 90 EUR/mo
+      &#9500;&#9472;&#9472; Greenhouse/Lever/Ashby public APIs - free
+      &#9492;&#9472;&#9472; BLS OEWS API - free</div>
+            </div>
+
+            <div class="tab-panel" id="arch-supabase">
+                <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Why Supabase (not Turso/SQLite)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Factor</th><th>Supabase</th><th>Turso</th><th>Raw SQLite</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Auth</strong></td><td>Built-in (email, OAuth, SSO)</td><td>None</td><td>None</td></tr>
+                            <tr><td><strong>File Storage</strong></td><td>Built-in (resume uploads)</td><td>None</td><td>None</td></tr>
+                            <tr><td><strong>Real-time</strong></td><td>Built-in</td><td>None</td><td>None</td></tr>
+                            <tr><td><strong>EU Hosting</strong></td><td>Frankfurt, Ireland, Paris, Stockholm, Zurich</td><td>Limited</td><td>N/A</td></tr>
+                            <tr><td><strong>RLS Multi-tenancy</strong></td><td>Native PostgreSQL</td><td>Not available</td><td>Not available</td></tr>
+                            <tr><td><strong>GDPR Tooling</strong></td><td>DPA, SOC 2, pgaudit, EU regions</td><td>Limited</td><td>None</td></tr>
+                            <tr><td><strong>SQLAlchemy</strong></td><td>First-class (it IS Postgres)</td><td>Custom dialect</td><td>Native</td></tr>
+                            <tr><td><strong>Free Tier</strong></td><td>500MB, 50k MAU, 2 projects</td><td>5GB, 100 DBs</td><td>Unlimited but single-user</td></tr>
+                            <tr><td><strong>Paid</strong></td><td>$25/mo (auth+db+storage+realtime)</td><td>$4.99/mo (db only, need auth+storage separately)</td><td>$0</td></tr>
+                            <tr><td><strong>Migration effort</strong></td><td>Change connection string</td><td>Keep SQLite but bolt on auth/storage</td><td>Already there</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-purple" style="margin-top:16px;">
+                    <strong>Bottom line:</strong> Supabase gives us auth, storage, real-time, EU hosting, and GDPR compliance in one platform. Turso saves $20/mo on the database but costs more total when you add auth ($25/mo Clerk) and storage (S3) separately.
+                </div>
+            </div>
+
+            <div class="tab-panel" id="arch-schema">
+                <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Database Schema (Key Tables)</h3>
+                <div class="card-grid">
+                    <div class="card"><h4>user_profiles</h4><p>Core user data, preferences, encrypted PII, skill vectors</p></div>
+                    <div class="card"><h4>job_listings</h4><p>Aggregated jobs from all sources with dedup and scoring</p></div>
+                    <div class="card"><h4>application_records</h4><p>Full application lifecycle tracking with status history</p></div>
+                    <div class="card"><h4>market_insights</h4><p>Cached market intelligence, salary trends, demand signals</p></div>
+                    <div class="card"><h4>generated_documents</h4><p>Resumes, cover letters, tailoring metadata</p></div>
+                    <div class="card"><h4>salary_benchmarks</h4><p>BLS + Eurostat salary data by role/region/seniority</p></div>
+                    <div class="card"><h4>career_dreams</h4><p>Gap analysis, feasibility scores, skill transition paths</p></div>
+                    <div class="card"><h4>employer_listings</h4><p>Employer-posted jobs (coming soon)</p></div>
+                    <div class="card"><h4>audit_logs</h4><p>AI decision logging for EU AI Act Art. 12 compliance</p></div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="arch-cost">
+                <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Monthly Cost Structure</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Supabase Pro</strong></td><td>$25/mo</td></tr>
+                            <tr><td><strong>JSearch API</strong></td><td>$25/mo</td></tr>
+                            <tr><td><strong>Claude API</strong></td><td>~$20-50/mo</td></tr>
+                            <tr><td><strong>Render hosting</strong></td><td>$7/mo</td></tr>
+                            <tr><td><strong>Adzuna</strong></td><td>Free</td></tr>
+                            <tr><td><strong>BLS API</strong></td><td>Free</td></tr>
+                            <tr><td><strong>Domain</strong></td><td>~$1/mo</td></tr>
+                            <tr style="font-weight:700;border-top:2px solid var(--border);"><td><strong>Total</strong></td><td style="color:var(--accent);font-weight:800;font-size:1rem;">~$78-108/mo</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: Job Data Strategy -->
+<section id="jobdata">
+    <div class="container reveal">
+        <p class="section-label">Data Strategy</p>
+        <h2>Job Data Strategy</h2>
+        <p class="section-sub">API availability assessment, tiered integration plan, and staffing agency coverage analysis.</p>
+
+        <details open>
+            <summary>Doors That Are CLOSED</summary>
+            <div class="detail-body">
+                <div class="card-grid">
+                    <div class="door-closed">
+                        <h4>LinkedIn API</h4>
+                        <p>Enterprise-only, 3-6 month approval, 6-figure annual commitment. Not accepting new partners.</p>
+                    </div>
+                    <div class="door-closed">
+                        <h4>Indeed Job Search API</h4>
+                        <p>Deprecated. Requires 10k+ daily page views. Sponsored Jobs API costs $3/CALL.</p>
+                    </div>
+                    <div class="door-closed">
+                        <h4>Glassdoor API</h4>
+                        <p>Developer program discontinued entirely.</p>
+                    </div>
+                    <div class="door-closed">
+                        <h4>ZipRecruiter ZipSearch</h4>
+                        <p>Shut down March 31, 2025.</p>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details open>
+            <summary>Doors That Are OPEN</summary>
+            <div class="detail-body">
+                <span class="tier-label tier-1">Tier 1 - Start Here</span>
+                <div class="card-grid" style="margin-bottom:24px;">
+                    <div class="door-open">
+                        <h4>JSearch API (RapidAPI)</h4>
+                        <p>Google for Jobs aggregation. LinkedIn, Indeed, Glassdoor, ZipRecruiter data. Free: 200 req/mo. $25/mo: 10k req. $75/mo: 50k req.</p>
+                    </div>
+                    <div class="door-open">
+                        <h4>Adzuna API</h4>
+                        <p>16+ countries, salary data, free tier.</p>
+                    </div>
+                    <div class="door-open">
+                        <h4>Remotive API</h4>
+                        <p>Remote jobs, free (4 req/day).</p>
+                    </div>
+                </div>
+
+                <span class="tier-label tier-2">Tier 2 - Scale Up</span>
+                <div class="card-grid" style="margin-bottom:24px;">
+                    <div class="door-open">
+                        <h4>TheirStack</h4>
+                        <p>315k+ sources, ATS platforms, company enrichment. 90 EUR/mo.</p>
+                    </div>
+                    <div class="door-open">
+                        <h4>SerpApi</h4>
+                        <p>Google Jobs with US Legal Shield. $25/mo.</p>
+                    </div>
+                </div>
+
+                <span class="tier-label tier-3">Tier 3 - Build Moat</span>
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:12px;">Direct ATS APIs (FREE, public, no auth needed):</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>ATS</th><th>Endpoint</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Greenhouse</strong></td><td><code>GET https://api.greenhouse.io/v1/boards/{client}/jobs</code></td></tr>
+                            <tr><td><strong>Lever</strong></td><td><code>GET https://api.lever.co/v0/postings/{client}</code></td></tr>
+                            <tr><td><strong>Ashby</strong></td><td><code>GET https://api.ashbyhq.com/posting-api/job-board/{client}</code></td></tr>
+                            <tr><td><strong>Recruitee</strong></td><td><code>GET https://{client}.recruitee.com/api/offers</code></td></tr>
+                            <tr><td><strong>Workable</strong></td><td><code>GET https://apply.workable.com/api/v1/widget/accounts/{client}</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Staffing Agency Coverage</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Agency</th><th>ATS Platform</th><th>Public?</th><th>Scrapability</th><th>Volume</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Robert Half</strong></td><td>Workday + custom ZEngine</td><td>Yes</td><td>HIGH</td><td>~8,500</td></tr>
+                            <tr><td><strong>Insight Global</strong></td><td>iCIMS</td><td>Yes</td><td>MODERATE</td><td>Thousands</td></tr>
+                            <tr><td><strong>TCS</strong></td><td>TCS iON (proprietary)</td><td>Partial</td><td>LOW</td><td>Very large</td></tr>
+                            <tr><td><strong>Randstad</strong></td><td>Bullhorn</td><td>Yes</td><td>MODERATE</td><td>118k+ globally</td></tr>
+                            <tr><td><strong>ManpowerGroup</strong></td><td>Oracle Taleo</td><td>Yes</td><td>MODERATE</td><td>Large</td></tr>
+                            <tr><td><strong>Adecco</strong></td><td>Custom</td><td>Yes</td><td>MODERATE</td><td>Large</td></tr>
+                            <tr><td><strong>Hays</strong></td><td>SAP SuccessFactors</td><td>Yes</td><td>MODERATE</td><td>Global</td></tr>
+                            <tr><td><strong>Michael Page</strong></td><td>Custom</td><td>Yes</td><td>MODERATE</td><td>36 countries</td></tr>
+                            <tr><td><strong>Accenture</strong></td><td>Workday</td><td>Yes</td><td>LOW-MODERATE</td><td>Very large</td></tr>
+                            <tr><td><strong>Kforce</strong></td><td>Bullhorn</td><td>Yes</td><td>MODERATE</td><td>Tech/Finance</td></tr>
+                            <tr><td><strong>TEKsystems</strong></td><td>Bullhorn</td><td>Yes</td><td>MODERATE</td><td>80k+ contractors</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-amber" style="margin-top:12px;">
+                    <strong>Note:</strong> JSearch API already indexes most staffing agency public listings via Google for Jobs. Direct scraping is a Tier 3 enhancement.
+                </div>
+                <div style="margin-top:16px;">
+                    <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:8px;"><strong style="color:var(--text);">ATS platforms WITH public APIs:</strong> Greenhouse, Lever, Ashby, Recruitee, Workable</p>
+                    <p style="font-size:0.88rem;color:var(--text-secondary);"><strong style="color:var(--text);">ATS platforms WITHOUT public APIs:</strong> Workday, iCIMS, Oracle Taleo, Bullhorn, TCS iON</p>
+                </div>
+            </div>
+        </details>
+    </div>
+</section>
+
+<!-- SECTION 5: Compliance -->
+<section id="compliance">
+    <div class="container reveal">
+        <p class="section-label">Regulatory</p>
+        <h2>EU AI Act &amp; GDPR Compliance</h2>
+        <p class="section-sub">Interactive compliance checklist. Click items to mark progress.</p>
+
+        <div class="tabs">
+            <div class="tab-btns" data-tabgroup="compliance">
+                <button class="tab-btn active" data-tab="comp-euai">EU AI Act</button>
+                <button class="tab-btn" data-tab="comp-gdpr">GDPR</button>
+                <button class="tab-btn" data-tab="comp-advantage">Privacy Advantage</button>
+            </div>
+
+            <div class="tab-panel active" id="comp-euai">
+                <div class="callout callout-red" style="margin-bottom:20px;">
+                    <strong>Classification: HIGH-RISK</strong> (Annex III, Section 4: Employment AI)<br>
+                    <strong>Deadline:</strong> August 2, 2026 (possible extension to Dec 2027)<br>
+                    <strong>Penalties:</strong> Up to EUR 15M or 3% global turnover
+                </div>
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Required Controls</h3>
+                <ul class="checklist" id="euai-checklist">
+                    <li><span class="check-box">&#10003;</span> Risk Management System <span class="article-ref">Art. 9</span></li>
+                    <li><span class="check-box">&#10003;</span> Data Governance &amp; Bias Testing <span class="article-ref">Art. 10</span></li>
+                    <li><span class="check-box">&#10003;</span> Technical Documentation <span class="article-ref">Art. 11</span></li>
+                    <li><span class="check-box">&#10003;</span> Automatic Event Logging, 6+ month retention <span class="article-ref">Art. 12</span></li>
+                    <li><span class="check-box">&#10003;</span> Transparency to Users <span class="article-ref">Art. 13</span></li>
+                    <li><span class="check-box">&#10003;</span> Human Oversight / Override capability <span class="article-ref">Art. 14</span></li>
+                    <li><span class="check-box">&#10003;</span> Accuracy &amp; Robustness Testing <span class="article-ref">Art. 15</span></li>
+                    <li><span class="check-box">&#10003;</span> Quality Management System <span class="article-ref">Art. 17</span></li>
+                    <li><span class="check-box">&#10003;</span> Conformity Self-Assessment <span class="article-ref">Art. 43</span></li>
+                    <li><span class="check-box">&#10003;</span> EU Database Registration <span class="article-ref">Art. 49</span></li>
+                    <li><span class="check-box">&#10003;</span> Fundamental Rights Impact Assessment <span class="article-ref">Art. 27</span></li>
+                </ul>
+            </div>
+
+            <div class="tab-panel" id="comp-gdpr">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">GDPR Required Controls</h3>
+                <ul class="checklist" id="gdpr-checklist">
+                    <li><span class="check-box">&#10003;</span> Consent Management - explicit opt-in for AI processing <span class="article-ref">Art. 6</span></li>
+                    <li><span class="check-box">&#10003;</span> Right to Explanation - show why jobs were recommended <span class="article-ref">Art. 22</span></li>
+                    <li><span class="check-box">&#10003;</span> Data Portability API - export user data as JSON/CSV <span class="article-ref">Art. 20</span></li>
+                    <li><span class="check-box">&#10003;</span> Right to Erasure API - full deletion within 30 days <span class="article-ref">Art. 17</span></li>
+                    <li><span class="check-box">&#10003;</span> Data Minimization - collect only necessary data <span class="article-ref">Art. 5</span></li>
+                    <li><span class="check-box">&#10003;</span> Privacy Impact Assessment - DPIA before launch <span class="article-ref">Art. 35</span></li>
+                    <li><span class="check-box">&#10003;</span> DPA with Supabase - sign Data Processing Agreement <span class="article-ref">DPA</span></li>
+                    <li><span class="check-box">&#10003;</span> EU Hosting - Supabase Frankfurt (eu-central-1) <span class="article-ref">Ch. V</span></li>
+                </ul>
+            </div>
+
+            <div class="tab-panel" id="comp-advantage">
+                <h3 style="font-size:1rem;margin-bottom:16px;color:var(--text);">Our Privacy Advantage</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Control</th><th>Us</th><th>Jobright</th><th>Simplify</th><th>LazyApply</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Data location</strong></td><td class="priv-us">EU (Supabase Frankfurt)</td><td class="priv-them">US Cloud</td><td class="priv-them">US Cloud</td><td class="priv-them">US Cloud</td></tr>
+                            <tr><td><strong>PII encryption</strong></td><td class="priv-us">AES-256-GCM app-level + DB-level</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td></tr>
+                            <tr><td><strong>Data sent to LLM</strong></td><td class="priv-us">Sanitized only (skills, location)</td><td class="priv-them">Full resume</td><td class="priv-them">Full resume</td><td class="priv-them">Full resume</td></tr>
+                            <tr><td><strong>Browser extension</strong></td><td class="priv-us">None needed</td><td class="priv-them">Required</td><td class="priv-them">Required</td><td class="priv-them">Required</td></tr>
+                            <tr><td><strong>EU AI Act ready</strong></td><td class="priv-us">In progress</td><td class="priv-them">No</td><td class="priv-them">No</td><td class="priv-them">No</td></tr>
+                            <tr><td><strong>GDPR controls</strong></td><td class="priv-us">Built-in</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 6: Feature Matrix -->
+<section id="features">
+    <div class="container reveal">
+        <p class="section-label">Product Scope</p>
+        <h2>Feature Matrix</h2>
+        <p class="section-sub">Full feature inventory with status, priority, and sprint assignment.</p>
+
+        <div class="progress-wrap" style="margin-bottom:24px;">
+            <div class="progress-label"><span>Overall Completion</span><span>7 of 20 features done (35%)</span></div>
+            <div class="progress-bar"><div class="progress-fill" data-width="35"></div></div>
+        </div>
+
+        <details open>
+            <summary>Current Features <span style="margin-left:auto;"><span class="badge badge-done">Done</span></span></summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <tbody>
+                            <tr><td>Agentic Claude loop (tool-use)</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>Resume generation with tailoring</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>Cover letter generation</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>Application tracking CRUD</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>Market intelligence</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>Privacy pipeline (AES-256-GCM, PII scrub)</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>FastAPI + Web UI</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Phase 1: Table Stakes <span style="margin-left:auto;"><span class="badge badge-planned">Sprint 1</span></span></summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <tbody>
+                            <tr><td>Real job data (JSearch API)</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
+                            <tr><td>ATS keyword scoring</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
+                            <tr><td>PDF/DOCX export</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
+                            <tr><td>Supabase migration</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Phase 2: Competitive <span style="margin-left:auto;"><span class="badge badge-planned">Sprint 2-3</span></span></summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <tbody>
+                            <tr><td>Dashboard (KPIs, pipeline, charts)</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 2</td></tr>
+                            <tr><td>Career Dreamer (gap analysis)</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 2</td></tr>
+                            <tr><td>Salary benchmarks (BLS/Eurostat)</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 2</td></tr>
+                            <tr><td>Interview prep tool</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 3</td></tr>
+                            <tr><td>Guided Apply flow</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 3</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Phase 3: Differentiation <span style="margin-left:auto;"><span class="badge badge-planned">Sprint 3-6</span></span></summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <tbody>
+                            <tr><td>GDPR/EU AI Act compliance layer</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 3</td></tr>
+                            <tr><td>Employer Portal (coming soon page)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 4</td></tr>
+                            <tr><td>Employer job posting (free tier)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 5</td></tr>
+                            <tr><td>Career Memory (pattern analysis)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 5</td></tr>
+                            <tr><td>Employer intelligence (company scores)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 6</td></tr>
+                            <tr><td>Multi-currency salary benchmarks</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 6</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+    </div>
+</section>
+
+<!-- SECTION 7: Monetization -->
+<section id="monetization">
+    <div class="container reveal">
+        <p class="section-label">Business Model</p>
+        <h2>Monetization Strategy</h2>
+        <p class="section-sub">Tiered pricing for job seekers and employers.</p>
+
+        <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Job Seeker Plans</h3>
+        <div class="pricing-grid" style="margin-bottom:36px;">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">$0</div>
+                <div class="price-sub">forever</div>
+                <ul>
+                    <li>5 job searches/day</li>
+                    <li>3 resume generations/month</li>
+                    <li>Basic application tracking</li>
+                    <li>Community support</li>
+                </ul>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$19</div>
+                <div class="price-sub">per month</div>
+                <ul>
+                    <li>Unlimited job searches</li>
+                    <li>Unlimited document generation</li>
+                    <li>ATS scoring</li>
+                    <li>Career Dreamer</li>
+                    <li>Salary benchmarks</li>
+                    <li>Priority support</li>
+                    <li>PDF/DOCX export</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <h3>Team</h3>
+                <div class="price">$49</div>
+                <div class="price-sub">per month</div>
+                <ul>
+                    <li>Everything in Pro</li>
+                    <li>Interview prep</li>
+                    <li>Career Memory analytics</li>
+                    <li>API access</li>
+                    <li>Guided Apply batches</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Employer Plans <span class="badge badge-planned" style="margin-left:8px;">Coming Soon</span></h3>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">$0</div>
+                <div class="price-sub">3 job posts/month</div>
+                <ul>
+                    <li>3 job posts per month</li>
+                    <li>Basic candidate visibility</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <h3>Pro</h3>
+                <div class="price">$99</div>
+                <div class="price-sub">per month</div>
+                <ul>
+                    <li>Unlimited job posts</li>
+                    <li>Anonymized candidate matching</li>
+                    <li>Priority listing placement</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <h3>Enterprise</h3>
+                <div class="price">$499</div>
+                <div class="price-sub">per month</div>
+                <ul>
+                    <li>Everything in Pro</li>
+                    <li>API access</li>
+                    <li>Analytics dashboard</li>
+                    <li>Custom integrations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 8: Risk Register -->
+<section id="risks">
+    <div class="container reveal">
+        <p class="section-label">Risk Management</p>
+        <h2>Risk Register</h2>
+        <p class="section-sub">Key risks ranked by severity with mitigation strategies.</p>
+
+        <div class="risk-grid">
+            <div class="risk-card risk-high">
+                <span class="risk-badge">High</span>
+                <h4>JSearch API deprecation</h4>
+                <p>Multi-provider fallback (Adzuna, TheirStack, direct ATS). No single point of failure for job data.</p>
+            </div>
+            <div class="risk-card risk-high">
+                <span class="risk-badge">High</span>
+                <h4>EU AI Act non-compliance</h4>
+                <p>Compliance checklist in progress, legal counsel planned, targeting August 2026 deadline.</p>
+            </div>
+            <div class="risk-card risk-medium">
+                <span class="risk-badge">Medium</span>
+                <h4>Account bans (LinkedIn etc)</h4>
+                <p>We don't automate browser actions. API-only approach eliminates ban risk entirely.</p>
+            </div>
+            <div class="risk-card risk-medium">
+                <span class="risk-badge">Medium</span>
+                <h4>Claude API cost spikes</h4>
+                <p>Usage caps per tier, aggressive caching, model fallback to Haiku for non-critical tasks.</p>
+            </div>
+            <div class="risk-card risk-medium">
+                <span class="risk-badge">Medium</span>
+                <h4>Staffing agency ToS violations</h4>
+                <p>Use JSearch (legal intermediary via Google for Jobs), not direct scraping.</p>
+            </div>
+            <div class="risk-card risk-low">
+                <span class="risk-badge">Low</span>
+                <h4>Competitor copies privacy angle</h4>
+                <p>First-mover advantage, deeper implementation, EU compliance moat is hard to replicate.</p>
+            </div>
+            <div class="risk-card risk-low">
+                <span class="risk-badge">Low</span>
+                <h4>Supabase outage</h4>
+                <p>Multi-region backup capability. Supabase 99.9% SLA on Team plan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 9: Roadmap -->
+<section id="roadmap">
+    <div class="container reveal">
+        <p class="section-label">Delivery Plan</p>
+        <h2>Roadmap Timeline</h2>
+        <p class="section-sub">16-week execution plan from infrastructure to growth.</p>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="tl-label">Week 1-3</div>
+                <h4>Infrastructure</h4>
+                <p>Supabase migration, authentication setup, JSearch API integration, CI/CD pipeline.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-label">Week 4-6</div>
+                <h4>Core Features</h4>
+                <p>ATS keyword scoring, interactive dashboard, PDF/DOCX export, enhanced job matching.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-label">Week 7-9</div>
+                <h4>Career Intelligence</h4>
+                <p>Career Dreamer (gap analysis, feasibility), salary benchmarks (BLS + Eurostat), skill gap identification.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-label">Week 10-12</div>
+                <h4>Compliance</h4>
+                <p>EU AI Act controls, GDPR data export/erasure APIs, audit logging, conformity self-assessment.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-label">Week 13-16</div>
+                <h4>Growth</h4>
+                <p>Employer portal, career memory analytics, guided apply flow, multi-currency salary data.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2026 <strong>AVIEN SOLUTIONS</strong>. All rights reserved.</p>
+    <p style="margin-top:6px;">AI Job Agent &middot; Technical PRD v2.0 &middot; March 2026</p>
+    <p style="margin-top:6px;"><a href="../user-story.html" style="color:#7c3aed;">User Stories</a> &middot; <a href="DEV_S_DEV_A_PROJECT_PLAN.md" style="color:#7c3aed;">Project Plan</a></p>
+</footer>
+
+<script>
+// Theme toggle
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    html.setAttribute('data-theme', current === 'dark' ? '' : 'dark');
+    localStorage.setItem('theme', current === 'dark' ? 'light' : 'dark');
+}
+(function() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+// Animated counters
+function animateCounters() {
+    document.querySelectorAll('.stat-num[data-target]').forEach(function(el) {
+        var target = parseInt(el.dataset.target);
+        var suffix = el.dataset.suffix || '';
+        var displayText = el.dataset.display;
+        var duration = 1500;
+        var start = performance.now();
+        function tick(now) {
+            var elapsed = now - start;
+            var progress = Math.min(elapsed / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = Math.round(eased * target);
+            if (displayText && progress >= 1) {
+                el.textContent = displayText;
+            } else {
+                el.textContent = current + suffix;
+            }
+            if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    });
+}
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var group = this.closest('.tabs');
+        group.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        group.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab).classList.add('active');
+    });
+});
+
+// Interactive checklist
+document.querySelectorAll('.checklist li').forEach(function(li) {
+    li.addEventListener('click', function() {
+        this.classList.toggle('checked');
+    });
+});
+
+// Scroll reveal
+var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+// Progress bars animate on scroll
+var progObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.progress-fill').forEach(function(bar) {
+                bar.style.width = bar.dataset.width + '%';
+            });
+        }
+    });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.progress-wrap').forEach(function(el) { progObserver.observe(el); });
+
+// Active nav link on scroll
+var sections = document.querySelectorAll('section[id], header[id]');
+var navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+window.addEventListener('scroll', function() {
+    var current = '';
+    sections.forEach(function(section) {
+        if (window.scrollY >= section.offsetTop - 120) {
+            current = section.id;
+        }
+    });
+    navLinks.forEach(function(link) {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+});
+
+// Smooth scroll
+document.querySelectorAll('nav a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+
+// Trigger counters when hero visible
+var heroObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            animateCounters();
+            heroObserver.disconnect();
+        }
+    });
+}, { threshold: 0.3 });
+heroObserver.observe(document.querySelector('.hero'));
+</script>
+
+</body>
+</html>

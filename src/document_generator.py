@@ -1,4 +1,19 @@
 """
+Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com).
+All Rights Reserved.
+No part of this software or any of its contents may be reproduced, copied,
+modified or adapted, without the prior written consent of the author, unless
+otherwise indicated for stand-alone materials.
+For permission requests, write to the publisher at the email address below:
+avien@aviensolutions.com
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
 Document Generator — Resume & Cover Letter.
 
 Design
@@ -20,13 +35,16 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
+from typing import Any, cast
 
-import anthropic
+from anthropic import Anthropic
+from anthropic.types import TextBlock
 
 from config.settings import AGENT_MODEL, MAX_TOKENS
+from src.llm_client import create_message_with_failover, get_llm_client
 from src.models import GeneratedDocument, JobListing, UserProfile
+from src.utils import strip_json_fences
 
 
 _RESUME_SYSTEM = """You are an expert resume writer with 15+ years of experience
@@ -57,31 +75,10 @@ Rules:
 
 
 class DocumentGenerator:
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
-        self._client = client or anthropic.Anthropic()
+    def __init__(self, client: Anthropic | None = None) -> None:
+        self._client = client or get_llm_client()
 
     # ── Public API ─────────────────────────────────────────────────────────
-
-    def generate_resume(
-        self,
-        profile: UserProfile,
-        job: JobListing,
-        tone: str = "professional",
-    ) -> GeneratedDocument:
-        """Generate a tailored resume for *job* based on *profile*."""
-        user_prompt = self._build_resume_prompt(profile, job, tone)
-        raw = self._call_model(_RESUME_SYSTEM, user_prompt)
-        content, notes = self._split_notes(raw)
-        return GeneratedDocument(
-            id=str(uuid.uuid4()),
-            user_id=profile.id,
-            job_id=job.id,
-            doc_type="resume",
-            content=content,
-            created_at=datetime.utcnow(),
-            model_used=AGENT_MODEL,
-            tailoring_notes=notes,
-        )
 
     def generate_cover_letter(
         self,
@@ -98,9 +95,92 @@ class DocumentGenerator:
             job_id=job.id,
             doc_type="cover_letter",
             content=content,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             model_used=AGENT_MODEL,
             tailoring_notes=notes,
+        )
+
+    def score_ats_match(
+        self,
+        resume_text: str,
+        job_description: str,
+    ) -> dict[str, Any]:
+        """Score how well a resume matches a job description for ATS systems.
+
+        Returns dict with ats_score (0-100), missing_keywords, and suggestions.
+        """
+        prompt = f"""Analyse the resume against the job description for ATS (Applicant Tracking System) compatibility.
+
+--- RESUME ---
+{resume_text[:3000]}
+
+--- JOB DESCRIPTION ---
+{job_description[:3000]}
+
+Return ONLY valid JSON (no markdown fences) with these keys:
+- "ats_score": integer 0-100 representing match percentage
+- "missing_keywords": list of important keywords from the JD missing in the resume
+- "matched_keywords": list of keywords found in both
+- "suggestions": list of 3-5 specific insertions to improve the score
+"""
+        try:
+            response = create_message_with_failover(
+                self._client,
+                model=AGENT_MODEL,
+                max_tokens=1024,
+                system="You are an ATS optimisation expert. Respond ONLY with valid JSON.",
+                messages=[{"role": "user", "content": prompt}],
+            )
+            text = cast(TextBlock, response.content[0]).text.strip()
+            data = json.loads(strip_json_fences(text))
+            score = max(0, min(100, int(data.get("ats_score", 0))))
+            return {
+                "ats_score": score,
+                "missing_keywords": data.get("missing_keywords", []),
+                "matched_keywords": data.get("matched_keywords", []),
+                "suggestions": data.get("suggestions", []),
+            }
+        except Exception:
+            return {
+                "ats_score": 0,
+                "missing_keywords": [],
+                "matched_keywords": [],
+                "suggestions": ["Unable to compute ATS score. Please try again."],
+            }
+
+    def generate_resume(
+        self,
+        profile: UserProfile,
+        job: JobListing,
+        tone: str = "professional",
+        auto_ats: bool = True,
+    ) -> GeneratedDocument:
+        """Generate a tailored resume for *job* based on *profile*.
+
+        When auto_ats is True, automatically scores the resume against the JD.
+        """
+        user_prompt = self._build_resume_prompt(profile, job, tone)
+        raw = self._call_model(_RESUME_SYSTEM, user_prompt)
+        content, notes = self._split_notes(raw)
+
+        ats_score: float | None = None
+        missing_keywords: list[str] = []
+        if auto_ats and job.description:
+            ats_result = self.score_ats_match(content, job.description)
+            ats_score = ats_result["ats_score"]
+            missing_keywords = ats_result["missing_keywords"]
+
+        return GeneratedDocument(
+            id=str(uuid.uuid4()),
+            user_id=profile.id,
+            job_id=job.id,
+            doc_type="resume",
+            content=content,
+            created_at=datetime.now(timezone.utc),
+            model_used=AGENT_MODEL,
+            tailoring_notes=notes,
+            ats_score=ats_score,
+            missing_keywords=missing_keywords,
         )
 
     def suggest_improvements(
@@ -121,23 +201,25 @@ at {job.company}.
 Provide 5–7 specific, actionable improvement suggestions as a numbered list.
 Focus on: keyword optimisation, impact quantification, relevance, and structure.
 """
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     # ── Private helpers ────────────────────────────────────────────────────
 
     def _call_model(self, system: str, user_content: str) -> str:
-        response = self._client.messages.create(
+        response = create_message_with_failover(
+            self._client,
             model=AGENT_MODEL,
             max_tokens=MAX_TOKENS,
             system=system,
             messages=[{"role": "user", "content": user_content}],
         )
-        return response.content[0].text.strip()
+        return cast(TextBlock, response.content[0]).text.strip()
 
     def _split_notes(self, raw: str) -> tuple[str, str]:
         """Separate document body from trailing ```json ... ``` tailoring notes."""
@@ -201,9 +283,9 @@ Location: {profile.location}
 Key Skills: {", ".join(profile.skills[:10])}
 Experience: {profile.years_of_experience} years as {", ".join(profile.desired_roles[:3])}
 Notable:
-- Education: {profile.education[0].get("degree","") if profile.education else "Not specified"}
-- Recent role: {profile.work_history[0].get("title","") if profile.work_history else "Not specified"}
-  at {profile.work_history[0].get("company","") if profile.work_history else ""}
+- Education: {profile.education[0].get("degree", "") if profile.education else "Not specified"}
+- Recent role: {profile.work_history[0].get("title", "") if len(profile.work_history) > 0 else "Not specified"}
+  at {profile.work_history[0].get("company", "") if len(profile.work_history) > 0 else ""}
 
 === JOB ===
 Title: {job.title}
