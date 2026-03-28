@@ -5,10 +5,10 @@ description: Git branching, commits, PR workflow, and conflict resolution patter
 
 ## Branching Strategy
 
-- `main` — production-ready code, never commit directly
-- `feat/<name>` — new features, branch from main
-- `fix/<name>` — bug fixes, branch from main
-- `chore/<name>` — maintenance, config changes, dependency updates
+- `main` - production-ready code, never commit directly
+- `feat/<name>` - new features, branch from main
+- `fix/<name>` - bug fixes, branch from main
+- `chore/<name>` - maintenance, config changes, dependency updates
 
 Always create a feature branch before starting work:
 ```bash
@@ -59,6 +59,6 @@ If rebase gets messy: `git rebase --abort` and start over.
 
 - Never force-push to `main`
 - Never commit `.env` files, credentials, or large binaries
-- Never rebase shared branches (`main`, `develop`) — only rebase your own feature branches
+- Never rebase shared branches (`main`, `develop`). Only rebase your own feature branches
 - Update feature branches with `git rebase origin/main`, not `git merge main` (force-push your branch after)
 - Always pull before pushing: `git pull --rebase` (pulls current branch's upstream)

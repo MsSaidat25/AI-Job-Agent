@@ -40,3 +40,17 @@ List automated tests that don't map to any UAT scenario, organized by test file.
 
 ## Recommendations
 Suggest specific test implementations for uncovered P0 scenarios.
+
+## Intent Verification
+
+```
+PROOF_OF_INTENT:
+  INTENT_RECEIVED: "[INTENT_HASH from contract]"
+  SCOPE_COVERED: "[What was actually examined - file count, areas]"
+  INTENT_MATCH: YES | NO | PARTIAL
+  COVERAGE_RATIO: "[X of Y items in scope were examined]"
+  GAPS: "[Any scope items NOT covered, with reason]"
+  DEVIATIONS: "[Any findings outside original scope, with justification]"
+```
+
+If no Intent Contract was provided, state: `NO_CONTRACT_RECEIVED - operating in unverified mode.`

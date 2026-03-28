@@ -24,8 +24,8 @@ Read-only. Never modify code.
    a. Verify error handling matches spec's error scenarios
    b. Check edge cases mentioned in spec are covered by tests
    c. Verify API contracts (request/response shapes) match spec exactly
-   d. Flag any implementation that goes BEYOND spec — note whether it adds value or is scope creep
-   e. *(Optional — secondary output only)* Identify spec requirements that could be enhanced beyond the minimum. Report these in a separate **"Enhancements (optional)"** section appended after the Gaps section; do not mix them into the traceability matrix or Gap list. Omit this section entirely if no noteworthy enhancements exist.
+   d. Flag any implementation that goes BEYOND spec. Note whether it adds value or is scope creep
+   e. Identify spec requirements that could be enhanced beyond the minimum (suggest "above and beyond" improvements)
 
 ### Cross-Reference with CLAUDE.md
 4. Verify internal consistency:
@@ -58,6 +58,21 @@ List any requirements that are MISSING or PARTIAL with details on what's missing
 ## Beyond Spec
 List implementations that go beyond the spec. For each, note:
 - Whether it adds genuine value or is scope creep
+- Suggested enhancements that would elevate the requirement beyond minimum
 
 ## Cross-Reference Issues
 List any CLAUDE.md references that don't match actual files (missing commands, agents, skills, or wrong tool commands).
+
+## Intent Verification
+
+```
+PROOF_OF_INTENT:
+  INTENT_RECEIVED: "[INTENT_HASH from contract]"
+  SCOPE_COVERED: "[What was actually examined - file count, areas]"
+  INTENT_MATCH: YES | NO | PARTIAL
+  COVERAGE_RATIO: "[X of Y items in scope were examined]"
+  GAPS: "[Any scope items NOT covered, with reason]"
+  DEVIATIONS: "[Any findings outside original scope, with justification]"
+```
+
+If no Intent Contract was provided, state: `NO_CONTRACT_RECEIVED - operating in unverified mode.`

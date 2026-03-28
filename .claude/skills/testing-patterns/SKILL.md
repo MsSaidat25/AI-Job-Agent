@@ -1,14 +1,14 @@
 ---
 name: testing-patterns
-description: Universal testing principles — test pyramid, AAA pattern, mocking strategies, and coverage targets
+description: Universal testing principles - test pyramid, AAA pattern, mocking strategies, and coverage targets
 ---
 
 ## Test Pyramid
 
 ```
-        /  E2E  \        — Few, slow, high confidence
-       / Integration \   — Some, medium speed
-      /    Unit Tests   \— Many, fast, focused
+        /  E2E  \        - Few, slow, high confidence
+       / Integration \   - Some, medium speed
+      /    Unit Tests   \- Many, fast, focused
 ```
 
 - **Unit tests** (70%): Test individual functions in isolation. Fast, many.
@@ -21,14 +21,14 @@ Every test follows this structure:
 
 ```
 test('should calculate total with tax', () => {
-  // Arrange — set up test data
+  // Arrange: set up test data
   const items = [{ price: 10 }, { price: 20 }];
   const taxRate = 0.1;
 
-  // Act — execute the function
+  // Act: execute the function
   const total = calculateTotal(items, taxRate);
 
-  // Assert — verify the result
+  // Assert: verify the result
   expect(total).toBe(33);
 });
 ```
@@ -52,7 +52,7 @@ test('should calculate total with tax', () => {
 
 | What | When to Mock |
 |------|-------------|
-| External APIs | Always — they're slow and unreliable |
+| External APIs | Always. They're slow and unreliable |
 | Database | Integration tests use real DB, unit tests mock |
 | Time/Date | When testing time-dependent logic |
 | File system | When testing file operations |
@@ -84,7 +84,7 @@ Use descriptive names that explain the scenario:
 
 - **80% minimum** for all code
 - **100% required** for: auth logic, financial calculations, security-critical code
-- Coverage measures lines hit, not correctness — high coverage with weak assertions is useless
+- Coverage measures lines hit, not correctness. High coverage with weak assertions is useless
 - Focus on meaningful assertions, not just line coverage
 
 ## Common Anti-Patterns

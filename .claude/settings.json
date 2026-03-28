@@ -18,6 +18,15 @@
             "command": "node .claude/hooks/guard-protected-files.mjs"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/pre-commit-gate.mjs"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -54,6 +63,14 @@
           {
             "type": "command",
             "command": "cd backend && ruff check . 2>&1 && pyright 2>&1"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/code-hygiene.mjs"
           }
         ]
       }

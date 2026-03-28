@@ -39,3 +39,17 @@ Stack: FastAPI + Python + SQLAlchemy 2.0 + PostgreSQL + Alembic
 
 ## Output
 For each issue: **File** | **Line** | **Severity** (critical/high/medium/low) | **Issue** | **Fix**
+
+## Intent Verification
+
+```
+PROOF_OF_INTENT:
+  INTENT_RECEIVED: "[INTENT_HASH from contract]"
+  SCOPE_COVERED: "[What was actually examined - file count, directories]"
+  INTENT_MATCH: YES | NO | PARTIAL
+  COVERAGE_RATIO: "[X of Y files in scope were reviewed]"
+  GAPS: "[Any scope items NOT covered, with reason]"
+  DEVIATIONS: "[Any findings outside original scope, with justification]"
+```
+
+If no Intent Contract was provided, state: `NO_CONTRACT_RECEIVED - operating in unverified mode.`

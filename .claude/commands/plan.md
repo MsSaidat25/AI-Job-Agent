@@ -16,6 +16,6 @@ Invoke the **planner** agent to create a comprehensive implementation plan befor
 ## Integration
 
 After planning, use these commands:
-- `/tdd` — implement with test-driven development
-- `/build-fix` — fix any build errors that come up
-- `/code-review` — review the completed implementation
+- `/tdd` - implement with test-driven development
+- `/build-fix` - fix any build errors that come up
+- `/code-review` - review the completed implementation

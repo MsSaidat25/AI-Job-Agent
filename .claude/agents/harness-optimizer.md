@@ -42,7 +42,7 @@ You are a Claude Code harness optimizer. Your job is to audit the project's Clau
 
 ### Internal Consistency (cross-template validation)
 - [ ] No contradictory guidelines across agents, skills, and CLAUDE.md
-  - Cross-reference DO/DON'T rules — ensure fix suggestions don't violate their own rules
+  - Cross-reference DO/DON'T rules to ensure fix suggestions don't violate their own rules
   - Verify branching/rebase/merge advice is consistent across git-workflow skill and CLAUDE.md
 - [ ] No duplicate guidelines (same advice in multiple places → stale risk)
 - [ ] All severity levels referenced in report outputs are defined with criteria
@@ -59,12 +59,33 @@ You are a Claude Code harness optimizer. Your job is to audit the project's Clau
 - [ ] Code examples use valid syntax (JSON with quoted keys, correct API signatures)
 - [ ] Version-specific features match the version declared in CLAUDE.md
 
+### Self-Consistency (repo's .claude/ matches templates)
+- [ ] Every file in `templates/claude-code/agents/` exists in `.claude/agents/`
+- [ ] Every file in `templates/claude-code/commands/` exists in `.claude/commands/`
+- [ ] Deployed files are identical to template source (no content drift)
+- [ ] Agent/command counts in CLAUDE.md and README.md match actual template file counts
+- [ ] `claude-configurator.js` registers every template agent and command
+- [ ] Base CLAUDE.md template (`claude-md/base.md`) agents table lists all agents
+- [ ] No stale counts (hardcoded "17 agents" when there are 18)
+
 ### Formatting Integrity (no corrupted templates)
 - [ ] No merged lines (two steps concatenated without newline)
 - [ ] No duplicate content on same line
 - [ ] Markdown tables have correct column counts per row
 - [ ] All files end with a trailing newline
 - [ ] Proper blank lines between sections (## heading preceded by blank line)
+
+### Prompt Quality (Intent Verification Protocol)
+- [ ] Every agent file includes a `PROOF_OF_INTENT` output block
+- [ ] Every agent handles the no-contract fallback case (`NO_CONTRACT_RECEIVED`)
+- [ ] Every command that invokes agents includes an `INTENT_CONTRACT` section
+- [ ] Intent Contract fields (INTENT, SCOPE, SUCCESS_CRITERIA, INTENT_HASH) are all present in commands
+- [ ] Chief-of-staff includes Intent Verification Orchestration section
+- [ ] Agent output formats are structured enough to be machine-parseable (tables or code blocks)
+- [ ] No agent uses vague completion language ("done", "reviewed") without evidence counts
+- [ ] Each agent's success criteria are testable (not subjective)
+- [ ] Severity definitions are consistent across all review agents
+- [ ] `prompt-auditor` agent exists and is registered
 
 ## Output Format
 
@@ -89,3 +110,17 @@ You are a Claude Code harness optimizer. Your job is to audit the project's Clau
 - Prioritize by impact: fix what costs the most developer time first
 - Be specific: "CLAUDE.md line 47 references `pytest` but project uses `vitest`" not "some commands are wrong"
 - Consider the developer's daily workflow when prioritizing recommendations
+
+## Intent Verification
+
+```
+PROOF_OF_INTENT:
+  INTENT_RECEIVED: "[INTENT_HASH from contract]"
+  SCOPE_COVERED: "[What was actually examined - config files, agents, commands]"
+  INTENT_MATCH: YES | NO | PARTIAL
+  COVERAGE_RATIO: "[X of Y .claude/ files examined]"
+  GAPS: "[Any scope items NOT covered, with reason]"
+  DEVIATIONS: "[Any findings outside original scope, with justification]"
+```
+
+If no Intent Contract was provided, state: `NO_CONTRACT_RECEIVED - operating in unverified mode.`

@@ -1,0 +1,211 @@
+Run an automated fix-review-regression loop with enforcement gates until all tests pass, code is verified clean, and every agent's work is independently confirmed.
+
+## Intent Contract
+
+Before invoking any agent, construct this block and pass it as context:
+
+```
+INTENT_CONTRACT:
+  INTENT: "[User's original request verbatim]"
+  SCOPE: "[Files/areas to examine]"
+  SUCCESS_CRITERIA: "All tests pass, no lint/type errors, no CRITICAL or HIGH review findings, no regressions, all agents APPROVED by enforcement gate"
+  INTENT_HASH: "[First 8 chars of SHA256(INTENT|SCOPE|SUCCESS_CRITERIA)]"
+```
+
+Every agent invocation MUST include this block. If an agent's output does not echo back the INTENT_HASH, its results are considered unverified.
+
+## Enforcement Protocol
+
+**After every phase that involves an agent doing work**, invoke the `enforcement-gate` agent with:
+1. The Intent Contract
+2. The agent's full output (including PROOF_OF_INTENT)
+3. The baseline metrics from Phase 0
+
+**Gate rules:**
+- `APPROVED` (confidence >= 99.99%) → proceed to next phase
+- `NEEDS_REVIEW` (confidence 75-99.98%) → surface discrepancies to user, ask whether to proceed or halt
+- `REJECTED` (confidence < 75% OR false claim OR regression) → halt the loop, report what failed and why
+
+No phase transition happens without an APPROVED or explicit user override.
+
+## Phase 0: Baseline
+
+Run all checks and capture the starting state:
+
+```bash
+pytest
+ruff check .
+pyright
+```
+
+Record as structured baseline:
+```
+BASELINE:
+  TESTS: [total, passing, failing]
+  LINT_ERRORS: [count]
+  TYPE_ERRORS: [count]
+  TIMESTAMP: [ISO 8601]
+```
+
+If everything passes already, skip to Phase 2 (deep review only).
+
+## Phase 1: Fix (build-error-resolver agent)
+
+Delegate to the `build-error-resolver` agent with the Intent Contract:
+
+1. Group errors by file, sorted by dependency order
+2. Fix one error at a time with the smallest possible change
+3. Re-run all checks after each fix to confirm no regressions
+4. Continue until all errors are resolved
+
+**Stop conditions** (bail out and report to user):
+- Same error persists after 3 attempts
+- A fix introduces more errors than it resolves
+- Fix requires architectural changes beyond a simple repair
+- No progress across 2 consecutive iterations
+- Maximum 5 fix iterations reached
+
+### Enforcement Gate 1
+
+After build-error-resolver completes, invoke `enforcement-gate`:
+- Verify all claimed fixes are real (re-run `pytest`, `ruff check .`, `pyright`)
+- Verify no regressions against baseline
+- Verify scope coverage (did the agent touch only files it claimed?)
+
+If REJECTED → halt and report. If APPROVED → proceed to Phase 2.
+
+## Phase 2: Deep Review (deep-reviewer agent)
+
+Run `git diff` to capture all changes since baseline.
+
+Invoke the `deep-reviewer` agent with the Intent Contract and the full diff. The deep reviewer will:
+
+1. Read every changed hunk line-by-line
+2. Analyze for: correctness, security, data integrity, performance, edge cases, API contract, readability
+3. For each finding: exact file/line, severity, description, suggested fix, and a runnable test case
+4. Return structured findings with confidence scores
+
+### Triage Findings
+
+Categorize the deep reviewer's output:
+
+| Finding Type | Action |
+|-------------|--------|
+| CRITICAL with fix + test case | → Phase 3 (auto-fix) |
+| HIGH with fix + test case | → Phase 3 (auto-fix) |
+| CRITICAL/HIGH needing human judgment | → Halt loop, surface to user |
+| MEDIUM/LOW | → Collect for final report |
+| Confidence < 70% | → Collect for final report, mark as uncertain |
+
+## Phase 3: Fix Review Findings (build-error-resolver agent)
+
+For each CRITICAL/HIGH finding from Phase 2 that has an auto-fixable suggestion:
+
+1. Apply the suggested fix from the deep reviewer
+2. Run the test case the deep reviewer generated — it must pass
+3. Run `pytest` — all existing tests must still pass
+4. Move to next finding
+
+**Cap**: Maximum 2 iterations of fix-review. If findings keep appearing, halt and report.
+
+### Enforcement Gate 2
+
+After fixing review findings, invoke `enforcement-gate`:
+- Verify every applied fix resolves its finding
+- Verify all generated test cases pass
+- Verify no regressions against baseline
+- Verify the deep reviewer's test cases actually test what they claim
+
+If REJECTED → revert the fixes from this phase, report findings to user as manual tasks. If APPROVED → proceed to Phase 4.
+
+## Phase 4: Regression + New Test Validation
+
+Run the full test suite:
+
+```bash
+pytest
+```
+
+Compare against Phase 0 baseline:
+- If any previously passing test now fails → **REGRESSION DETECTED**
+  - Delegate to `build-error-resolver` to fix (max 2 iterations)
+  - Run through `enforcement-gate` again
+  - If regression persists after gate, halt and report
+- If test count decreased (tests were deleted) → flag as **WARNING**
+- If all tests pass and count is stable or increased → **GREEN**
+
+Then verify any new test cases generated by the deep reviewer:
+- Each test must target a specific finding
+- Each test must fail WITHOUT the fix and pass WITH the fix (if we can verify this)
+- Tests that pass regardless of the fix are flagged as `WEAK_TEST`
+
+### Enforcement Gate 3 (Final)
+
+Invoke `enforcement-gate` one last time on the entire session:
+- Re-run all checks from scratch: `pytest`, `ruff check .`, `pyright`
+- Verify final state against baseline (test count, pass rate, error counts)
+- Verify every agent's PROOF_OF_INTENT hash matches the original INTENT_HASH
+- Produce final confidence score
+
+If REJECTED → report what failed. If APPROVED → proceed to report.
+
+## Phase 5: Final Report
+
+```
+## Fix Loop Report
+
+**Baseline**: X tests (Y passing, Z failing), L lint errors, T type errors
+**Result**:   X tests (Y passing, Z failing), L lint errors, T type errors
+
+### Phase Results
+| Phase | Agent | Enforcement Verdict | Confidence |
+|-------|-------|-------------------|------------|
+| 1. Fix | build-error-resolver | APPROVED/REJECTED | XX% |
+| 2. Deep Review | deep-reviewer | N/A (read-only) | N/A |
+| 3. Fix Findings | build-error-resolver | APPROVED/REJECTED | XX% |
+| 4. Regression | enforcement-gate | APPROVED/REJECTED | XX% |
+
+### Deep Review Findings
+| ID | File:Line | Severity | Category | Status |
+|----|-----------|----------|----------|--------|
+| DR-001 | path:line | CRITICAL | Correctness | FIXED / DEFERRED / MANUAL |
+
+### Test Cases Generated
+| Finding | Test File | Status |
+|---------|-----------|--------|
+| DR-001 | path/to/test | PASSING / WEAK / FAILING |
+
+### Enforcement Audit Trail
+[For each gate: what was checked, what passed, what failed, confidence score]
+
+### Remaining Items (MEDIUM/LOW)
+[Non-blocking findings for user to address at their discretion]
+
+### Intent Verification Summary
+[Each agent's INTENT_MATCH status, any DRIFT_DETECTED flags]
+```
+
+## Guardrails
+
+- **Max total iterations across all phases**: 10 (prevents infinite loops)
+- **Regression tolerance**: 0 (no previously passing test may break)
+- **Review-fix cap**: 2 iterations (prevents review-fix ping-pong)
+- **Enforcement gates**: 3 mandatory (after Phase 1, after Phase 3, final)
+- **No phase transition without APPROVED or explicit user override**
+- Never suppress or skip a failing test to make the loop pass
+- Never mark a finding as resolved without the enforcement gate confirming it
+- If any phase halts, the report must still be generated with what was completed
+
+## Phase 6: Recommend Next Step
+
+After the final report, always recommend the single best next action:
+
+1. **Manual findings** — if CRITICAL/HIGH findings were deferred, recommend fixing them with specific file:line references
+2. **Weak tests** — if any generated test cases were flagged WEAK, recommend strengthening them
+3. **Security** — if changes touched auth, input handling, or API routes, recommend `/audit-security`
+4. **UAT** — if changes affect user-facing behavior, recommend `/run-uat` with specific scenarios
+5. **PR readiness** — if everything is green, recommend `/pre-pr`
+6. **Dependency check** — if the fix revealed outdated deps, recommend updating them
+7. **Architecture** — if fixes were workarounds, recommend the proper architectural fix
+
+Format: **Next step:** one sentence with the specific command or action to take.

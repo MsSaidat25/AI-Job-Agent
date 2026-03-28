@@ -42,4 +42,4 @@ Generate a Product Requirements Document (PRD) for this project.
 ## Output
 
 Save the PRD to `docs/PRD.md`. Use Mermaid diagrams (```mermaid blocks) for all visual elements.
-Do NOT modify any code — this is a documentation-only task.
+Do NOT modify any code. This is a documentation-only task.

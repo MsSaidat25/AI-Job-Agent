@@ -20,7 +20,7 @@ description: API security best practices
 - Validate file uploads (size, type, extension)
 
 ## SQL Injection Prevention
-- Use SQLAlchemy ORM — never raw SQL strings
+- Use SQLAlchemy ORM. Never raw SQL strings
 - If raw SQL needed, use `text()` with bound parameters
 - Never interpolate user input into queries
 

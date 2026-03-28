@@ -1,5 +1,19 @@
 Analyze and optimize CLAUDE.md for this project.
 
+## Intent Contract
+
+Before invoking any agent, construct this block and pass it as context:
+
+```
+INTENT_CONTRACT:
+  INTENT: "[User's original request verbatim]"
+  SCOPE: "[Files/areas to examine]"
+  SUCCESS_CRITERIA: "[What done looks like]"
+  INTENT_HASH: "[First 8 chars of SHA256(INTENT|SCOPE|SUCCESS_CRITERIA)]"
+```
+
+Every agent invocation MUST include this block. If an agent's output does not echo back the INTENT_HASH, its results are considered unverified.
+
 ## Instructions
 
 1. Read the current CLAUDE.md and measure its size (line count).
@@ -27,5 +41,5 @@ Analyze and optimize CLAUDE.md for this project.
 ## Rules
 - Do NOT modify any files until I explicitly approve the proposal
 - Show the current line count and target line count
-- Preserve all information — nothing gets deleted, only relocated
+- Preserve all information. Nothing gets deleted, only relocated
 - Each skill file needs frontmatter: name, description, and relevant file patterns

@@ -27,7 +27,7 @@ process.stdin.on('end', () => {
       try {
         execFileSync('ruff', ['check', '--fix', resolved], { stdio: 'pipe' });
       } catch {
-        // ruff may exit non-zero for unfixable issues — that's okay
+        // ruff may exit non-zero for unfixable issues, that's okay
       }
     }
     process.exit(0);
