@@ -15,6 +15,7 @@ python-multipart>=0.0.9
 slowapi>=0.1.9
 pdfplumber>=0.10.0
 python-docx>=1.1.0
+fpdf2>=2.7.0
 # PostgreSQL (Cloud SQL + Supabase)
 psycopg2>=2.9.0
 # GCP services

@@ -34,8 +34,10 @@ Customisation hooks
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from datetime import datetime, timezone
+from io import BytesIO
 from typing import Any, cast
 
 from anthropic import Anthropic
@@ -209,7 +211,101 @@ Focus on: keyword optimisation, impact quantification, relevance, and structure.
         )
         return cast(TextBlock, response.content[0]).text.strip()
 
+    def export_document(self, content_md: str, format: str) -> bytes:  # noqa: A002
+        """Export markdown content as PDF or DOCX bytes.
+
+        Args:
+            content_md: Markdown-formatted document content.
+            format: ``"pdf"`` or ``"docx"``.
+
+        Returns:
+            Raw file bytes ready for download.
+
+        Raises:
+            ValueError: If *format* is not ``"pdf"`` or ``"docx"``.
+        """
+        if format == "pdf":
+            return self._export_pdf(content_md)
+        if format == "docx":
+            return self._export_docx(content_md)
+        raise ValueError(f"Unsupported format: {format!r}. Must be 'pdf' or 'docx'.")
+
     # ── Private helpers ────────────────────────────────────────────────────
+
+    def _sanitise_for_pdf(self, text: str) -> str:
+        """Replace characters outside latin-1 so fpdf2 core fonts don't crash."""
+        return text.encode("latin-1", errors="replace").decode("latin-1")
+
+    def _export_pdf(self, content_md: str) -> bytes:
+        from fpdf import FPDF  # lazy import — optional dependency
+
+        pdf = FPDF()
+        pdf.set_margins(20, 20, 20)
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+
+        for line in content_md.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("# ") and not stripped.startswith("## "):
+                pdf.set_font("Helvetica", "B", 16)
+                pdf.ln(4)
+                pdf.cell(0, 10, self._sanitise_for_pdf(stripped[2:]), new_x="LMARGIN", new_y="NEXT")
+                pdf.ln(2)
+            elif stripped.startswith("## "):
+                pdf.set_font("Helvetica", "B", 13)
+                pdf.ln(3)
+                pdf.cell(0, 8, self._sanitise_for_pdf(stripped[3:]), new_x="LMARGIN", new_y="NEXT")
+                pdf.ln(1)
+            elif stripped.startswith("### "):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.ln(2)
+                pdf.cell(0, 7, self._sanitise_for_pdf(stripped[4:]), new_x="LMARGIN", new_y="NEXT")
+            elif stripped.startswith(("- ", "* ")):
+                pdf.set_font("Helvetica", "", 10)
+                text = re.sub(r"\*\*(.+?)\*\*", r"\1", stripped[2:])
+                pdf.multi_cell(0, 6, f"  - {self._sanitise_for_pdf(text)}", new_x="LMARGIN", new_y="NEXT")
+            elif stripped == "":
+                pdf.ln(3)
+            else:
+                pdf.set_font("Helvetica", "", 10)
+                text = re.sub(r"\*\*(.+?)\*\*", r"\1", stripped)
+                pdf.multi_cell(0, 6, self._sanitise_for_pdf(text), new_x="LMARGIN", new_y="NEXT")
+
+        return bytes(pdf.output())
+
+    def _export_docx(self, content_md: str) -> bytes:
+        from docx import Document  # lazy import — optional dependency
+        from docx.shared import Pt
+
+        doc = Document()
+
+        # Tighten default paragraph spacing
+        style = doc.styles["Normal"]
+        style.font.size = Pt(11)
+
+        for line in content_md.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("# ") and not stripped.startswith("## "):
+                doc.add_heading(stripped[2:], level=1)
+            elif stripped.startswith("## "):
+                doc.add_heading(stripped[3:], level=2)
+            elif stripped.startswith("### "):
+                doc.add_heading(stripped[4:], level=3)
+            elif stripped.startswith(("- ", "* ")):
+                text = re.sub(r"\*\*(.+?)\*\*", r"\1", stripped[2:])
+                doc.add_paragraph(text, style="List Bullet")
+            elif stripped == "":
+                continue
+            else:
+                # Render inline **bold** spans
+                para = doc.add_paragraph()
+                for i, part in enumerate(re.split(r"\*\*(.+?)\*\*", stripped)):
+                    run = para.add_run(part)
+                    run.bold = (i % 2 == 1)
+
+        buf = BytesIO()
+        doc.save(buf)
+        return buf.getvalue()
 
     def _call_model(self, system: str, user_content: str) -> str:
         response = create_message_with_failover(
