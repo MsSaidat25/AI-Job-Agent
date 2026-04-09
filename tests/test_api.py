@@ -414,3 +414,41 @@ class TestAdzunaIntegration:
         assert normalised["job_id"] == "adzuna-99"
         assert normalised["job_title"] == "Tester"
         assert normalised["employer_name"] == ""
+
+
+class TestEmployerWaitlist:
+    def test_join_waitlist_success(self, client):
+        r = client.post("/api/employer/waitlist", json={
+            "email": "hr@acme.com",
+            "company_name": "Acme Corp",
+            "company_size": "51-200",
+        })
+        assert r.status_code == 201
+        data = r.json()
+        assert "message" in data
+        assert data["position"] == 1
+
+    def test_join_waitlist_duplicate(self, client):
+        payload = {"email": "hr@acme.com", "company_name": "Acme"}
+        client.post("/api/employer/waitlist", json=payload)
+        r = client.post("/api/employer/waitlist", json=payload)
+        assert r.status_code == 201
+        assert "already on the waitlist" in r.json()["message"]
+
+    def test_join_waitlist_invalid_email(self, client):
+        r = client.post("/api/employer/waitlist", json={"email": "not-an-email"})
+        assert r.status_code == 422
+
+    def test_join_waitlist_no_session_required(self, client):
+        # Endpoint must work without X-Session-ID header
+        r = client.post(
+            "/api/employer/waitlist",
+            json={"email": "nosession@test.com"},
+            headers={},
+        )
+        assert r.status_code == 201
+
+    def test_join_waitlist_position_increments(self, client):
+        client.post("/api/employer/waitlist", json={"email": "a@test.com"})
+        r = client.post("/api/employer/waitlist", json={"email": "b@test.com"})
+        assert r.json()["position"] == 2

@@ -645,6 +645,10 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
         <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('chat')" id="nav-chat">
           <span class="material-symbols-outlined text-base flex-shrink-0">smart_toy</span><span class="nav-label">AI Chat</span>
         </div>
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Business</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('employers')" id="nav-employers">
+          <span class="material-symbols-outlined text-base flex-shrink-0">business</span><span class="nav-label">For Employers</span>
+        </div>
       </div>
       <!-- User footer -->
       <div class="border-t border-primary/10 pt-3 flex-shrink-0">
@@ -868,6 +872,106 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
               </div>
               <div id="profileCardFields"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- FOR EMPLOYERS -->
+        <div id="view-employers" style="display:none">
+          <!-- Hero banner -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-6 md:p-8 mb-4 dash-panel text-center relative overflow-hidden">
+            <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse at 50% 0%, rgba(242,204,13,0.07) 0%, transparent 70%);"></div>
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 mb-4">
+              <span class="material-symbols-outlined text-sm">schedule</span> Coming Soon
+            </span>
+            <h2 class="text-2xl md:text-3xl font-bold mb-3">Hire Smarter with <span class="text-primary">AI-Matched Talent</span></h2>
+            <p class="text-slate-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+              Stop drowning in unqualified CVs. JobPath AI surfaces pre-screened, skill-matched candidates who genuinely fit your role — not just keyword hits.
+            </p>
+          </div>
+
+          <!-- Value props -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 dash-panel">
+              <span class="material-symbols-outlined text-primary text-2xl mb-2 block">psychology</span>
+              <div class="font-bold text-sm mb-1">AI Skill Matching</div>
+              <p class="text-slate-500 text-xs leading-relaxed">Candidates are scored against your exact requirements — not just job title keywords.</p>
+            </div>
+            <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 dash-panel">
+              <span class="material-symbols-outlined text-primary text-2xl mb-2 block">shield</span>
+              <div class="font-bold text-sm mb-1">Bias-Free Screening</div>
+              <p class="text-slate-500 text-xs leading-relaxed">Our privacy pipeline strips protected attributes before any match is made — compliant by design.</p>
+            </div>
+            <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 dash-panel">
+              <span class="material-symbols-outlined text-primary text-2xl mb-2 block">bolt</span>
+              <div class="font-bold text-sm mb-1">Direct Pipeline</div>
+              <p class="text-slate-500 text-xs leading-relaxed">Post a role and get anonymised, ranked profiles in minutes — not weeks.</p>
+            </div>
+          </div>
+
+          <!-- Pricing tiers -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Pricing</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Simple, transparent plans</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- Free -->
+              <div class="border border-primary/10 rounded-xl p-4 flex flex-col gap-2">
+                <div class="text-xs font-bold uppercase tracking-widest text-slate-500">Free</div>
+                <div class="text-2xl font-bold">$0<span class="text-sm font-normal text-slate-500">/mo</span></div>
+                <ul class="text-xs text-slate-400 space-y-1.5 flex-1">
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>3 job posts / month</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Up to 10 matched profiles</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Basic skill match score</li>
+                </ul>
+                <button onclick="document.getElementById('waitlistEmail').focus()" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all">Join Waitlist</button>
+              </div>
+              <!-- Pro -->
+              <div class="border border-primary rounded-xl p-4 flex flex-col gap-2 relative">
+                <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary text-background-dark">Most Popular</span>
+                <div class="text-xs font-bold uppercase tracking-widest text-primary">Pro</div>
+                <div class="text-2xl font-bold">$99<span class="text-sm font-normal text-slate-500">/mo</span></div>
+                <ul class="text-xs text-slate-400 space-y-1.5 flex-1">
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Unlimited job posts</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Unlimited matched profiles</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Full ATS score + gap report</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Priority support</li>
+                </ul>
+                <button onclick="document.getElementById('waitlistEmail').focus()" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg bg-primary text-background-dark hover:brightness-110 transition-all">Join Waitlist</button>
+              </div>
+              <!-- Enterprise -->
+              <div class="border border-primary/10 rounded-xl p-4 flex flex-col gap-2">
+                <div class="text-xs font-bold uppercase tracking-widest text-slate-500">Enterprise</div>
+                <div class="text-2xl font-bold">$499<span class="text-sm font-normal text-slate-500">/mo</span></div>
+                <ul class="text-xs text-slate-400 space-y-1.5 flex-1">
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Everything in Pro</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Dedicated account manager</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Custom integrations (ATS/HRIS)</li>
+                  <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>SLA + compliance reports</li>
+                </ul>
+                <button onclick="document.getElementById('waitlistEmail').focus()" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all">Join Waitlist</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Waitlist form -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-5 dash-panel">
+            <div class="text-base font-bold mb-0.5">Get Early Access</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Join the waitlist — first 100 companies get 3 months free</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+              <input id="waitlistEmail" type="email" placeholder="Work email *" />
+              <input id="waitlistCompany" type="text" placeholder="Company name" maxlength="200" />
+              <select id="waitlistSize">
+                <option value="">Company size (optional)</option>
+                <option value="1-10">1–10 employees</option>
+                <option value="11-50">11–50 employees</option>
+                <option value="51-200">51–200 employees</option>
+                <option value="201-1000">201–1,000 employees</option>
+                <option value="1000+">1,000+ employees</option>
+              </select>
+              <button onclick="joinWaitlist()" class="bg-primary text-background-dark font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">mail</span> Request Early Access
+              </button>
+            </div>
+            <div id="waitlistResult" style="display:none" class="response-area text-sm"></div>
           </div>
         </div>
 
@@ -1122,8 +1226,8 @@ function updateProfileCard(p) {
 }
 
 // ── Navigation ─────────────────────────────────────
-const VIEWS = ['jobs', 'market', 'docs', 'tracker', 'analytics', 'feedback', 'chat', 'profile'];
-const TITLES = { jobs: 'Job Search', market: 'Market Intelligence', docs: 'Documents', tracker: 'Application Tracker', analytics: 'Analytics', feedback: 'Feedback Analysis', chat: 'AI Chat', profile: 'My Profile' };
+const VIEWS = ['jobs', 'market', 'docs', 'tracker', 'analytics', 'feedback', 'chat', 'profile', 'employers'];
+const TITLES = { jobs: 'Job Search', market: 'Market Intelligence', docs: 'Documents', tracker: 'Application Tracker', analytics: 'Analytics', feedback: 'Feedback Analysis', chat: 'AI Chat', profile: 'My Profile', employers: 'For Employers' };
 
 function nav(page) {
   VIEWS.forEach(v => {
@@ -1162,6 +1266,27 @@ function initSidebarState() {
 window.addEventListener('resize', () => {
   if (document.getElementById('app').style.display !== 'none') initSidebarState();
 });
+
+// ── Employer waitlist ──────────────────────────────
+async function joinWaitlist() {
+  const email = document.getElementById('waitlistEmail').value.trim();
+  if (!email) { toast('Please enter your work email.', 'error'); return; }
+  const resultEl = document.getElementById('waitlistResult');
+  resultEl.style.display = 'block';
+  resultEl.className = 'response-area text-sm';
+  resultEl.innerHTML = '<div class="flex items-center gap-2"><div class="spinner"></div><span>Joining waitlist…</span></div>';
+  try {
+    const d = await api('POST', '/api/employer/waitlist', {
+      email,
+      company_name: document.getElementById('waitlistCompany').value.trim(),
+      company_size: document.getElementById('waitlistSize').value,
+    });
+    resultEl.innerHTML = `<div class="flex items-center gap-2 text-primary font-semibold"><span class="material-symbols-outlined">check_circle</span>${DOMPurify.sanitize(d.message)} You're #${d.position} on the list.</div>`;
+    toast('You\'re on the waitlist!', 'success');
+  } catch (e) {
+    resultEl.innerHTML = `<span class="text-red-400">${DOMPurify.sanitize(e.message || 'Something went wrong. Please try again.')}</span>`;
+  }
+}
 
 // ── API calls ──────────────────────────────────────
 async function searchJobs() {
