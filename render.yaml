@@ -26,6 +26,16 @@ services:
         sync: false
       - key: DATABASE_URL_FAILOVER
         sync: false
+      # Supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      # Payments (Stripe)
+      - key: STRIPE_SECRET_KEY
+        sync: false
       # Email
       - key: RESEND_API_KEY
         sync: false

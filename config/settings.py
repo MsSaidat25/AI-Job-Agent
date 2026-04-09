@@ -157,6 +157,9 @@ SUPABASE_URL: str = get_secret("SUPABASE_URL")
 SUPABASE_KEY: str = get_secret("SUPABASE_KEY")
 SUPABASE_SERVICE_KEY: str = get_secret("SUPABASE_SERVICE_KEY")
 
+# ── Payments (Stripe) ─────────────────────────────────────────────────────
+STRIPE_SECRET_KEY: str = get_secret("STRIPE_SECRET_KEY")
+
 # ── Auth (Cloud Identity Platform) ────────────────────────────────────────
 AUTH_ENABLED: bool = get_secret("AUTH_ENABLED", "false").lower() == "true"
 GCP_IDENTITY_PLATFORM_API_KEY: str = get_secret("GCP_IDENTITY_PLATFORM_API_KEY")
