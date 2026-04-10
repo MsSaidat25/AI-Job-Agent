@@ -1,5 +1,5 @@
 """Kanban board API router -- drag-and-drop application tracking."""
-from __future__ import annotations
+
 
 import asyncio
 from typing import Any, Optional
@@ -15,13 +15,6 @@ router = APIRouter(prefix="/api/kanban", tags=["kanban"])
 
 # ── Schemas ──────────────────────────────────────────────────────────────────
 
-class KanbanColumn(BaseModel):
-    status: str
-    label: str
-    color: str
-    cards: list[KanbanCard] = Field(default_factory=list)
-
-
 class KanbanCard(BaseModel):
     id: str
     job_id: str
@@ -34,6 +27,13 @@ class KanbanCard(BaseModel):
     notes: str = ""
     match_score: Optional[float] = None
     source_url: str = ""
+
+
+class KanbanColumn(BaseModel):
+    status: str
+    label: str
+    color: str
+    cards: list[KanbanCard] = Field(default_factory=list)
 
 
 class KanbanBoardResponse(BaseModel):

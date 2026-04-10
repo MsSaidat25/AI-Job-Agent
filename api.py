@@ -7,8 +7,6 @@ Session management lives in src/session_store.py.
 All domain endpoints live in routers/*.
 """
 
-from __future__ import annotations
-
 from contextlib import asynccontextmanager
 import logging
 import os
@@ -70,7 +68,10 @@ def _get_real_client_ip(request: Request) -> str:
     if _TRUST_PROXY:
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
-            return forwarded.split(",")[0].strip()
+            # Trust the rightmost IP (last proxy-appended) to prevent
+            # client-side spoofing of the first entry.
+            ips = [ip.strip() for ip in forwarded.split(",")]
+            return ips[-1] if ips else get_remote_address(request)
     return get_remote_address(request)
 
 
@@ -114,7 +115,13 @@ _ALLOWED_ORIGINS: list[str] = [
     o.strip()
     for o in _raw_origins.split(",")
     if o.strip()
-] if _raw_origins else ["http://localhost:8000", "http://127.0.0.1:8000"]
+] if _raw_origins else [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://10.0.2.2:8000",       # Android emulator -> host
+    "http://localhost:8081",       # Expo Metro dev server
+    "http://localhost:19006",      # Expo web dev server
+]
 
 app.add_middleware(
     CORSMiddleware,

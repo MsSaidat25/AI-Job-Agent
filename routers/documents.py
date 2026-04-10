@@ -1,5 +1,5 @@
 """Documents API router -- template listing & file export."""
-from __future__ import annotations
+
 
 import asyncio
 from typing import Any
@@ -32,6 +32,12 @@ class ExportRequest(BaseModel):
     template_id: str = Field(default="classic", max_length=50)
     format: str = Field(default="pdf", pattern="^(pdf|docx)$")
     tone: str = Field(default="professional", max_length=30)
+
+
+class ExportContentRequest(BaseModel):
+    content: str = Field(..., min_length=1, max_length=100_000)
+    template_id: str = Field(default="classic", max_length=50)
+    format: str = Field(default="pdf", pattern="^(pdf|docx)$")
 
 
 # ── Route wiring ─────────────────────────────────────────────────────────────
@@ -132,23 +138,17 @@ def _setup_routes(
     @limiter.limit("10/minute")
     async def export_content(
         request: Request,
-        body: dict[str, str],
+        body: ExportContentRequest,
+        session_id: str = session_dep,
     ):
         """Export raw markdown content to PDF or DOCX with a template.
 
         Useful when the user already has generated content and wants to
         re-export with a different template or format.
-
-        Body: {"content": "markdown...", "template_id": "classic", "format": "pdf"}
         """
-        content = body.get("content", "")
-        if not content:
-            raise HTTPException(status_code=400, detail="content is required.")
-
-        template_id = body.get("template_id", "classic")
-        fmt = body.get("format", "pdf")
-        if fmt not in ("pdf", "docx"):
-            raise HTTPException(status_code=400, detail="format must be 'pdf' or 'docx'.")
+        content = body.content
+        template_id = body.template_id
+        fmt = body.format
 
         from src.resume_export import export_pdf, export_docx
         if fmt == "pdf":
