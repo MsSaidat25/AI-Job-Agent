@@ -18,6 +18,11 @@ def _isolate_db(tmp_path, monkeypatch):
     monkeypatch.setattr("config.settings.DATABASE_URL_FAILOVER", "")
     monkeypatch.setattr("src.models.DATABASE_URL", "")
     monkeypatch.setattr("src.models.DATABASE_URL_FAILOVER", "")
+    # Reset cached engine so each test gets a fresh DB, then create tables
+    from src.models import reset_db_state, init_db
+    reset_db_state()
+    s = init_db()
+    s.close()
     # Disable rate limiting in tests so session creation doesn't 429
     import api as api_mod
     monkeypatch.setattr(api_mod.limiter, "enabled", False)
@@ -158,16 +163,15 @@ class TestCORS:
 class TestSessionCleanup:
     def test_max_sessions_enforced(self, client, monkeypatch):
         """Sessions beyond _MAX_SESSIONS should be evicted."""
-        import api as api_mod
-        from api import _MAX_SESSIONS
+        import src.session_store as ss
 
         # Disable throttle so cleanup runs every time
-        monkeypatch.setattr(api_mod, "_CLEANUP_INTERVAL", 0)
+        monkeypatch.setattr(ss, "_CLEANUP_INTERVAL", 0)
 
         # Create many sessions
-        for _ in range(_MAX_SESSIONS + 5):
+        for _ in range(ss._MAX_SESSIONS + 5):
             client.post("/api/session")
-        assert len(api_mod._sessions) <= _MAX_SESSIONS + 1  # +1 for the one just created
+        assert len(ss.get_sessions()) <= ss._MAX_SESSIONS + 1  # +1 for the one just created
 
     def test_serves_frontend(self, client):
         r = client.get("/")
@@ -214,7 +218,7 @@ class TestParseResume:
         assert r.status_code == 400
         assert "too large" in r.json()["detail"].lower()
 
-    @patch("api.get_llm_client")
+    @patch("routers.chat.get_llm_client")
     def test_parse_resume_text_success(self, mock_cls, client, session_id):
         import io
         mock_client = mock_cls.return_value
@@ -234,7 +238,7 @@ class TestParseResume:
         assert "experience_level" in data
         assert "languages" in data
 
-    @patch("api.get_llm_client")
+    @patch("routers.chat.get_llm_client")
     def test_parse_resume_bad_json(self, mock_cls, client, session_id):
         import io
         mock_client = mock_cls.return_value
@@ -282,8 +286,8 @@ class TestDashboardEndpoints:
         r = client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
         assert r.status_code == 201
 
-        import api as api_mod
-        agent = api_mod._sessions[session_id]["agent"]
+        import src.session_store as ss
+        agent = ss.get_sessions()[session_id]["agent"]
         agent.profile = UserProfile(**body)
         mock_tracker = MagicMock()
         mock_tracker.compute_metrics.return_value = {"total": 0, "message": "No applications yet."}
@@ -311,8 +315,8 @@ class TestDashboardEndpoints:
         }
         client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
 
-        import api as api_mod
-        agent = api_mod._sessions[session_id]["agent"]
+        import src.session_store as ss
+        agent = ss.get_sessions()[session_id]["agent"]
         agent.profile = UserProfile(**body)
         mock_tracker = MagicMock()
         mock_tracker.get_applications.return_value = []
@@ -338,8 +342,8 @@ class TestDashboardEndpoints:
         }
         client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
 
-        import api as api_mod
-        agent = api_mod._sessions[session_id]["agent"]
+        import src.session_store as ss
+        agent = ss.get_sessions()[session_id]["agent"]
         agent.profile = UserProfile(**body)
         mock_tracker = MagicMock()
         mock_tracker.get_applications.return_value = []
@@ -363,8 +367,8 @@ class TestDashboardEndpoints:
         }
         client.post("/api/profile", json=body, headers={"X-Session-ID": session_id})
 
-        import api as api_mod
-        agent = api_mod._sessions[session_id]["agent"]
+        import src.session_store as ss
+        agent = ss.get_sessions()[session_id]["agent"]
         agent.profile = UserProfile(
             name="Test User", email="test@example.com",
             location="Berlin", skills=["Python", "Docker"],

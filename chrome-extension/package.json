@@ -1,0 +1,15 @@
+{
+  "name": "ai-job-agent-chrome-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for AI Job Agent - bookmark and track jobs from any website",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src/",
+    "format": "prettier --write src/",
+    "icons": "node scripts/generate-icons.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0"
+  }
+}
