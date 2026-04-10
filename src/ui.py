@@ -270,6 +270,8 @@ def tracker_view(agent: JobAgent) -> None:
             response = agent.chat(
                 f"Track a new application for job ID {job_id}. Notes: {notes or 'None'}"
             )
+        _divider()
+        _render_markdown(response)
 
     elif action == "update":
         app_id = _ask("Application ID to update")
@@ -282,15 +284,52 @@ def tracker_view(agent: JobAgent) -> None:
                 f"Update application {app_id} to status '{new_status}'."
                 + (f" Employer feedback: {feedback}" if feedback else "")
             )
+        _divider()
+        _render_markdown(response)
 
     else:  # list
-        with _spinner("Loading application history…"):
-            response = agent.chat(
-                "Show me my analytics and all application metrics with insights."
+        apps = agent.list_applications()
+        _divider()
+        if not apps:
+            console.print("[dim]No applications tracked yet. Use 'log' to add one.[/dim]")
+            return
+
+        _STATUS_STYLE = {
+            "draft":               "dim",
+            "submitted":           "cyan",
+            "interview_scheduled": "bold yellow",
+            "offer_received":      "bold green",
+            "rejected":            "red",
+            "withdrawn":           "dim red",
+        }
+
+        table = Table(box=box.SIMPLE_HEAD, show_lines=False, padding=(0, 1))
+        table.add_column("#",            style="dim",         width=3,  no_wrap=True)
+        table.add_column("App ID",       style="dim cyan",    width=10, no_wrap=True)
+        table.add_column("Job ID",       style="dim",         width=10, no_wrap=True)
+        table.add_column("Status",       width=20,            no_wrap=True)
+        table.add_column("Submitted",    style="dim",         width=12, no_wrap=True)
+        table.add_column("Last Updated", style="dim",         width=12, no_wrap=True)
+        table.add_column("Notes",        overflow="fold")
+
+        for i, app in enumerate(apps, 1):
+            status_val = app.status.value
+            style = _STATUS_STYLE.get(status_val, "white")
+            submitted = app.submitted_at.strftime("%Y-%m-%d") if app.submitted_at else "—"
+            updated = app.last_updated.strftime("%Y-%m-%d")
+            table.add_row(
+                str(i),
+                app.id[:8],
+                app.job_id[:8],
+                Text(status_val, style=style),
+                submitted,
+                updated,
+                app.notes or "—",
             )
 
-    _divider()
-    _render_markdown(response)
+        console.print(table)
+        console.print(f"[dim]{len(apps)} application(s) total[/dim]")
+        return
 
 
 # ── Analytics dashboard ────────────────────────────────────────────────────

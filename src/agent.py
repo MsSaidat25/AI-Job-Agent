@@ -178,6 +178,15 @@ TOOLS: list[dict[str, Any]] = [
         },
     },
     {
+        "name": "list_applications",
+        "description": (
+            "List all tracked job applications with their current status, dates, and notes. "
+            "Use this when the user wants to see their application history or check the status "
+            "of a specific application."
+        ),
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+    },
+    {
         "name": "get_analytics",
         "description": "Get application success metrics and AI-generated career insights.",
         "input_schema": {"type": "object", "properties": {}, "required": []},
@@ -376,6 +385,8 @@ class JobAgent:
                 return self._tool_track_application(**args)
             elif name == "update_application":
                 return self._tool_update_application(**args)
+            elif name == "list_applications":
+                return self._tool_list_applications()
             elif name == "get_analytics":
                 return self._tool_get_analytics()
             elif name == "get_feedback_analysis":
@@ -503,6 +514,29 @@ class JobAgent:
         if not updated:
             return json.dumps({"error": "Application not found."})
         return json.dumps({"application_id": application_id, "new_status": new_status})
+
+    def list_applications(self) -> list[ApplicationRecord]:
+        """Return all tracked applications for the current user (direct, no LLM)."""
+        return self._tracker.get_applications(self.profile.id)
+
+    def _tool_list_applications(self) -> str:
+        apps = self._tracker.get_applications(self.profile.id)
+        if not apps:
+            return json.dumps({"applications": [], "total": 0, "message": "No applications tracked yet."})
+        records = []
+        for a in apps:
+            job = self._job_cache.get(a.job_id)
+            records.append({
+                "id": a.id,
+                "job_id": a.job_id,
+                "job_title": getattr(job, "title", None),
+                "company": getattr(job, "company", None),
+                "status": a.status.value,
+                "submitted_at": a.submitted_at.isoformat() if a.submitted_at else None,
+                "last_updated": a.last_updated.isoformat(),
+                "notes": a.notes or "",
+            })
+        return json.dumps({"applications": records, "total": len(records)}, indent=2)
 
     def _tool_get_analytics(self) -> str:
         metrics = self._tracker.compute_metrics(self.profile.id)
