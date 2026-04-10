@@ -3,7 +3,7 @@ Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com). All Rights Reserved
 avien@aviensolutions.com
 -->
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
@@ -1435,7 +1435,7 @@ function updateThemeIcons(isDark) {
 }
 function initTheme() {
   const saved = localStorage.getItem('jpai_theme');
-  const isDark = saved ? saved === 'dark' : true;
+  const isDark = saved ? saved === 'dark' : false;
   document.documentElement.classList.toggle('dark', isDark);
   updateThemeIcons(isDark);
 }
