@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-
+from io import BytesIO
 from unittest.mock import MagicMock
 
 from src.document_generator import DocumentGenerator
@@ -152,3 +152,40 @@ class TestATSScoring:
         gen = DocumentGenerator(client=_mock_client(ats_response))
         result = gen.score_ats_match("Python resume", "Python job")
         assert result["ats_score"] == 75
+
+
+class TestExportDocument:
+    _SAMPLE_MD = (
+        "# Jane Doe\n\n"
+        "## Experience\n\n"
+        "### Senior Engineer at TechCo\n\n"
+        "- Built scalable APIs with **Python** and AWS\n"
+        "- Reduced latency by 40%\n\n"
+        "Experienced backend engineer."
+    )
+
+    def test_export_pdf_returns_non_empty_bytes(self):
+        gen = DocumentGenerator(client=MagicMock())
+        result = gen.export_document(self._SAMPLE_MD, "pdf")
+        assert isinstance(result, bytes)
+        assert len(result) > 0
+
+    def test_export_pdf_has_pdf_magic_bytes(self):
+        gen = DocumentGenerator(client=MagicMock())
+        result = gen.export_document(self._SAMPLE_MD, "pdf")
+        assert result[:4] == b"%PDF"
+
+    def test_export_docx_is_valid(self):
+        from docx import Document as DocxDocument
+        gen = DocumentGenerator(client=MagicMock())
+        result = gen.export_document(self._SAMPLE_MD, "docx")
+        assert isinstance(result, bytes)
+        assert len(result) > 0
+        doc = DocxDocument(BytesIO(result))
+        assert len(doc.paragraphs) > 0
+
+    def test_export_unsupported_format_raises(self):
+        import pytest
+        gen = DocumentGenerator(client=MagicMock())
+        with pytest.raises(ValueError, match="Unsupported format"):
+            gen.export_document(self._SAMPLE_MD, "txt")

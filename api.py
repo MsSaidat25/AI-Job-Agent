@@ -387,6 +387,12 @@ class ChatRequest(BaseModel):
     message: str = Field(..., max_length=5000)
 
 
+class EmployerWaitlistRequest(BaseModel):
+    email: EmailStr
+    company_name: str = Field(default="", max_length=200)
+    company_size: str = Field(default="", max_length=50)
+
+
 # ── Response schemas ─────────────────────────────────────────────────────────
 
 class HealthResponse(BaseModel):
@@ -394,6 +400,11 @@ class HealthResponse(BaseModel):
     sessions: int
     db: str
     llm_configured: bool
+
+
+class EmployerWaitlistResponse(BaseModel):
+    message: str
+    position: int
 
 
 class SessionResponse(BaseModel):
@@ -855,6 +866,33 @@ async def parse_resume(
         return ResumeParseResponse(**parsed)
     except Exception as exc:
         raise HTTPException(status_code=502, detail="AI response did not match expected resume schema.") from exc
+
+
+# ── Employer portal ──────────────────────────────────────────────────────────
+
+@app.post("/api/employer/waitlist", status_code=status.HTTP_201_CREATED, response_model=EmployerWaitlistResponse)
+@limiter.limit("5/hour")
+async def employer_waitlist(request: Request, body: EmployerWaitlistRequest):
+    """Add an employer email to the early-access waitlist."""
+    from src.models import EmployerWaitlistORM, get_engine
+    from sqlalchemy.orm import sessionmaker as _sessionmaker
+
+    engine = get_engine()
+    Session = _sessionmaker(bind=engine)
+    with Session() as db:
+        existing = db.query(EmployerWaitlistORM).filter_by(email=body.email).first()
+        if existing:
+            position = db.query(EmployerWaitlistORM).count()
+            return EmployerWaitlistResponse(message="You're already on the waitlist!", position=position)
+        entry = EmployerWaitlistORM(
+            email=body.email,
+            company_name=body.company_name,
+            company_size=body.company_size,
+        )
+        db.add(entry)
+        db.commit()
+        position = db.query(EmployerWaitlistORM).count()
+    return EmployerWaitlistResponse(message="You're on the list! We'll be in touch soon.", position=position)
 
 
 # ── Dev entrypoint ───────────────────────────────────────────────────────────

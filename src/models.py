@@ -354,6 +354,16 @@ class CareerDreamORM(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
+class EmployerWaitlistORM(Base):
+    __tablename__ = "employer_waitlist"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String(500), nullable=False, unique=True, index=True)
+    company_name = Column(String(500), default="")
+    company_size = Column(String(50), default="")
+    signed_up_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
 # ── Database bootstrap ─────────────────────────────────────────────────────
 
 _active_engine = None
