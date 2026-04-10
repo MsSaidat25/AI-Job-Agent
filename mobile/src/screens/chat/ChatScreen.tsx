@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { Card } from "../../components/ui/Card";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useChatStore, type ChatMessage } from "../../stores/useChatStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 
@@ -57,7 +57,7 @@ export function ChatScreen() {
   }
 
   return (
-    <ScreenWrapper scroll={false}>
+    <ResponsiveContainer>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -172,6 +172,6 @@ export function ChatScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </ScreenWrapper>
+    </ResponsiveContainer>
   );
 }

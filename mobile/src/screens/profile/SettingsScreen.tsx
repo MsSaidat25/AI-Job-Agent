@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, useColorScheme } from "react-native";
+import { View, Text, ScrollView, useColorScheme, Platform } from "react-native";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { useSessionStore } from "../../stores/useSessionStore";
 import { useProfileStore } from "../../stores/useProfileStore";
@@ -12,8 +12,9 @@ import { useJobStore } from "../../stores/useJobStore";
 import { useDashboardStore } from "../../stores/useDashboardStore";
 import { useApplicationStore } from "../../stores/useApplicationStore";
 
+const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
+
 function isValidApiUrl(url: string): boolean {
-  // Allow localhost and 10.0.2.2 for dev, require https for everything else
   if (/^https?:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:\d+)?/.test(url)) {
     return true;
   }
@@ -28,25 +29,27 @@ export function SettingsScreen() {
 
   function handleSetApiUrl(url: string) {
     if (url && !isValidApiUrl(url)) {
-      return; // Reject non-HTTPS URLs for non-dev hosts
+      return;
     }
     setApiBaseUrl(url);
   }
 
   function handleLogout() {
-    // Clear all stores to prevent data leakage
     clearProfile();
     useChatStore.getState().clearLocal();
     useJobStore.getState().clear();
-    // Reset dashboard and application stores by clearing their persisted data
     useDashboardStore.setState({ summary: null, activity: null, skills: null });
     useApplicationStore.setState({ board: null });
     resetSession();
   }
 
   return (
-    <ScreenWrapper>
-      <View className="px-4 pt-4">
+    <ResponsiveContainer>
+      <ScrollView
+        className="flex-1 px-4 pt-4"
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={webScrollStyle}
+      >
         {/* Theme */}
         <Card>
           <Text
@@ -114,7 +117,7 @@ export function SettingsScreen() {
             Built by AVIEN Solutions
           </Text>
         </View>
-      </View>
-    </ScreenWrapper>
+      </ScrollView>
+    </ResponsiveContainer>
   );
 }

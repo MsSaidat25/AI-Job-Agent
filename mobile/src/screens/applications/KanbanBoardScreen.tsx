@@ -4,25 +4,26 @@ import {
   Text,
   ScrollView,
   RefreshControl,
+  Platform,
   useWindowDimensions,
 } from "react-native";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useApplicationStore } from "../../stores/useApplicationStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { formatRelativeDate } from "../../utils/formatters";
 
-const MAX_CONTENT_WIDTH = 768;
+const MAX_BOARD_WIDTH = 1024;
+const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 export function KanbanBoardScreen() {
   const { board, isLoading, loadBoard } = useApplicationStore();
   const colors = useThemeStore((s) => s.colors);
   const { width: screenWidth } = useWindowDimensions();
-  const constrainedWidth = Math.min(screenWidth, MAX_CONTENT_WIDTH);
-  const columnWidth = constrainedWidth - 32; // 16px padding each side
+  const columnWidth = Math.min(screenWidth, MAX_BOARD_WIDTH) - 32;
 
   useEffect(() => {
     loadBoard();
@@ -34,18 +35,22 @@ export function KanbanBoardScreen() {
 
   if (!board && !isLoading) {
     return (
-      <EmptyState
-        title="No Applications Yet"
-        message="Track your first job application to see it on the board."
-        action={<Button title="Refresh" onPress={loadBoard} variant="secondary" />}
-      />
+      <ResponsiveContainer maxWidth={MAX_BOARD_WIDTH}>
+        <EmptyState
+          title="No Applications Yet"
+          message="Track your first job application to see it on the board."
+          action={<Button title="Refresh" onPress={loadBoard} variant="secondary" />}
+        />
+      </ResponsiveContainer>
     );
   }
 
   return (
-    <ScreenWrapper scroll={false}>
+    <ResponsiveContainer maxWidth={MAX_BOARD_WIDTH}>
       <ScrollView
         className="flex-1"
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={webScrollStyle}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
         }
@@ -120,6 +125,6 @@ export function KanbanBoardScreen() {
           ))}
         </ScrollView>
       </ScrollView>
-    </ScreenWrapper>
+    </ResponsiveContainer>
   );
 }

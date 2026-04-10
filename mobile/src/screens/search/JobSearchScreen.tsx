@@ -5,7 +5,7 @@ import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useJobStore } from "../../stores/useJobStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 
@@ -26,7 +26,7 @@ export function JobSearchScreen() {
   }
 
   return (
-    <ScreenWrapper scroll={false}>
+    <ResponsiveContainer>
       <View className="px-4 pt-4">
         <Input
           placeholder="Location (e.g. New York, Remote)"
@@ -89,6 +89,6 @@ export function JobSearchScreen() {
           />
         )
       )}
-    </ScreenWrapper>
+    </ResponsiveContainer>
   );
 }
