@@ -1,5 +1,5 @@
 """Dashboard API router - structured JSON endpoints (no LLM calls)."""
-from __future__ import annotations
+
 
 import asyncio
 import re

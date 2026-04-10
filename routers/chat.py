@@ -1,5 +1,4 @@
 """Chat and resume parsing endpoints."""
-from __future__ import annotations
 
 import asyncio
 import base64
