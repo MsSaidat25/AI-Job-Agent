@@ -692,14 +692,18 @@
     <div class="nav-inner">
         <span class="nav-logo">AI Job Agent</span>
         <a href="#hero">Summary</a>
-        <a href="#threats">Threats</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#jobdata">Job Data</a>
-        <a href="#compliance">Compliance</a>
+        <a href="#personas">Personas</a>
+        <a href="#journey">Journey</a>
+        <a href="#dashboard">Dashboard</a>
         <a href="#features">Features</a>
-        <a href="#monetization">Monetization</a>
+        <a href="#market">Market Data</a>
+        <a href="#agents">Agents</a>
+        <a href="#data">Data Model</a>
+        <a href="#nfrs">NFRs</a>
         <a href="#risks">Risks</a>
         <a href="#roadmap">Roadmap</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#stack">Stack</a>
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light theme">Dark / Light</button>
     </div>
 </nav>
@@ -707,491 +711,318 @@
 <!-- SECTION 1: Hero / Executive Summary -->
 <header class="hero" id="hero">
     <h1>AI Job Agent</h1>
-    <p class="subtitle">Privacy-first AI career strategist with real job data, intelligent matching, and EU AI Act compliance</p>
-    <div class="tagline">Technical Product Requirements Document</div>
-    <div class="version">v2.0 &middot; March 2026 &middot; AVIEN SOLUTIONS</div>
+    <p class="subtitle">An AI-powered career strategist that finds jobs, tailors resumes, applies autonomously, and provides location-aware salary intelligence, all while protecting user privacy.</p>
+    <div class="tagline">Product Requirements Document</div>
+    <div class="version">v2.0 &middot; 2026-03-15 &middot; AVIEN SOLUTIONS</div>
     <div class="stat-grid">
         <div class="stat-card">
-            <span class="stat-num" data-target="20" data-suffix="+">0</span>
-            <span class="stat-label">Competitors analyzed</span>
+            <span class="stat-num" data-target="9" data-suffix="">0</span>
+            <span class="stat-label">Agent tools exposed</span>
         </div>
         <div class="stat-card">
-            <span class="stat-num" data-target="6" data-suffix="">0</span>
-            <span class="stat-label">Job data APIs integrated</span>
+            <span class="stat-num" data-target="8" data-suffix="">0</span>
+            <span class="stat-label">User journey steps</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num" data-target="10" data-suffix="">0</span>
+            <span class="stat-label">Specialized agents</span>
         </div>
         <div class="stat-card">
             <span class="stat-num" data-target="100" data-suffix="%">0</span>
             <span class="stat-label">Local privacy</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-num" data-target="1" data-suffix="" data-display="YES">0</span>
-            <span class="stat-label">EU AI Act ready</span>
-        </div>
     </div>
 </header>
 
-<!-- SECTION 2: Threat Level Map -->
-<section id="threats">
+<!-- SECTION: Overview / Problem -->
+<section id="overview">
     <div class="container reveal">
-        <p class="section-label">Competitive Intelligence</p>
-        <h2>Threat Level Map</h2>
-        <p class="section-sub">Color-coded competitive analysis across 20+ players in the AI job application space.</p>
+        <p class="section-label">Overview</p>
+        <h2>Problem &amp; Target Users</h2>
+        <p class="section-sub">Why this product exists and who it's for.</p>
 
-        <details open>
-            <summary>Critical Threats</summary>
-            <div class="detail-body">
-                <div class="threat-grid">
-                    <div class="threat-card threat-critical">
-                        <span class="threat-badge">Critical</span>
-                        <h4>Jobright AI</h4>
-                        <p>100k+ Chrome extension users. AI agent with auto-apply. $15-40/mo. US-only market.</p>
-                    </div>
-                    <div class="threat-card threat-critical">
-                        <span class="threat-badge">Critical</span>
-                        <h4>ApplyPilot</h4>
-                        <p>8k GitHub stars in first week. Open source. Supports 83 sites. Free.</p>
-                    </div>
-                    <div class="threat-card threat-critical">
-                        <span class="threat-badge">Critical</span>
-                        <h4>Simplify</h4>
-                        <p>1M+ users, free tier. 100+ ATS portals: Workday, Greenhouse, iCIMS, Taleo, Avature, Lever, SmartRecruiters.</p>
-                    </div>
-                </div>
-            </div>
-        </details>
+        <div class="callout callout-purple">
+            <strong>Problem Statement:</strong> Job seekers spend hours daily copying the same resume into different portals, get ghosted on the majority of applications, lack market salary data, and have no systematic way to track their progress or learn from rejections. Career changers and international job seekers face additional challenges: they don't know which skills transfer, what salary to expect in different markets, or how to tailor applications for regional norms.
+        </div>
 
-        <details>
-            <summary>High Threats</summary>
-            <div class="detail-body">
-                <div class="threat-grid">
-                    <div class="threat-card threat-high">
-                        <span class="threat-badge">High</span>
-                        <h4>CareerSwift</h4>
-                        <p>Ranked #1 in 2026 lists. Human-in-the-loop quality approach. &euro;10/wk.</p>
-                    </div>
-                    <div class="threat-card threat-high">
-                        <span class="threat-badge">High</span>
-                        <h4>JobCopilot</h4>
-                        <p>Career-page crawling. 50 applications/day. $9-40/mo.</p>
-                    </div>
-                    <div class="threat-card threat-high">
-                        <span class="threat-badge">High</span>
-                        <h4>LazyApply</h4>
-                        <p>Volume king: 300+ apps/day. Greenhouse, Dice, Indeed, ZipRecruiter. $99-249/mo. But 0.1% interview rate.</p>
-                    </div>
-                    <div class="threat-card threat-high">
-                        <span class="threat-badge">High</span>
-                        <h4>Scale.jobs</h4>
-                        <p>Human virtual assistants. 25-47% callback rate. $199-399/mo.</p>
-                    </div>
-                </div>
-            </div>
-        </details>
-
-        <details>
-            <summary>Moderate Threats</summary>
-            <div class="detail-body">
-                <div class="threat-grid">
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>Teal</h4>
-                        <p>Best CRM. 4.4 rating. 40+ boards. $29/mo.</p>
-                    </div>
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>Careerflow</h4>
-                        <p>LinkedIn optimizer + coaching. $24/mo.</p>
-                    </div>
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>Wobo AI</h4>
-                        <p>Digital twin "Persona". 45k users. $25-54/mo.</p>
-                    </div>
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>LoopCV</h4>
-                        <p>Multi-board + recruiter outreach. &euro;10-30/mo.</p>
-                    </div>
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>Jobscan</h4>
-                        <p>ATS optimization leader. $50/mo.</p>
-                    </div>
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>AIHawk</h4>
-                        <p>29.5k GitHub stars. LinkedIn-only. Open source, community-maintained.</p>
-                    </div>
-                    <div class="threat-card threat-moderate">
-                        <span class="threat-badge">Moderate</span>
-                        <h4>Massive</h4>
-                        <p>Full auto-apply. But 2.1/5 TrustPilot. $39/mo.</p>
-                    </div>
-                </div>
-            </div>
-        </details>
-
-        <details>
-            <summary>Emerging &amp; Defunct</summary>
-            <div class="detail-body">
-                <div class="threat-grid">
-                    <div class="threat-card threat-emerging">
-                        <span class="threat-badge">Emerging</span>
-                        <h4>Flashfire, ApplyArc, JobHire.AI, Careery.pro, Skillora</h4>
-                        <p>Early-stage entrants. Limited traction data available. Worth monitoring quarterly.</p>
-                    </div>
-                    <div class="threat-card threat-defunct">
-                        <span class="threat-badge">Defunct</span>
-                        <h4>Sonara</h4>
-                        <p>Gone out of business (confirmed via user reports).</p>
-                    </div>
-                </div>
-            </div>
-        </details>
-
-        <details>
-            <summary>Competitive Kill Chart</summary>
-            <div class="detail-body">
-                <div class="table-wrap">
-                    <table class="kill-chart">
-                        <thead><tr><th>Competitor</th><th>How We Beat Them</th></tr></thead>
-                        <tbody>
-                            <tr><td>Jobright</td><td>Privacy (they're cloud-only), international reach (they're US-only), deeper career intelligence</td></tr>
-                            <tr><td>ApplyPilot</td><td>No Node/Chrome dependency, privacy pipeline, career intelligence (they just auto-apply)</td></tr>
-                            <tr><td>AIHawk</td><td>Multi-board (they're LinkedIn-only), no account ban risk, active maintainer</td></tr>
-                            <tr><td>Simplify</td><td>No browser extension security risk, deeper AI agent, career strategy layer</td></tr>
-                            <tr><td>LazyApply</td><td>Quality over quantity (their 0.1% interview rate is terrible), privacy, no account bans</td></tr>
-                            <tr><td>Teal</td><td>AI agent does things (they're passive CRM), real job search, salary intelligence</td></tr>
-                            <tr><td>CareerSwift</td><td>Open source + free tier (they charge weekly), privacy-first, same quality philosophy</td></tr>
-                            <tr><td>Scale.jobs</td><td>Free vs $199-399, AI approaching human quality, instant vs 12-24hr turnaround</td></tr>
-                            <tr><td>Jobscan</td><td>ATS optimization + everything else (they only scan)</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </details>
+        <div class="callout callout-green" style="margin-top:12px;">
+            <strong>Target Users:</strong> Mid-level professionals seeking remote/international roles, senior engineers exploring relocation, career changers, and fresh graduates entering the job market.
+        </div>
     </div>
 </section>
 
-<!-- SECTION 3: Architecture -->
-<section id="architecture">
+<!-- SECTION 2: User Personas -->
+<section id="personas">
     <div class="container reveal">
-        <p class="section-label">Technical Architecture</p>
-        <h2>System Architecture</h2>
-        <p class="section-sub">Tabbed view of system design, infrastructure decisions, database schema, and cost structure.</p>
+        <p class="section-label">Who We're Building For</p>
+        <h2>User Personas</h2>
+        <p class="section-sub">Four representative users whose pain points drive the product.</p>
 
-        <div class="tabs">
-            <div class="tab-btns" data-tabgroup="arch">
-                <button class="tab-btn active" data-tab="arch-system">System Architecture</button>
-                <button class="tab-btn" data-tab="arch-supabase">Why Supabase</button>
-                <button class="tab-btn" data-tab="arch-schema">Database Schema</button>
-                <button class="tab-btn" data-tab="arch-cost">Cost Structure</button>
+        <div class="card-grid">
+            <div class="card">
+                <h4>Amara &mdash; The Remote Worker</h4>
+                <p><strong>Role:</strong> Mid-level Data Analyst, Lagos</p>
+                <p><strong>Goal:</strong> Land remote EU/US roles without spending 3+ hours/day on portals.</p>
+                <p><strong>Pain:</strong> Resume copy-paste fatigue, 90% ghost rate, no cross-border salary benchmarks.</p>
+                <p style="font-style:italic;margin-top:8px;color:var(--text-muted);">"I want to wake up and see that my agent already applied to 10 jobs while I slept."</p>
             </div>
-
-            <div class="tab-panel active" id="arch-system">
-                <div class="arch-diagram"><span class="hl">USERS</span>  &#8594;  Web App (PWA) + Employer Portal (Coming Soon)
-           &#8595;
-      <span class="hl">FastAPI Backend</span> (api.py)
-      &#9500;&#9472;&#9472; Supabase Auth (email, OAuth, SSO)
-      &#9500;&#9472;&#9472; Rate Limiting + Stripe Billing
-      &#9500;&#9472;&#9472; <span class="hl-green">GDPR Compliance Layer</span>
-      &#9474;   &#9500;&#9472;&#9472; Consent Manager
-      &#9474;   &#9500;&#9472;&#9472; Data Export API (Art. 20)
-      &#9474;   &#9500;&#9472;&#9472; Right to Erasure API (Art. 17)
-      &#9474;   &#9492;&#9472;&#9472; AI Decision Audit Log (Art. 12)
-      &#9492;&#9472;&#9472; <span class="hl">Agent Core</span>
-          &#9500;&#9472;&#9472; agent.py (Claude tool-use loop)
-          &#9500;&#9472;&#9472; job_search.py &#8594; JSearch API, Adzuna, TheirStack, ATS APIs
-          &#9500;&#9472;&#9472; document_generator.py (resume/cover letter + ATS scoring)
-          &#9500;&#9472;&#9472; analytics.py (tracker + career intelligence)
-          &#9500;&#9472;&#9472; career_dreamer.py (gap analysis, feasibility)
-          &#9500;&#9472;&#9472; salary_data.py (BLS + Eurostat)
-          &#9492;&#9472;&#9472; <span class="hl-green">privacy.py</span> (AES-256-GCM, PII scrubbing)
-                &#8595;
-      <span class="hl-orange">Supabase (Frankfurt EU)</span>
-      &#9500;&#9472;&#9472; PostgreSQL (RLS, per-tenant isolation)
-      &#9500;&#9472;&#9472; Auth (JWT, OAuth)
-      &#9500;&#9472;&#9472; Storage (encrypted resume files)
-      &#9492;&#9472;&#9472; Real-time (live status updates)
-                &#8595;
-      <span class="hl">External APIs</span>
-      &#9500;&#9472;&#9472; Claude API (Anthropic) - via OpenRouter
-      &#9500;&#9472;&#9472; JSearch (RapidAPI) - $25/mo
-      &#9500;&#9472;&#9472; Adzuna - free tier
-      &#9500;&#9472;&#9472; TheirStack - 90 EUR/mo
-      &#9500;&#9472;&#9472; Greenhouse/Lever/Ashby public APIs - free
-      &#9492;&#9472;&#9472; BLS OEWS API - free</div>
+            <div class="card">
+                <h4>Marcus &mdash; The Underpaid Senior</h4>
+                <p><strong>Role:</strong> Senior DevOps Engineer, Berlin</p>
+                <p><strong>Goal:</strong> Understand his market value and explore US relocation.</p>
+                <p><strong>Pain:</strong> No salary visibility, previous automation tools got accounts flagged.</p>
+                <p style="font-style:italic;margin-top:8px;color:var(--text-muted);">"I need something smart enough to apply for me without getting my accounts banned."</p>
             </div>
-
-            <div class="tab-panel" id="arch-supabase">
-                <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Why Supabase (not Turso/SQLite)</h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Factor</th><th>Supabase</th><th>Turso</th><th>Raw SQLite</th></tr></thead>
-                        <tbody>
-                            <tr><td><strong>Auth</strong></td><td>Built-in (email, OAuth, SSO)</td><td>None</td><td>None</td></tr>
-                            <tr><td><strong>File Storage</strong></td><td>Built-in (resume uploads)</td><td>None</td><td>None</td></tr>
-                            <tr><td><strong>Real-time</strong></td><td>Built-in</td><td>None</td><td>None</td></tr>
-                            <tr><td><strong>EU Hosting</strong></td><td>Frankfurt, Ireland, Paris, Stockholm, Zurich</td><td>Limited</td><td>N/A</td></tr>
-                            <tr><td><strong>RLS Multi-tenancy</strong></td><td>Native PostgreSQL</td><td>Not available</td><td>Not available</td></tr>
-                            <tr><td><strong>GDPR Tooling</strong></td><td>DPA, SOC 2, pgaudit, EU regions</td><td>Limited</td><td>None</td></tr>
-                            <tr><td><strong>SQLAlchemy</strong></td><td>First-class (it IS Postgres)</td><td>Custom dialect</td><td>Native</td></tr>
-                            <tr><td><strong>Free Tier</strong></td><td>500MB, 50k MAU, 2 projects</td><td>5GB, 100 DBs</td><td>Unlimited but single-user</td></tr>
-                            <tr><td><strong>Paid</strong></td><td>$25/mo (auth+db+storage+realtime)</td><td>$4.99/mo (db only, need auth+storage separately)</td><td>$0</td></tr>
-                            <tr><td><strong>Migration effort</strong></td><td>Change connection string</td><td>Keep SQLite but bolt on auth/storage</td><td>Already there</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="callout callout-purple" style="margin-top:16px;">
-                    <strong>Bottom line:</strong> Supabase gives us auth, storage, real-time, EU hosting, and GDPR compliance in one platform. Turso saves $20/mo on the database but costs more total when you add auth ($25/mo Clerk) and storage (S3) separately.
-                </div>
+            <div class="card">
+                <h4>Priya &mdash; The Career Changer</h4>
+                <p><strong>Role:</strong> Marketing &rarr; Product Management, Mumbai</p>
+                <p><strong>Goal:</strong> Identify transferable skills and target realistic roles.</p>
+                <p><strong>Pain:</strong> Doesn't know which skills map to new field, uncertain salary expectations.</p>
+                <p style="font-style:italic;margin-top:8px;color:var(--text-muted);">"I need something that gets where I am and where I'm trying to go."</p>
             </div>
-
-            <div class="tab-panel" id="arch-schema">
-                <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Database Schema (Key Tables)</h3>
-                <div class="card-grid">
-                    <div class="card"><h4>user_profiles</h4><p>Core user data, preferences, encrypted PII, skill vectors</p></div>
-                    <div class="card"><h4>job_listings</h4><p>Aggregated jobs from all sources with dedup and scoring</p></div>
-                    <div class="card"><h4>application_records</h4><p>Full application lifecycle tracking with status history</p></div>
-                    <div class="card"><h4>market_insights</h4><p>Cached market intelligence, salary trends, demand signals</p></div>
-                    <div class="card"><h4>generated_documents</h4><p>Resumes, cover letters, tailoring metadata</p></div>
-                    <div class="card"><h4>salary_benchmarks</h4><p>BLS + Eurostat salary data by role/region/seniority</p></div>
-                    <div class="card"><h4>career_dreams</h4><p>Gap analysis, feasibility scores, skill transition paths</p></div>
-                    <div class="card"><h4>employer_listings</h4><p>Employer-posted jobs (coming soon)</p></div>
-                    <div class="card"><h4>audit_logs</h4><p>AI decision logging for EU AI Act Art. 12 compliance</p></div>
-                </div>
-            </div>
-
-            <div class="tab-panel" id="arch-cost">
-                <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Monthly Cost Structure</h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Item</th><th>Cost</th></tr></thead>
-                        <tbody>
-                            <tr><td><strong>Supabase Pro</strong></td><td>$25/mo</td></tr>
-                            <tr><td><strong>JSearch API</strong></td><td>$25/mo</td></tr>
-                            <tr><td><strong>Claude API</strong></td><td>~$20-50/mo</td></tr>
-                            <tr><td><strong>Render hosting</strong></td><td>$7/mo</td></tr>
-                            <tr><td><strong>Adzuna</strong></td><td>Free</td></tr>
-                            <tr><td><strong>BLS API</strong></td><td>Free</td></tr>
-                            <tr><td><strong>Domain</strong></td><td>~$1/mo</td></tr>
-                            <tr style="font-weight:700;border-top:2px solid var(--border);"><td><strong>Total</strong></td><td style="color:var(--accent);font-weight:800;font-size:1rem;">~$78-108/mo</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="card">
+                <h4>David &mdash; The Fresh Graduate</h4>
+                <p><strong>Role:</strong> CS graduate, Toronto</p>
+                <p><strong>Goal:</strong> Get his first job without drowning in job boards.</p>
+                <p><strong>Pain:</strong> No resume, no idea what roles fit, overwhelmed by choice.</p>
+                <p style="font-style:italic;margin-top:8px;color:var(--text-muted);">"Can this thing just tell me what to apply for and do it?"</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- SECTION 4: Job Data Strategy -->
-<section id="jobdata">
+<!-- SECTION 3: User Journey -->
+<section id="journey">
     <div class="container reveal">
-        <p class="section-label">Data Strategy</p>
-        <h2>Job Data Strategy</h2>
-        <p class="section-sub">API availability assessment, tiered integration plan, and staffing agency coverage analysis.</p>
+        <p class="section-label">End-to-End Experience</p>
+        <h2>The User Journey</h2>
+        <p class="section-sub">Eight steps from signup to career advisor. Mobile-first PWA.</p>
 
         <details open>
-            <summary>Doors That Are CLOSED</summary>
+            <summary>Step 0 &middot; Signup &amp; Onboarding</summary>
             <div class="detail-body">
-                <div class="card-grid">
-                    <div class="door-closed">
-                        <h4>LinkedIn API</h4>
-                        <p>Enterprise-only, 3-6 month approval, 6-figure annual commitment. Not accepting new partners.</p>
-                    </div>
-                    <div class="door-closed">
-                        <h4>Indeed Job Search API</h4>
-                        <p>Deprecated. Requires 10k+ daily page views. Sponsored Jobs API costs $3/CALL.</p>
-                    </div>
-                    <div class="door-closed">
-                        <h4>Glassdoor API</h4>
-                        <p>Developer program discontinued entirely.</p>
-                    </div>
-                    <div class="door-closed">
-                        <h4>ZipRecruiter ZipSearch</h4>
-                        <p>Shut down March 31, 2025.</p>
-                    </div>
-                </div>
-            </div>
-        </details>
-
-        <details open>
-            <summary>Doors That Are OPEN</summary>
-            <div class="detail-body">
-                <span class="tier-label tier-1">Tier 1 - Start Here</span>
-                <div class="card-grid" style="margin-bottom:24px;">
-                    <div class="door-open">
-                        <h4>JSearch API (RapidAPI)</h4>
-                        <p>Google for Jobs aggregation. LinkedIn, Indeed, Glassdoor, ZipRecruiter data. Free: 200 req/mo. $25/mo: 10k req. $75/mo: 50k req.</p>
-                    </div>
-                    <div class="door-open">
-                        <h4>Adzuna API</h4>
-                        <p>16+ countries, salary data, free tier.</p>
-                    </div>
-                    <div class="door-open">
-                        <h4>Remotive API</h4>
-                        <p>Remote jobs, free (4 req/day).</p>
-                    </div>
-                </div>
-
-                <span class="tier-label tier-2">Tier 2 - Scale Up</span>
-                <div class="card-grid" style="margin-bottom:24px;">
-                    <div class="door-open">
-                        <h4>TheirStack</h4>
-                        <p>315k+ sources, ATS platforms, company enrichment. 90 EUR/mo.</p>
-                    </div>
-                    <div class="door-open">
-                        <h4>SerpApi</h4>
-                        <p>Google Jobs with US Legal Shield. $25/mo.</p>
-                    </div>
-                </div>
-
-                <span class="tier-label tier-3">Tier 3 - Build Moat</span>
-                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:12px;">Direct ATS APIs (FREE, public, no auth needed):</p>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>ATS</th><th>Endpoint</th></tr></thead>
-                        <tbody>
-                            <tr><td><strong>Greenhouse</strong></td><td><code>GET https://api.greenhouse.io/v1/boards/{client}/jobs</code></td></tr>
-                            <tr><td><strong>Lever</strong></td><td><code>GET https://api.lever.co/v0/postings/{client}</code></td></tr>
-                            <tr><td><strong>Ashby</strong></td><td><code>GET https://api.ashbyhq.com/posting-api/job-board/{client}</code></td></tr>
-                            <tr><td><strong>Recruitee</strong></td><td><code>GET https://{client}.recruitee.com/api/offers</code></td></tr>
-                            <tr><td><strong>Workable</strong></td><td><code>GET https://apply.workable.com/api/v1/widget/accounts/{client}</code></td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <p>Three ways in, nobody left behind:</p>
+                <p><strong>1.</strong> "I have a resume" &rarr; upload it (Step 1).</p>
+                <p><strong>2.</strong> "I don't have a resume" &rarr; agent walks through education, projects, and skills, and builds the first resume from the conversation.</p>
+                <p><strong>3.</strong> "I just want to look around" &rarr; jump to the job feed with a bare-bones profile; fill it in before applying.</p>
+                <p>Users connect their email (Gmail or Outlook via OAuth) during signup for autonomous apply and response tracking. Optional <code>+jobs</code> alias for separation. Platform is a mobile-first PWA.</p>
             </div>
         </details>
 
         <details>
-            <summary>Staffing Agency Coverage</summary>
+            <summary>Step 1 &middot; Resume Upload &amp; Smart Parse</summary>
+            <div class="detail-body">
+                <p>Hand it a PDF, Word doc, or photo of a printed resume. The AI extracts contact info, location, languages, work history, skills (mapped to O*NET and ESCO), education, and certifications.</p>
+                <p>Everything is pre-filled but editable. Fields the parser isn't sure about get flagged with confidence indicators.</p>
+                <p><strong>Parsing stack:</strong> Claude Vision for scanned/multi-column/non-English resumes. Gemini Flash for clean text extraction.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 2 &middot; Know Your Worth (Location-Based Salary Calibration)</summary>
+            <div class="detail-body">
+                <p>Before applying, the agent compares the resume against real market data <strong>for the selected location</strong> and tells the user what to target:</p>
+                <p>&middot; <strong>Market arbitrage:</strong> "Your skills pull $95K remote from Lagos, $140K in Berlin, $180K in San Francisco."</p>
+                <p>&middot; <strong>Level calibration:</strong> "You qualify for Senior. You're searching Mid-level. Aim higher."</p>
+                <p>&middot; <strong>Salary range:</strong> floor / target / stretch numbers per region.</p>
+                <p>&middot; <strong>Country opportunities:</strong> "The Netherlands has strong demand for your stack, good visa sponsorship, and pays about 20% more."</p>
+                <div class="callout callout-purple">
+                    <strong>Location is the anchor.</strong> All salary recommendations, job matches, and market insights are filtered and calibrated to the location(s) the applicant selects. Users can add multiple target locations to compare.
+                </div>
+                <p><strong>Career Dreamer: "What if?"</strong> &mdash; The user can explore hypothetical scenarios. "What if I moved to Berlin as a Product Manager?" The agent builds a side-by-side salary comparison, shows the gap, and scores feasibility from 0-100. This feeds directly into Step 3's skill gap analysis for the dream role.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 3 &middot; Skill Gap Intelligence</summary>
+            <div class="detail-body">
+                <p>The agent analyzes thousands of live job postings for the user's target roles <strong>in their chosen location</strong>:</p>
+                <p>&middot; <strong>Must-have gaps:</strong> "85% of Senior Data Engineer roles in Berlin ask for Spark. You don't have it listed."</p>
+                <p>&middot; <strong>Nice-to-have gaps:</strong> "Kubernetes shows up in 40% of postings but almost never as a hard requirement."</p>
+                <p>&middot; <strong>Hidden strengths:</strong> "Only 12% of candidates in Toronto have Airflow experience. You do. Lead with that."</p>
+                <p>&middot; <strong>Upskill ROI:</strong> "An AWS cert would bump your match rate by 30% and add ~$15K in SF. Takes about 6 weeks."</p>
+                <p>&middot; <strong>Learning paths:</strong> specific courses, certs, and time estimates.</p>
+                <p><strong>Career Dreamer: Gap Report + Timeline</strong> &mdash; If the user entered a dream scenario, skill gap analysis runs against the dream role. The agent shows skill overlap %, new skills ranked by impact, and a week-by-week upskill timeline with cost and salary impact per skill.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 4 &middot; Job Discovery (All Sources, One Feed)</summary>
+            <div class="detail-body">
+                <p>Jobs from multiple sources, deduplicated into one feed:</p>
+                <p>&middot; <strong>Aggregator APIs:</strong> Adzuna, JSearch, Jooble, Reed, Arbeitnow, Remotive, The Muse.</p>
+                <p>&middot; <strong>Paste a URL:</strong> LinkedIn, company page, anywhere. The agent grabs the listing, scores it, adds it to the feed.</p>
+                <p>&middot; <strong>Company watchlist:</strong> monitors chosen companies' careers pages.</p>
+                <p>Every listing gets a 0-100 score with a plain-language explanation. The agent may suggest role expansions: "You're only looking at Data Analyst roles, but your profile is a good fit for Analytics Engineer too."</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 5 &middot; Per-Job Tailored Documents</summary>
+            <div class="detail-body">
+                <p>Every application gets its own resume. Not one generic version sent to 50 companies:</p>
+                <p>&middot; Keywords pulled from the job description for ATS optimization.</p>
+                <p>&middot; Achievements reordered and reframed for the specific role.</p>
+                <p>&middot; Cover letter with a real hook about the company.</p>
+                <p>&middot; Export as <strong>PDF, DOCX, or Markdown</strong>.</p>
+                <p>&middot; Tailoring notes show exactly what changed and why.</p>
+                <div class="callout callout-red">
+                    <strong>Nothing gets fabricated.</strong> The agent only uses verified profile data.
+                </div>
+                <p>Over time, the agent tracks which versions work: "Your technical-tone resumes get twice as many callbacks for backend roles."</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 6 &middot; Autonomous Apply (Works While You Sleep)</summary>
             <div class="detail-body">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Agency</th><th>ATS Platform</th><th>Public?</th><th>Scrapability</th><th>Volume</th></tr></thead>
+                        <thead><tr><th>Tier</th><th>Confidence</th><th>Behavior</th></tr></thead>
                         <tbody>
-                            <tr><td><strong>Robert Half</strong></td><td>Workday + custom ZEngine</td><td>Yes</td><td>HIGH</td><td>~8,500</td></tr>
-                            <tr><td><strong>Insight Global</strong></td><td>iCIMS</td><td>Yes</td><td>MODERATE</td><td>Thousands</td></tr>
-                            <tr><td><strong>TCS</strong></td><td>TCS iON (proprietary)</td><td>Partial</td><td>LOW</td><td>Very large</td></tr>
-                            <tr><td><strong>Randstad</strong></td><td>Bullhorn</td><td>Yes</td><td>MODERATE</td><td>118k+ globally</td></tr>
-                            <tr><td><strong>ManpowerGroup</strong></td><td>Oracle Taleo</td><td>Yes</td><td>MODERATE</td><td>Large</td></tr>
-                            <tr><td><strong>Adecco</strong></td><td>Custom</td><td>Yes</td><td>MODERATE</td><td>Large</td></tr>
-                            <tr><td><strong>Hays</strong></td><td>SAP SuccessFactors</td><td>Yes</td><td>MODERATE</td><td>Global</td></tr>
-                            <tr><td><strong>Michael Page</strong></td><td>Custom</td><td>Yes</td><td>MODERATE</td><td>36 countries</td></tr>
-                            <tr><td><strong>Accenture</strong></td><td>Workday</td><td>Yes</td><td>LOW-MODERATE</td><td>Very large</td></tr>
-                            <tr><td><strong>Kforce</strong></td><td>Bullhorn</td><td>Yes</td><td>MODERATE</td><td>Tech/Finance</td></tr>
-                            <tr><td><strong>TEKsystems</strong></td><td>Bullhorn</td><td>Yes</td><td>MODERATE</td><td>80k+ contractors</td></tr>
+                            <tr><td><strong>AUTO-APPLY</strong></td><td>80-100%</td><td>Sent automatically on safe channels</td></tr>
+                            <tr><td><strong>REVIEW</strong></td><td>50-79%</td><td>Prepared with drafts, held for user approval</td></tr>
+                            <tr><td><strong>SKIP</strong></td><td>Below 50%</td><td>Not worth the user's time, visible with reasons</td></tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="callout callout-amber" style="margin-top:12px;">
-                    <strong>Note:</strong> JSearch API already indexes most staffing agency public listings via Google for Jobs. Direct scraping is a Tier 3 enhancement.
-                </div>
-                <div style="margin-top:16px;">
-                    <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:8px;"><strong style="color:var(--text);">ATS platforms WITH public APIs:</strong> Greenhouse, Lever, Ashby, Recruitee, Workable</p>
-                    <p style="font-size:0.88rem;color:var(--text-secondary);"><strong style="color:var(--text);">ATS platforms WITHOUT public APIs:</strong> Workday, iCIMS, Oracle Taleo, Bullhorn, TCS iON</p>
-                </div>
+                <p><strong>Safe channels (fully autonomous):</strong> Email applications, company career pages, open API boards (Arbeitnow, Remotive).</p>
+                <p><strong>Risky channels (one-tap approval):</strong> LinkedIn, Indeed, Workday, Greenhouse. Pre-filled and saved as drafts. User batch-approves each morning.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 7 &middot; Response Tracking &amp; Pipeline</summary>
+            <div class="detail-body">
+                <p>&middot; Every application is tracked: submitted &rarr; under review &rarr; interview &rarr; offer/rejected.</p>
+                <p>&middot; <strong>Email monitoring via OAuth:</strong> the agent reads employer replies, classifies them (rejection, interview invite, follow-up request, offer), and auto-updates the pipeline.</p>
+                <p>&middot; <strong>Interview detected?</strong> "You've got an interview at Stripe, Thursday 2pm. Want me to add it to your calendar? Here's a prep doc."</p>
+                <p>&middot; <strong>Ghosted for 7 days?</strong> The agent drafts a follow-up email for review.</p>
+                <p>&middot; All employer feedback is logged and analyzed across full application history.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>Step 8 &middot; AI Career Advisor</summary>
+            <div class="detail-body">
+                <p>Not just a form filler. A strategic advisor that improves with use:</p>
+                <p>&middot; <strong>Weekly brief:</strong> "34 applications this week. 8 callbacks (24%, up from 15%). Fintech is your strongest sector."</p>
+                <p>&middot; <strong>Pivot suggestions:</strong> "You keep getting turned down for Staff roles. Senior is a stronger fit right now."</p>
+                <p>&middot; <strong>Salary negotiation:</strong> "They offered $130K. For your profile in this market, $145K is more in line. Here's a counter script."</p>
+                <p>&middot; <strong>Interview prep:</strong> mock interviews tailored to the role, common questions for the company, research brief.</p>
+                <p>&middot; <strong>Honest assessment:</strong> "This one's a stretch. Here's what you'd need to close the gap."</p>
+                <p><strong>Career Dreamer: Ongoing Tracking + Pivot Intelligence</strong> &mdash; Saved dream goals live here. The advisor re-scores feasibility as the user gains experience and connects rejection patterns to dream goals: "Your Finance applications have a 35% callback rate. Have you considered a FinTech product role?"</p>
             </div>
         </details>
     </div>
 </section>
 
-<!-- SECTION 5: Compliance -->
-<section id="compliance">
+<!-- SECTION 4: Analytics Dashboard -->
+<section id="dashboard">
     <div class="container reveal">
-        <p class="section-label">Regulatory</p>
-        <h2>EU AI Act &amp; GDPR Compliance</h2>
-        <p class="section-sub">Interactive compliance checklist. Click items to mark progress.</p>
+        <p class="section-label">Command Center</p>
+        <h2>Analytics Dashboard</h2>
+        <p class="section-sub">The user's command center for understanding job search performance. Four sections, top to bottom.</p>
 
         <div class="tabs">
-            <div class="tab-btns" data-tabgroup="compliance">
-                <button class="tab-btn active" data-tab="comp-euai">EU AI Act</button>
-                <button class="tab-btn" data-tab="comp-gdpr">GDPR</button>
-                <button class="tab-btn" data-tab="comp-advantage">Privacy Advantage</button>
+            <div class="tab-btns" data-tabgroup="dashboard">
+                <button class="tab-btn active" data-tab="dash-kpi">KPI Cards</button>
+                <button class="tab-btn" data-tab="dash-pipeline">Pipeline</button>
+                <button class="tab-btn" data-tab="dash-charts">Charts</button>
+                <button class="tab-btn" data-tab="dash-insights">AI Insights</button>
+                <button class="tab-btn" data-tab="dash-api">API</button>
             </div>
 
-            <div class="tab-panel active" id="comp-euai">
-                <div class="callout callout-red" style="margin-bottom:20px;">
-                    <strong>Classification: HIGH-RISK</strong> (Annex III, Section 4: Employment AI)<br>
-                    <strong>Deadline:</strong> August 2, 2026 (possible extension to Dec 2027)<br>
-                    <strong>Penalties:</strong> Up to EUR 15M or 3% global turnover
-                </div>
-                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Required Controls</h3>
-                <ul class="checklist" id="euai-checklist">
-                    <li><span class="check-box">&#10003;</span> Risk Management System <span class="article-ref">Art. 9</span></li>
-                    <li><span class="check-box">&#10003;</span> Data Governance &amp; Bias Testing <span class="article-ref">Art. 10</span></li>
-                    <li><span class="check-box">&#10003;</span> Technical Documentation <span class="article-ref">Art. 11</span></li>
-                    <li><span class="check-box">&#10003;</span> Automatic Event Logging, 6+ month retention <span class="article-ref">Art. 12</span></li>
-                    <li><span class="check-box">&#10003;</span> Transparency to Users <span class="article-ref">Art. 13</span></li>
-                    <li><span class="check-box">&#10003;</span> Human Oversight / Override capability <span class="article-ref">Art. 14</span></li>
-                    <li><span class="check-box">&#10003;</span> Accuracy &amp; Robustness Testing <span class="article-ref">Art. 15</span></li>
-                    <li><span class="check-box">&#10003;</span> Quality Management System <span class="article-ref">Art. 17</span></li>
-                    <li><span class="check-box">&#10003;</span> Conformity Self-Assessment <span class="article-ref">Art. 43</span></li>
-                    <li><span class="check-box">&#10003;</span> EU Database Registration <span class="article-ref">Art. 49</span></li>
-                    <li><span class="check-box">&#10003;</span> Fundamental Rights Impact Assessment <span class="article-ref">Art. 27</span></li>
-                </ul>
-            </div>
-
-            <div class="tab-panel" id="comp-gdpr">
-                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">GDPR Required Controls</h3>
-                <ul class="checklist" id="gdpr-checklist">
-                    <li><span class="check-box">&#10003;</span> Consent Management - explicit opt-in for AI processing <span class="article-ref">Art. 6</span></li>
-                    <li><span class="check-box">&#10003;</span> Right to Explanation - show why jobs were recommended <span class="article-ref">Art. 22</span></li>
-                    <li><span class="check-box">&#10003;</span> Data Portability API - export user data as JSON/CSV <span class="article-ref">Art. 20</span></li>
-                    <li><span class="check-box">&#10003;</span> Right to Erasure API - full deletion within 30 days <span class="article-ref">Art. 17</span></li>
-                    <li><span class="check-box">&#10003;</span> Data Minimization - collect only necessary data <span class="article-ref">Art. 5</span></li>
-                    <li><span class="check-box">&#10003;</span> Privacy Impact Assessment - DPIA before launch <span class="article-ref">Art. 35</span></li>
-                    <li><span class="check-box">&#10003;</span> DPA with Supabase - sign Data Processing Agreement <span class="article-ref">DPA</span></li>
-                    <li><span class="check-box">&#10003;</span> EU Hosting - Supabase Frankfurt (eu-central-1) <span class="article-ref">Ch. V</span></li>
-                </ul>
-            </div>
-
-            <div class="tab-panel" id="comp-advantage">
-                <h3 style="font-size:1rem;margin-bottom:16px;color:var(--text);">Our Privacy Advantage</h3>
+            <div class="tab-panel active" id="dash-kpi">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Section 1: KPI Cards (top row)</h3>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Control</th><th>Us</th><th>Jobright</th><th>Simplify</th><th>LazyApply</th></tr></thead>
+                        <thead><tr><th>Card</th><th>Value</th><th>Subtext</th></tr></thead>
                         <tbody>
-                            <tr><td><strong>Data location</strong></td><td class="priv-us">EU (Supabase Frankfurt)</td><td class="priv-them">US Cloud</td><td class="priv-them">US Cloud</td><td class="priv-them">US Cloud</td></tr>
-                            <tr><td><strong>PII encryption</strong></td><td class="priv-us">AES-256-GCM app-level + DB-level</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td></tr>
-                            <tr><td><strong>Data sent to LLM</strong></td><td class="priv-us">Sanitized only (skills, location)</td><td class="priv-them">Full resume</td><td class="priv-them">Full resume</td><td class="priv-them">Full resume</td></tr>
-                            <tr><td><strong>Browser extension</strong></td><td class="priv-us">None needed</td><td class="priv-them">Required</td><td class="priv-them">Required</td><td class="priv-them">Required</td></tr>
-                            <tr><td><strong>EU AI Act ready</strong></td><td class="priv-us">In progress</td><td class="priv-them">No</td><td class="priv-them">No</td><td class="priv-them">No</td></tr>
-                            <tr><td><strong>GDPR controls</strong></td><td class="priv-us">Built-in</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td><td class="priv-them">Unknown</td></tr>
+                            <tr><td>Total Applications</td><td>Count</td><td>"+N this week"</td></tr>
+                            <tr><td>Response Rate</td><td>Percentage</td><td>"N replied out of M submitted"</td></tr>
+                            <tr><td>Interview Rate</td><td>Percentage</td><td>"N interviews out of M submitted"</td></tr>
+                            <tr><td>Avg Days to Reply</td><td>Number</td><td>"from submission to first response"</td></tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div class="tab-panel" id="dash-pipeline">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Section 2: Pipeline Visualization</h3>
+                <p style="font-size:0.88rem;color:var(--text-secondary);">A horizontal funnel or stacked bar showing application counts by status:</p>
+                <div class="arch-diagram" style="margin-top:12px;">DRAFT &rarr; SUBMITTED &rarr; UNDER_REVIEW &rarr; INTERVIEW &rarr; OFFER / REJECTED / WITHDRAWN</div>
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-top:12px;">Each stage shows count and percentage of total. Clicking a stage filters the application list below.</p>
+            </div>
+
+            <div class="tab-panel" id="dash-charts">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Section 3: Breakdown Charts (two columns)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Left Column</th><th>Right Column</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>By Status</strong> &mdash; donut chart showing distribution across 7 statuses</td><td><strong>By Industry</strong> &mdash; horizontal bar chart of top 5 industries by application count</td></tr>
+                            <tr><td><strong>By Platform</strong> &mdash; horizontal bar chart of top 5 source platforms</td><td><strong>Response Timeline</strong> &mdash; line chart showing response rate trend over past 4 weeks</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-top:12px;">Frontend: Chart.js for charts. HTML/CSS funnel (no charting library required for v1).</p>
+            </div>
+
+            <div class="tab-panel" id="dash-insights">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Section 4: AI Insights Panel</h3>
+                <p style="font-size:0.88rem;color:var(--text-secondary);">&middot; 3-5 bullet points of actionable advice generated by Claude from the raw metrics.</p>
+                <p style="font-size:0.88rem;color:var(--text-secondary);">&middot; A "Refresh Insights" button that re-queries the LLM.</p>
+                <p style="font-size:0.88rem;color:var(--text-secondary);">&middot; Employer feedback themes (if feedback exists): top 3 recurring themes, most common rejection reason, 2 action items.</p>
+            </div>
+
+            <div class="tab-panel" id="dash-api">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Dashboard API Requirements</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Endpoint</th><th>Method</th><th>Returns</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>/api/dashboard/kpis</code></td><td>GET</td><td><code>{ total, response_rate, interview_rate, offer_rate, avg_days_to_reply }</code></td></tr>
+                            <tr><td><code>/api/dashboard/pipeline</code></td><td>GET</td><td><code>{ by_status: { status: count } }</code></td></tr>
+                            <tr><td><code>/api/dashboard/charts</code></td><td>GET</td><td><code>{ by_industry, by_platform, weekly_response_rates }</code></td></tr>
+                            <tr><td><code>/api/dashboard/insights</code></td><td>GET</td><td><code>{ bullets, feedback_themes }</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-amber" style="margin-top:12px;">All endpoints require <code>X-Session-ID</code> header. All return JSON.</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- SECTION 6: Feature Matrix -->
+<!-- SECTION 5: Feature Map -->
 <section id="features">
     <div class="container reveal">
         <p class="section-label">Product Scope</p>
-        <h2>Feature Matrix</h2>
-        <p class="section-sub">Full feature inventory with status, priority, and sprint assignment.</p>
+        <h2>Feature Map</h2>
+        <p class="section-sub">Full feature inventory with status across nine categories.</p>
 
         <div class="progress-wrap" style="margin-bottom:24px;">
-            <div class="progress-label"><span>Overall Completion</span><span>7 of 20 features done (35%)</span></div>
-            <div class="progress-bar"><div class="progress-fill" data-width="35"></div></div>
+            <div class="progress-label"><span>Overall Completion</span><span>Phase 1 complete &middot; Phase 2 in progress</span></div>
+            <div class="progress-bar"><div class="progress-fill" data-width="55"></div></div>
+        </div>
+
+        <div class="callout callout-purple" style="margin-bottom:16px;">
+            <strong>Legend:</strong> &#9989; Built &middot; &#128679; In Progress &middot; &#128203; Planned
         </div>
 
         <details open>
-            <summary>Current Features <span style="margin-left:auto;"><span class="badge badge-done">Done</span></span></summary>
+            <summary>Onboarding &amp; Profile</summary>
             <div class="detail-body">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
                         <tbody>
-                            <tr><td>Agentic Claude loop (tool-use)</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
-                            <tr><td>Resume generation with tailoring</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
-                            <tr><td>Cover letter generation</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
-                            <tr><td>Application tracking CRUD</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
-                            <tr><td>Market intelligence</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
-                            <tr><td>Privacy pipeline (AES-256-GCM, PII scrub)</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
-                            <tr><td>FastAPI + Web UI</td><td><span class="badge badge-done">Done</span></td><td>-</td><td>-</td></tr>
+                            <tr><td>Resume upload &amp; AI parse</td><td><span class="badge badge-done">Built</span></td><td>PDF, DOCX, image &rarr; structured profile via <code>/api/parse-resume</code></td></tr>
+                            <tr><td>Smart autofill with confidence</td><td><span class="badge badge-planned">Planned</span></td><td>Fields flagged when parser is uncertain</td></tr>
+                            <tr><td>Profile wizard (manual entry)</td><td><span class="badge badge-done">Built</span></td><td>Rich CLI questionnaire</td></tr>
+                            <tr><td>No-resume conversational onboarding</td><td><span class="badge badge-planned">Planned</span></td><td>Agent builds profile from Q&amp;A</td></tr>
+                            <tr><td>O*NET / ESCO skill mapping</td><td><span class="badge badge-planned">Planned</span></td><td>Standardized skill taxonomy</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1199,16 +1030,19 @@
         </details>
 
         <details>
-            <summary>Phase 1: Table Stakes <span style="margin-left:auto;"><span class="badge badge-planned">Sprint 1</span></span></summary>
+            <summary>Job Discovery</summary>
             <div class="detail-body">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
                         <tbody>
-                            <tr><td>Real job data (JSearch API)</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
-                            <tr><td>ATS keyword scoring</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
-                            <tr><td>PDF/DOCX export</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
-                            <tr><td>Supabase migration</td><td><span class="badge badge-planned">Planned</span></td><td>P0</td><td>Sprint 1</td></tr>
+                            <tr><td>Search with mock data</td><td><span class="badge badge-done">Built</span></td><td>8 curated job listings</td></tr>
+                            <tr><td>LLM-based match scoring (0-100)</td><td><span class="badge badge-done">Built</span></td><td>Bias-free, skill-based</td></tr>
+                            <tr><td>Location-based filtering</td><td><span class="badge badge-done">Built</span></td><td>Substring match + remote toggle</td></tr>
+                            <tr><td>Real job board API adapters</td><td><span class="badge badge-done">Built</span></td><td>JSearch (Indeed/LinkedIn/Glassdoor) + Adzuna fallback</td></tr>
+                            <tr><td>Company watchlists</td><td><span class="badge badge-planned">Planned</span></td><td>Monitor careers pages for new postings</td></tr>
+                            <tr><td>Paste-a-URL import</td><td><span class="badge badge-planned">Planned</span></td><td>Scrape any job listing URL</td></tr>
+                            <tr><td>Cross-board deduplication</td><td><span class="badge badge-planned">Planned</span></td><td>Same job on 3 boards = shown once</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1216,17 +1050,18 @@
         </details>
 
         <details>
-            <summary>Phase 2: Competitive <span style="margin-left:auto;"><span class="badge badge-planned">Sprint 2-3</span></span></summary>
+            <summary>Documents</summary>
             <div class="detail-body">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
                         <tbody>
-                            <tr><td>Dashboard (KPIs, pipeline, charts)</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 2</td></tr>
-                            <tr><td>Career Dreamer (gap analysis)</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 2</td></tr>
-                            <tr><td>Salary benchmarks (BLS/Eurostat)</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 2</td></tr>
-                            <tr><td>Interview prep tool</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 3</td></tr>
-                            <tr><td>Guided Apply flow</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 3</td></tr>
+                            <tr><td>Tailored resume generation</td><td><span class="badge badge-done">Built</span></td><td>3 tones: professional, creative, technical</td></tr>
+                            <tr><td>Tailored cover letter generation</td><td><span class="badge badge-done">Built</span></td><td>3-4 paragraphs, region-aware</td></tr>
+                            <tr><td>Improvement suggestions</td><td><span class="badge badge-done">Built</span></td><td>5-7 actionable items</td></tr>
+                            <tr><td>PDF/DOCX export</td><td><span class="badge badge-planned">Planned</span></td><td>Currently Markdown only</td></tr>
+                            <tr><td>Document version tracking</td><td><span class="badge badge-planned">Planned</span></td><td>Schema exists, not wired</td></tr>
+                            <tr><td>A/B learning (which versions convert)</td><td><span class="badge badge-planned">Planned</span></td><td>Track callback rates by tone/style</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1234,18 +1069,115 @@
         </details>
 
         <details>
-            <summary>Phase 3: Differentiation <span style="margin-left:auto;"><span class="badge badge-planned">Sprint 3-6</span></span></summary>
+            <summary>Application Tracking</summary>
             <div class="detail-body">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Feature</th><th>Status</th><th>Priority</th><th>Sprint</th></tr></thead>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
                         <tbody>
-                            <tr><td>GDPR/EU AI Act compliance layer</td><td><span class="badge badge-planned">Planned</span></td><td>P1</td><td>Sprint 3</td></tr>
-                            <tr><td>Employer Portal (coming soon page)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 4</td></tr>
-                            <tr><td>Employer job posting (free tier)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 5</td></tr>
-                            <tr><td>Career Memory (pattern analysis)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 5</td></tr>
-                            <tr><td>Employer intelligence (company scores)</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 6</td></tr>
-                            <tr><td>Multi-currency salary benchmarks</td><td><span class="badge badge-planned">Planned</span></td><td>P2</td><td>Sprint 6</td></tr>
+                            <tr><td>CRUD application records</td><td><span class="badge badge-done">Built</span></td><td>SQLite persistence</td></tr>
+                            <tr><td>7-status workflow</td><td><span class="badge badge-done">Built</span></td><td>DRAFT &rarr; SUBMITTED &rarr; ... &rarr; OFFER/REJECTED</td></tr>
+                            <tr><td>Employer feedback logging</td><td><span class="badge badge-done">Built</span></td><td>Free-text per application</td></tr>
+                            <tr><td>Interview date tracking</td><td><span class="badge badge-planned">In Progress</span></td><td>Schema exists, not populated by tools</td></tr>
+                            <tr><td>Application cooldown</td><td><span class="badge badge-planned">In Progress</span></td><td>Config exists, not enforced</td></tr>
+                            <tr><td>Autonomous apply (channel-aware)</td><td><span class="badge badge-planned">Planned</span></td><td>Auto on safe channels, queued on risky</td></tr>
+                            <tr><td>Email integration (OAuth)</td><td><span class="badge badge-planned">Planned</span></td><td>Gmail/Outlook response tracking</td></tr>
+                            <tr><td>Morning briefing notification</td><td><span class="badge badge-planned">Planned</span></td><td>Overnight activity summary</td></tr>
+                            <tr><td>Auto follow-up drafts</td><td><span class="badge badge-planned">Planned</span></td><td>Ghosted 7 days &rarr; draft follow-up</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Analytics &amp; Dashboard</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td>Response/interview/offer rates</td><td><span class="badge badge-done">Built</span></td><td>Computed from application data</td></tr>
+                            <tr><td>Avg days-to-reply</td><td><span class="badge badge-done">Built</span></td><td>Submission &rarr; first response</td></tr>
+                            <tr><td>Top industries &amp; platforms</td><td><span class="badge badge-done">Built</span></td><td>Aggregated from applications</td></tr>
+                            <tr><td>AI-generated insights</td><td><span class="badge badge-done">Built</span></td><td>3-5 actionable bullets via LLM</td></tr>
+                            <tr><td>Feedback pattern analysis</td><td><span class="badge badge-done">Built</span></td><td>Rejection themes + action items</td></tr>
+                            <tr><td>KPI cards, pipeline, charts UI</td><td><span class="badge badge-done">Built</span></td><td>Analytics Dashboard UI shipped</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Market Intelligence</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td>Region/industry analysis</td><td><span class="badge badge-done">Built</span></td><td>LLM-synthesized market data</td></tr>
+                            <tr><td>Culturally-aware tips</td><td><span class="badge badge-done">Built</span></td><td>CV format, interview etiquette by region</td></tr>
+                            <tr><td>Location-based salary calibration</td><td><span class="badge badge-done">Built</span></td><td>LLM estimates via MarketIntelligenceService</td></tr>
+                            <tr><td>Skill gap analysis with $ ROI</td><td><span class="badge badge-done">Built</span></td><td><code>analyze_skill_gaps</code> tool with upskill ROI</td></tr>
+                            <tr><td>Level calibration</td><td><span class="badge badge-planned">Planned</span></td><td>"You qualify for Senior, stop searching Mid"</td></tr>
+                            <tr><td>Country/region arbitrage</td><td><span class="badge badge-planned">Planned</span></td><td>Compare salary across target locations</td></tr>
+                            <tr><td>Career Dreamer: what-if builder</td><td><span class="badge badge-done">Built</span></td><td>Gap report + salary comparison via <code>career_dreamer</code></td></tr>
+                            <tr><td>Career Dreamer: feasibility scorer</td><td><span class="badge badge-done">Built</span></td><td>Data-backed dream score via <code>score_feasibility()</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Career Advisor</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td>Weekly performance brief</td><td><span class="badge badge-planned">Planned</span></td><td>Response rates, best sectors, tone analysis</td></tr>
+                            <tr><td>Pivot suggestions</td><td><span class="badge badge-planned">Planned</span></td><td>"Aim for Senior, not Staff"</td></tr>
+                            <tr><td>Salary negotiation scripts</td><td><span class="badge badge-planned">Planned</span></td><td>Counter-offer with market data</td></tr>
+                            <tr><td>Interview prep &amp; mock interviews</td><td><span class="badge badge-planned">Planned</span></td><td>Role-specific, company-researched</td></tr>
+                            <tr><td>Upskill recommendations</td><td><span class="badge badge-planned">Planned</span></td><td>Courses, certs, time estimates, $ value</td></tr>
+                            <tr><td>Career Dreamer: gap report + timeline</td><td><span class="badge badge-done">Built</span></td><td>Week-by-week timeline via CareerDreamer</td></tr>
+                            <tr><td>Career Dreamer: dream goal tracker</td><td><span class="badge badge-planned">Planned</span></td><td>Saved goals, re-scored as user progresses</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Privacy &amp; Security</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td>AES-256-GCM PII encryption</td><td><span class="badge badge-done">Built</span></td><td>PBKDF2 key derivation, 390K iterations</td></tr>
+                            <tr><td>LLM field sanitization</td><td><span class="badge badge-done">Built</span></td><td>Only safe fields sent to LLM</td></tr>
+                            <tr><td>Protected attribute stripping</td><td><span class="badge badge-done">Built</span></td><td>Gender, age, race, etc. removed before scoring</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Interface</summary>
+            <div class="detail-body">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td>Rich terminal CLI</td><td><span class="badge badge-done">Built</span></td><td>Profile wizard, 6-option menu, free chat</td></tr>
+                            <tr><td>FastAPI HTTP API</td><td><span class="badge badge-done">Built</span></td><td>20+ endpoints with <code>/api/</code> prefix</td></tr>
+                            <tr><td>HTML frontend (SPA)</td><td><span class="badge badge-done">Built</span></td><td>Landing page + dashboard, served at <code>/</code></td></tr>
+                            <tr><td>Session management</td><td><span class="badge badge-done">Built</span></td><td>In-memory, per-UUID</td></tr>
+                            <tr><td>Mobile-first PWA</td><td><span class="badge badge-planned">Planned</span></td><td>Designed in product vision</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1254,91 +1186,304 @@
     </div>
 </section>
 
-<!-- SECTION 7: Monetization -->
-<section id="monetization">
+<!-- SECTION 6: Salary & Market Data Strategy -->
+<section id="market">
     <div class="container reveal">
-        <p class="section-label">Business Model</p>
-        <h2>Monetization Strategy</h2>
-        <p class="section-sub">Tiered pricing for job seekers and employers.</p>
+        <p class="section-label">Data Strategy</p>
+        <h2>Salary &amp; Market Data Strategy</h2>
+        <p class="section-sub">All salary recommendations, job matches, and market insights are anchored to the applicant's selected location(s).</p>
 
-        <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Job Seeker Plans</h3>
-        <div class="pricing-grid" style="margin-bottom:36px;">
-            <div class="pricing-card">
-                <h3>Free</h3>
-                <div class="price">$0</div>
-                <div class="price-sub">forever</div>
-                <ul>
-                    <li>5 job searches/day</li>
-                    <li>3 resume generations/month</li>
-                    <li>Basic application tracking</li>
-                    <li>Community support</li>
-                </ul>
+        <div class="tabs">
+            <div class="tab-btns" data-tabgroup="market">
+                <button class="tab-btn active" data-tab="market-t1">Tier 1: Free, Use Now</button>
+                <button class="tab-btn" data-tab="market-t2">Tier 2: Paid</button>
+                <button class="tab-btn" data-tab="market-t3">Tier 3: Not Viable</button>
+                <button class="tab-btn" data-tab="market-how">How It Works</button>
+                <button class="tab-btn" data-tab="market-company">Company Insights</button>
             </div>
-            <div class="pricing-card featured">
-                <h3>Pro</h3>
-                <div class="price">$19</div>
-                <div class="price-sub">per month</div>
-                <ul>
-                    <li>Unlimited job searches</li>
-                    <li>Unlimited document generation</li>
-                    <li>ATS scoring</li>
-                    <li>Career Dreamer</li>
-                    <li>Salary benchmarks</li>
-                    <li>Priority support</li>
-                    <li>PDF/DOCX export</li>
-                </ul>
-            </div>
-            <div class="pricing-card">
-                <h3>Team</h3>
-                <div class="price">$49</div>
-                <div class="price-sub">per month</div>
-                <ul>
-                    <li>Everything in Pro</li>
-                    <li>Interview prep</li>
-                    <li>Career Memory analytics</li>
-                    <li>API access</li>
-                    <li>Guided Apply batches</li>
-                </ul>
-            </div>
-        </div>
 
-        <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--text);">Employer Plans <span class="badge badge-planned" style="margin-left:8px;">Coming Soon</span></h3>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Free</h3>
-                <div class="price">$0</div>
-                <div class="price-sub">3 job posts/month</div>
-                <ul>
-                    <li>3 job posts per month</li>
-                    <li>Basic candidate visibility</li>
-                </ul>
+            <div class="tab-panel active" id="market-t1">
+                <div class="card-grid">
+                    <div class="door-open">
+                        <h4>BLS OEWS API</h4>
+                        <p>Occupation-level wages by area &amp; industry. Free &middot; 500 queries/day.</p>
+                    </div>
+                    <div class="door-open">
+                        <h4>H-1B LCA Data</h4>
+                        <p>Company-specific salaries. DOL bulk download. Free &middot; millions of records.</p>
+                    </div>
+                    <div class="door-open">
+                        <h4>Job Posting Salaries</h4>
+                        <p>Parsed from listings. Pay transparency laws. Free &middot; real-time.</p>
+                    </div>
+                </div>
             </div>
-            <div class="pricing-card">
-                <h3>Pro</h3>
-                <div class="price">$99</div>
-                <div class="price-sub">per month</div>
-                <ul>
-                    <li>Unlimited job posts</li>
-                    <li>Anonymized candidate matching</li>
-                    <li>Priority listing placement</li>
-                </ul>
+
+            <div class="tab-panel" id="market-t2">
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Levels.fyi API</h4>
+                        <p>Tech comp by company/level. Supports AI agents. Enterprise pricing.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Salary.com DaaS</h4>
+                        <p>HR-reported comp data. AI integration docs. Enterprise pricing.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lightcast API</h4>
+                        <p>Labor market analytics and career pathways. Commercial license.</p>
+                    </div>
+                </div>
             </div>
-            <div class="pricing-card">
-                <h3>Enterprise</h3>
-                <div class="price">$499</div>
-                <div class="price-sub">per month</div>
-                <ul>
-                    <li>Everything in Pro</li>
-                    <li>API access</li>
-                    <li>Analytics dashboard</li>
-                    <li>Custom integrations</li>
-                </ul>
+
+            <div class="tab-panel" id="market-t3">
+                <div class="card-grid">
+                    <div class="door-closed">
+                        <h4>Glassdoor</h4>
+                        <p>API shut down in 2021.</p>
+                    </div>
+                    <div class="door-closed">
+                        <h4>LinkedIn</h4>
+                        <p>No salary API.</p>
+                    </div>
+                    <div class="door-closed">
+                        <h4>Indeed</h4>
+                        <p>API deprecated.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="market-how">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">How It Works</h3>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;"><strong>1.</strong> User selects location(s) during profile setup or job search.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;"><strong>2.</strong> BLS OEWS provides baseline median/mean wages by SOC occupation code + metro area.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;"><strong>3.</strong> H-1B LCA data adds company-specific salary data (strong for tech).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;"><strong>4.</strong> Job posting ranges extracted from listings (pay transparency laws in NY, CA, CO, WA).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;"><strong>5.</strong> LLM layer synthesizes all sources into actionable recommendations.</p>
+                <div class="callout callout-green">Every salary number shows its source and when it was last updated.</div>
+            </div>
+
+            <div class="tab-panel" id="market-company">
+                <h3 style="font-size:1rem;margin-bottom:12px;color:var(--text);">Company Insights (Without Glassdoor)</h3>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>LLM knowledge:</strong> Claude/Gemini have trained on extensive company data (funding, culture signals, tech stack).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>Public data:</strong> Crunchbase (funding), GitHub (tech stack), press/news.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>User-contributed:</strong> As users track applications and log feedback, the platform builds its own dataset.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);">&middot; <strong>Lightcast</strong> (if budget allows): company profiles and labor market analytics.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- SECTION 8: Risk Register -->
+<!-- SECTION 7: Multi-Agent Architecture -->
+<section id="agents">
+    <div class="container reveal">
+        <p class="section-label">System Design</p>
+        <h2>Multi-Agent Architecture</h2>
+        <p class="section-sub">Ten specialized agents, each running on the optimal model through OpenRouter for cost efficiency.</p>
+
+        <div class="tabs">
+            <div class="tab-btns" data-tabgroup="agents">
+                <button class="tab-btn active" data-tab="ag-flash">Gemini Flash (70%)</button>
+                <button class="tab-btn" data-tab="ag-mid">Gemini Pro / Haiku (25%)</button>
+                <button class="tab-btn" data-tab="ag-sonnet">Claude Sonnet</button>
+                <button class="tab-btn" data-tab="ag-cost">Blended Cost</button>
+            </div>
+
+            <div class="tab-panel active" id="ag-flash">
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">70% of calls, lowest cost.</p>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Scout Agent</h4>
+                        <p>Job APIs, dedup, URL parsing, career page monitoring.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Inbox Agent</h4>
+                        <p>Email OAuth monitoring, reply classification.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="ag-mid">
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">25% of calls, mid-tier cost.</p>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Match Agent</h4>
+                        <p>Job scoring vs profile, confidence numbers.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Analytics Agent</h4>
+                        <p>Outcome tracking, conversion patterns.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Apply Agent</h4>
+                        <p>Email sending, form filling, channel-aware submission.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Privacy Agent</h4>
+                        <p>Encryption, PII scrubbing, OAuth token management.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="ag-sonnet">
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">Quality-critical writing.</p>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Writer Agent</h4>
+                        <p>Resumes, cover letters, version tracking.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Market Agent</h4>
+                        <p>Salary data, skill demand, regional trends.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Advisor Agent</h4>
+                        <p>Weekly briefs, negotiation, pivot suggestions.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Parser Agent</h4>
+                        <p>Resume parsing (PDF/Word/photo), structured profile extraction.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="ag-cost">
+                <div class="callout callout-green">
+                    <strong>Blended cost: ~$1.50-3 per user per month.</strong> Gemini Flash carries most of the load at near-zero cost. Claude Sonnet handles the 25% where writing quality matters. Opus fires only for edge cases (~5%).
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 8: Data Model -->
+<section id="data">
+    <div class="container reveal">
+        <p class="section-label">Persistence</p>
+        <h2>Data Model</h2>
+        <p class="section-sub">Core entities, key relationships, and new additions versus v1.0.</p>
+
+        <h3 style="font-size:1.05rem;margin-bottom:12px;color:var(--text);">Entities</h3>
+        <div class="card-grid" style="margin-bottom:24px;">
+            <div class="card">
+                <h4>user_profiles</h4>
+                <p>Encrypted PII, target_locations, skills, experience, desired_roles, salary_range, work_history, resume_raw_path, parse_confidence.</p>
+            </div>
+            <div class="card">
+                <h4>job_listings</h4>
+                <p>Title, company, remote_allowed, requirements, salary, salary_market_context, source_platform, match_score, dedup_hash.</p>
+            </div>
+            <div class="card">
+                <h4>application_records</h4>
+                <p>Status, apply_channel, confidence_tier, interview_dates, employer_feedback, resume_version_id.</p>
+            </div>
+            <div class="card">
+                <h4>market_insights</h4>
+                <p>Region, industry, top_skills_in_demand, avg_salary_usd, job_growth_pct, cultural_notes, salary_sources.</p>
+            </div>
+            <div class="card">
+                <h4>generated_documents</h4>
+                <p>Doc_type, tone, content, tailoring_notes, callback_rate.</p>
+            </div>
+            <div class="card">
+                <h4>salary_benchmarks</h4>
+                <p>Occupation_code, location, median/p25/p75 salary, source, currency, last_updated.</p>
+            </div>
+        </div>
+
+        <h3 style="font-size:1.05rem;margin-bottom:12px;color:var(--text);">Key Relationships</h3>
+        <div class="table-wrap" style="margin-bottom:24px;">
+            <table>
+                <tbody>
+                    <tr><td><strong>User &rarr; Applications</strong></td><td>One user has many applications (1:N)</td></tr>
+                    <tr><td><strong>Job &rarr; Applications</strong></td><td>One job listing can have one application per user (1:N)</td></tr>
+                    <tr><td><strong>User &rarr; Documents</strong></td><td>One user generates many resumes/cover letters (1:N)</td></tr>
+                    <tr><td><strong>Job &rarr; Documents</strong></td><td>Each document is tailored for a specific job (1:N)</td></tr>
+                    <tr><td><strong>Application &rarr; Document</strong></td><td>Each application tracks which resume version was used</td></tr>
+                    <tr><td><strong>Salary Benchmarks &rarr; Market Insights</strong></td><td>Benchmark data feeds into market analysis</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="font-size:1.05rem;margin-bottom:12px;color:var(--text);">New Entities (vs v1.0)</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Entity</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><code>SALARY_BENCHMARKS</code></td><td>Location-specific salary data from BLS, H-1B, and job postings</td></tr>
+                    <tr><td><code>target_locations</code> on USER_PROFILES</td><td>Array of user's chosen locations; anchors all recommendations</td></tr>
+                    <tr><td><code>salary_market_context</code> on JOB_LISTINGS</td><td>How a job's salary compares to market for that location</td></tr>
+                    <tr><td><code>apply_channel</code> / <code>confidence_tier</code> on APPLICATION_RECORDS</td><td>Tracks autonomous apply channel and tier</td></tr>
+                    <tr><td><code>resume_version_id</code> on APPLICATION_RECORDS</td><td>Links to document version used (for A/B learning)</td></tr>
+                    <tr><td><code>callback_rate</code> on GENERATED_DOCUMENTS</td><td>Tracks which resume/cover letter versions lead to callbacks</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 9: Non-Functional Requirements -->
+<section id="nfrs">
+    <div class="container reveal">
+        <p class="section-label">Quality Attributes</p>
+        <h2>Non-Functional Requirements</h2>
+        <p class="section-sub">Performance, security, scalability, and reliability targets.</p>
+
+        <div class="tabs">
+            <div class="tab-btns" data-tabgroup="nfrs">
+                <button class="tab-btn active" data-tab="nfr-perf">Performance</button>
+                <button class="tab-btn" data-tab="nfr-sec">Security</button>
+                <button class="tab-btn" data-tab="nfr-scale">Scalability</button>
+                <button class="tab-btn" data-tab="nfr-rel">Reliability</button>
+            </div>
+
+            <div class="tab-panel active" id="nfr-perf">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+                        <tbody>
+                            <tr><td>Resume parsing (PDF/DOCX)</td><td>&lt; 8s</td></tr>
+                            <tr><td>Resume parsing (image/scan)</td><td>&lt; 15s (Claude Vision)</td></tr>
+                            <tr><td>Job search response time</td><td>&lt; 10s (including LLM scoring)</td></tr>
+                            <tr><td>Salary calibration</td><td>&lt; 5s (cached BLS/H-1B data)</td></tr>
+                            <tr><td>Document generation</td><td>&lt; 15s per resume/cover letter</td></tr>
+                            <tr><td>Analytics computation</td><td>&lt; 2s for up to 1,000 applications</td></tr>
+                            <tr><td>API response (health check)</td><td>&lt; 100ms</td></tr>
+                            <tr><td>Chat endpoint (with LLM)</td><td>&lt; 30s</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="nfr-sec">
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>Encryption at rest:</strong> AES-256-GCM for all PII fields (name, email, phone).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>Key derivation:</strong> PBKDF2-HMAC-SHA256, 390,000 iterations (OWASP 2023).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>LLM data isolation:</strong> Only sanitized fields (skills, experience, education) sent to LLM, never PII.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>Bias mitigation:</strong> Protected attributes (gender, age, race, ethnicity, religion, nationality) stripped before all scoring.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>No cloud sync (Phase 1):</strong> All user data stored locally in SQLite.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>API security:</strong> CORS configured, session-based isolation, structured error responses (no stack trace leakage).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>OAuth scopes:</strong> Gmail/Outlook minimal scopes (readonly + labels). Agent only watches job-related threads.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);">&middot; <strong>Resume storage:</strong> Uploaded files encrypted at rest, deleted after parsing unless user opts to keep.</p>
+            </div>
+
+            <div class="tab-panel" id="nfr-scale">
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>Phase 1 (current):</strong> Single-user SQLite, in-memory sessions, suitable for personal use and demo.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <strong>Phase 2:</strong> PostgreSQL migration via Alembic, connection pooling, async DB sessions.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);">&middot; <strong>Phase 3:</strong> Multi-tenant with user auth, rate limiting, Redis session store.</p>
+            </div>
+
+            <div class="tab-panel" id="nfr-rel">
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; Health check endpoint always available.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; Graceful error handling via <code>AppError</code> classes.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; <code>with_retry</code> decorator for external service calls (LLM API).</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">&middot; Structured error format: <code>{ error: { code, message } }</code>.</p>
+                <p style="font-size:0.9rem;color:var(--text-secondary);">&middot; Salary data fallback chain: BLS &rarr; H-1B &rarr; job posting ranges &rarr; LLM estimates (always labeled).</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 10: Risk Register -->
 <section id="risks">
     <div class="container reveal">
         <p class="section-label">Risk Management</p>
@@ -1347,86 +1492,234 @@
 
         <div class="risk-grid">
             <div class="risk-card risk-high">
-                <span class="risk-badge">High</span>
-                <h4>JSearch API deprecation</h4>
-                <p>Multi-provider fallback (Adzuna, TheirStack, direct ATS). No single point of failure for job data.</p>
+                <span class="risk-badge">Critical</span>
+                <h4>Platform account bans</h4>
+                <p>Only auto-submit through safe channels. LinkedIn/Indeed apps queued for user's own tap. Zero ban risk by design.</p>
+            </div>
+            <div class="risk-card risk-high">
+                <span class="risk-badge">Critical</span>
+                <h4>Legal liability (ToS/scraping)</h4>
+                <p>All job data from legitimate APIs or single-URL parsing initiated by user. No scraping.</p>
             </div>
             <div class="risk-card risk-high">
                 <span class="risk-badge">High</span>
-                <h4>EU AI Act non-compliance</h4>
-                <p>Compliance checklist in progress, legal counsel planned, targeting August 2026 deadline.</p>
+                <h4>AI hallucinating credentials</h4>
+                <p>Writer agent can only use verified profile data. Every generated doc shows a diff. System prompts have hard guardrails.</p>
+            </div>
+            <div class="risk-card risk-high">
+                <span class="risk-badge">High</span>
+                <h4>Stale salary data</h4>
+                <p>Multi-source strategy (BLS + H-1B + job postings). Every number shows source and last-updated date. Refreshed monthly.</p>
+            </div>
+            <div class="risk-card risk-high">
+                <span class="risk-badge">High</span>
+                <h4>Aggregator APIs deprecate</h4>
+                <p>Pull from multiple sources; never depend on one. User-pasted URLs work as fallback.</p>
             </div>
             <div class="risk-card risk-medium">
                 <span class="risk-badge">Medium</span>
-                <h4>Account bans (LinkedIn etc)</h4>
-                <p>We don't automate browser actions. API-only approach eliminates ban risk entirely.</p>
+                <h4>Email OAuth verification delay</h4>
+                <p>Start Google OAuth review early (4-6 weeks). Tool works without email; users update statuses manually.</p>
             </div>
             <div class="risk-card risk-medium">
                 <span class="risk-badge">Medium</span>
-                <h4>Claude API cost spikes</h4>
-                <p>Usage caps per tier, aggressive caching, model fallback to Haiku for non-critical tasks.</p>
+                <h4>User churn after placement</h4>
+                <p>"Career growth mode" keeps tool useful with salary benchmarking, skill tracking, passive monitoring. Annual pricing + referral program.</p>
             </div>
             <div class="risk-card risk-medium">
                 <span class="risk-badge">Medium</span>
-                <h4>Staffing agency ToS violations</h4>
-                <p>Use JSearch (legal intermediary via Google for Jobs), not direct scraping.</p>
-            </div>
-            <div class="risk-card risk-low">
-                <span class="risk-badge">Low</span>
-                <h4>Competitor copies privacy angle</h4>
-                <p>First-mover advantage, deeper implementation, EU compliance moat is hard to replicate.</p>
-            </div>
-            <div class="risk-card risk-low">
-                <span class="risk-badge">Low</span>
-                <h4>Supabase outage</h4>
-                <p>Multi-region backup capability. Supabase 99.9% SLA on Team plan.</p>
+                <h4>GDPR / privacy regulations</h4>
+                <p>AES-256-GCM encryption. Self-hosted option. EU data residency for cloud. One-click data deletion. Full DSAR compliance.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- SECTION 9: Roadmap -->
+<!-- SECTION 11: Roadmap / Milestones -->
 <section id="roadmap">
     <div class="container reveal">
         <p class="section-label">Delivery Plan</p>
-        <h2>Roadmap Timeline</h2>
-        <p class="section-sub">16-week execution plan from infrastructure to growth.</p>
+        <h2>Milestones</h2>
+        <p class="section-sub">Phase 1 complete. Phases 2 and 3 in the pipeline.</p>
 
         <div class="timeline">
             <div class="timeline-item">
-                <div class="tl-label">Week 1-3</div>
-                <h4>Infrastructure</h4>
-                <p>Supabase migration, authentication setup, JSearch API integration, CI/CD pipeline.</p>
+                <div class="tl-label">Phase 1 &middot; Complete</div>
+                <h4>Core Agent</h4>
+                <p>Agentic loop with Claude tool-use; encrypted profile creation; LLM-based job scoring; resume/cover letter generation; 7-status application tracking; analytics dashboard with AI insights; feedback pattern analysis; market intelligence; Rich CLI + FastAPI; AES-256-GCM encryption, PII scrubbing, bias guards; unit tests; GitHub Actions CI/CD; Render deployment.</p>
             </div>
             <div class="timeline-item">
-                <div class="tl-label">Week 4-6</div>
-                <h4>Core Features</h4>
-                <p>ATS keyword scoring, interactive dashboard, PDF/DOCX export, enhanced job matching.</p>
+                <div class="tl-label">Phase 2</div>
+                <h4>Smart Onboarding &amp; Live Data</h4>
+                <p>Resume upload &amp; AI parse (PDF/DOCX/image via Claude Vision); smart autofill; no-resume conversational onboarding; O*NET/ESCO skill mapping; location-based salary calibration (BLS OEWS + H-1B LCA); job posting salary extraction; SALARY_BENCHMARKS table; real job board adapters (Adzuna, JSearch, Remotive); paste-a-URL import; cross-board deduplication; company watchlist; skill gap analysis with per-location $ ROI; level calibration; PDF/DOCX export; analytics dashboard UI; Career Dreamer (what-if + gap + feasibility + timeline); PostgreSQL migration with Alembic; enhanced test coverage.</p>
             </div>
             <div class="timeline-item">
-                <div class="tl-label">Week 7-9</div>
-                <h4>Career Intelligence</h4>
-                <p>Career Dreamer (gap analysis, feasibility), salary benchmarks (BLS + Eurostat), skill gap identification.</p>
-            </div>
-            <div class="timeline-item">
-                <div class="tl-label">Week 10-12</div>
-                <h4>Compliance</h4>
-                <p>EU AI Act controls, GDPR data export/erasure APIs, audit logging, conformity self-assessment.</p>
-            </div>
-            <div class="timeline-item">
-                <div class="tl-label">Week 13-16</div>
-                <h4>Growth</h4>
-                <p>Employer portal, career memory analytics, guided apply flow, multi-currency salary data.</p>
+                <div class="tl-label">Phase 3</div>
+                <h4>Autonomous Operations &amp; Career Advisor</h4>
+                <p>Channel-aware autonomous apply; OAuth email integration (Gmail/Outlook); auto-classification of replies; morning briefing; auto follow-up drafts; document version tracking &amp; A/B learning; weekly performance briefs; pivot suggestions; salary negotiation scripts; interview prep &amp; mock interviews; country/region salary arbitrage; mobile-first PWA; multi-tenant auth; push notifications; rate limiting &amp; Redis sessions; Levels.fyi and Lightcast APIs (if budget allows).</p>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- SECTION 12: Pricing -->
+<section id="pricing">
+    <div class="container reveal">
+        <p class="section-label">Business Model</p>
+        <h2>Pricing</h2>
+        <p class="section-sub">Three tiers. Blended LLM cost ~$1.50-3 per user per month via OpenRouter multi-model routing.</p>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Free / Open Source</h3>
+                <div class="price">$0</div>
+                <div class="price-sub">self-hosted</div>
+                <ul>
+                    <li>Self-hosted, local data</li>
+                    <li>Resume parsing + profile builder</li>
+                    <li>Application tracker (manual)</li>
+                    <li>Basic analytics</li>
+                    <li>Privacy encryption</li>
+                    <li>AI resume tailoring (5/month)</li>
+                </ul>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$24</div>
+                <div class="price-sub">per month</div>
+                <ul>
+                    <li>Everything in Free</li>
+                    <li>Unlimited AI resume tailoring</li>
+                    <li>Mobile-first web app</li>
+                    <li>Multi-source job feed</li>
+                    <li>Autonomous apply (safe channels)</li>
+                    <li>Morning briefing</li>
+                    <li>Market salary insights</li>
+                    <li>Skill gap analysis</li>
+                    <li>PDF/DOCX export</li>
+                    <li>Email response tracking</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <h3>Career Engine</h3>
+                <div class="price">$49</div>
+                <div class="price-sub">per month</div>
+                <ul>
+                    <li>Everything in Pro</li>
+                    <li>Outcome learning loop</li>
+                    <li>AI career advisor (weekly briefs)</li>
+                    <li>Salary negotiation scripts</li>
+                    <li>Country arbitrage analysis</li>
+                    <li>Career Dreamer (what-if scenarios)</li>
+                    <li>Interview prep &amp; mock interviews</li>
+                    <li>Company watchlist</li>
+                    <li>Automated follow-ups</li>
+                    <li>Priority support</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 13: Technical Stack -->
+<section id="stack">
+    <div class="container reveal">
+        <p class="section-label">Implementation</p>
+        <h2>Technical Stack</h2>
+        <p class="section-sub">Layers, frameworks, and tooling.</p>
+
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Language</strong></td><td>Python 3.9+</td></tr>
+                    <tr><td><strong>Web Framework</strong></td><td>FastAPI 0.111+</td></tr>
+                    <tr><td><strong>ORM</strong></td><td>SQLAlchemy 2.0 (async style)</td></tr>
+                    <tr><td><strong>Database</strong></td><td>SQLite (Phase 1), PostgreSQL (Phase 2+)</td></tr>
+                    <tr><td><strong>Migrations</strong></td><td>Alembic</td></tr>
+                    <tr><td><strong>Validation</strong></td><td>Pydantic v2</td></tr>
+                    <tr><td><strong>LLM Routing</strong></td><td>OpenRouter (Claude Sonnet, Gemini Flash/Pro, Claude Haiku)</td></tr>
+                    <tr><td><strong>Resume Parsing</strong></td><td>Claude Vision + Gemini Flash</td></tr>
+                    <tr><td><strong>Salary Data</strong></td><td>BLS OEWS API + H-1B LCA bulk data + job posting extraction</td></tr>
+                    <tr><td><strong>Encryption</strong></td><td><code>cryptography</code> (AES-256-GCM)</td></tr>
+                    <tr><td><strong>CLI</strong></td><td>Rich</td></tr>
+                    <tr><td><strong>HTTP Client</strong></td><td>httpx</td></tr>
+                    <tr><td><strong>Testing</strong></td><td>pytest, pytest-asyncio</td></tr>
+                    <tr><td><strong>CI/CD</strong></td><td>GitHub Actions</td></tr>
+                    <tr><td><strong>Deployment</strong></td><td>Render (Python runtime, uvicorn)</td></tr>
+                    <tr><td><strong>Payments</strong></td><td>Stripe (Phase 3)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 14: Appendices -->
+<section id="appendices">
+    <div class="container reveal">
+        <p class="section-label">Appendices</p>
+        <h2>Workflows &amp; Pipelines</h2>
+        <p class="section-sub">Status workflow, autonomous apply decision tree, and salary data pipeline.</p>
+
+        <details open>
+            <summary>Application Status Workflow</summary>
+            <div class="detail-body">
+                <div class="arch-diagram">[*] &rarr; <span class="hl">DRAFT</span>
+DRAFT &rarr; <span class="hl-orange">SUBMITTED</span>              : Submit application
+SUBMITTED &rarr; <span class="hl-orange">UNDER_REVIEW</span>       : Employer acknowledges
+UNDER_REVIEW &rarr; <span class="hl">INTERVIEW_SCHEDULED</span>    : Interview invite
+UNDER_REVIEW &rarr; REJECTED                 : Rejection received
+INTERVIEW_SCHEDULED &rarr; <span class="hl-green">OFFER_RECEIVED</span>  : Offer extended
+INTERVIEW_SCHEDULED &rarr; REJECTED          : Post-interview rejection
+OFFER_RECEIVED &rarr; [*]                    : Accept offer
+SUBMITTED &rarr; WITHDRAWN                   : User withdraws
+UNDER_REVIEW &rarr; WITHDRAWN                : User withdraws
+REJECTED &rarr; [*]
+WITHDRAWN &rarr; [*]</div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Autonomous Apply Decision Tree</summary>
+            <div class="detail-body">
+                <div class="arch-diagram"><span class="hl">New Job Match</span>
+      &#9474;
+      &#9492;&rarr; Match Score?
+            &#9500; 80-100% &rarr; Channel Type?
+            &#9474;           &#9500; Email / Career Page / Open API &rarr; <span class="hl-green">AUTO-APPLY</span> (submit immediately)
+            &#9474;           &#9492; LinkedIn / Workday / Greenhouse &rarr; <span class="hl-orange">QUEUED</span> (pre-filled, one-tap approval)
+            &#9500; 50-79%  &rarr; <span class="hl-orange">REVIEW QUEUE</span> (docs drafted, held for approval)
+            &#9492; &lt;50%    &rarr; SKIP (visible with reasons)
+                                           &#9474;
+                                           &#9492;&rarr; Log to pipeline &rarr; <span class="hl">Morning Briefing</span></div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Salary Data Pipeline</summary>
+            <div class="detail-body">
+                <div class="arch-diagram"><span class="hl">Sources</span>                      <span class="hl">Processing</span>                    <span class="hl">Output</span>
+BLS OEWS API              &rarr;                                  &rarr;  Salary Calibration
+  (Occupation x Metro)        Normalize                          (Floor / Target / Stretch
+H-1B LCA Data             &rarr;   (Currency conversion,          &rarr;   per user location)
+  (Employer x Title x Wage)   SOC code mapping)
+Job Postings              &rarr;                                  &rarr;  Job Context
+  (Salary ranges from                                                (Above/below market
+   listings)                    <span class="hl-orange">SALARY_BENCHMARKS</span>             for location?)
+                                (cached in DB)
+                                                                &rarr;  Negotiation Scripts
+                                                                   (Counter-offer with
+                                                                    sourced numbers)</div>
+            </div>
+        </details>
     </div>
 </section>
 
 <!-- Footer -->
 <footer>
     <p>&copy; 2026 <strong>AVIEN SOLUTIONS</strong>. All rights reserved.</p>
-    <p style="margin-top:6px;">AI Job Agent &middot; Technical PRD v2.0 &middot; March 2026</p>
-    <p style="margin-top:6px;"><a href="../user-story.html" style="color:#7c3aed;">User Stories</a> &middot; <a href="DEV_S_DEV_A_PROJECT_PLAN.md" style="color:#7c3aed;">Project Plan</a></p>
+    <p style="margin-top:6px;">AI Job Agent &middot; Product Requirements Document v2.0 &middot; 2026-03-15</p>
+    <p style="margin-top:6px;"><a href="PRD.md" style="color:#7c3aed;">Markdown source</a></p>
 </footer>
 
 <script>
