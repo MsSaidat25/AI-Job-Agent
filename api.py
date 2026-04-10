@@ -25,7 +25,7 @@ load_dotenv()  # Must run before src.* imports which read env via config.setting
 
 from fastapi import FastAPI, Request, status  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from fastapi.responses import FileResponse, JSONResponse  # noqa: E402
+from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from sqlalchemy import text as sa_text  # noqa: E402
 from slowapi import Limiter  # noqa: E402
@@ -166,6 +166,11 @@ app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="front
 @app.get("/", include_in_schema=False)
 async def serve_frontend():
     return FileResponse("frontend/index.html")
+
+
+@app.head("/", include_in_schema=False)
+async def head_root():
+    return Response()
 
 
 @app.get("/api/health", response_model=HealthResponse)
