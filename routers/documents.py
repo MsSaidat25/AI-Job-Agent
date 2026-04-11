@@ -40,6 +40,14 @@ class ExportContentRequest(BaseModel):
     format: str = Field(default="pdf", pattern="^(pdf|docx)$")
 
 
+class GeneratedDocumentInfo(BaseModel):
+    id: str
+    job_id: str
+    doc_type: str
+    created_at: str | None = None
+    ats_score: float | None = None
+
+
 # ── Route wiring ─────────────────────────────────────────────────────────────
 
 def _setup_routes(
@@ -128,6 +136,58 @@ def _setup_routes(
         safe_company = "".join(c for c in job.company if c.isalnum() or c in " -_")[:30]
         filename = f"resume_{safe_company}_{body.template_id}.{ext}"
 
+        return Response(
+            content=file_bytes,
+            media_type=media_type,
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+
+    @router.get("/stored/{document_id}/download")
+    @limiter.limit("10/minute")
+    async def download_stored_document(
+        request: Request,
+        document_id: str,
+        format: str = "pdf",
+        template_id: str = "classic",
+        session_id: str = session_dep,
+    ):
+        """Stream a persisted ``GeneratedDocumentORM`` as PDF or DOCX (P3.4).
+
+        The endpoint checks ownership against the current session's user
+        profile before serving the bytes so one user can't exfiltrate
+        another user's generated documents via a guessed id.
+        """
+        if format not in ("pdf", "docx"):
+            raise HTTPException(status_code=422, detail="format must be pdf or docx")
+
+        from src.models import GeneratedDocumentORM, init_db
+        from src.session_store import get_session_profile
+
+        profile = get_session_profile(session_id)
+        db = init_db()
+        try:
+            row = (
+                db.query(GeneratedDocumentORM)
+                .filter_by(id=document_id, user_id=profile.id)
+                .first()
+            )
+            if row is None:
+                raise HTTPException(status_code=404, detail="Document not found.")
+            content = str(row.content or "")
+            doc_type = str(row.doc_type or "document")
+        finally:
+            db.close()
+
+        from src.resume_export import export_docx, export_pdf
+        if format == "pdf":
+            file_bytes = await asyncio.to_thread(export_pdf, content, template_id)
+            media_type = "application/pdf"
+        else:
+            file_bytes = await asyncio.to_thread(export_docx, content, template_id)
+            media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+        safe_type = "".join(c for c in doc_type if c.isalnum() or c in "-_")[:20] or "document"
+        filename = f"{safe_type}_{document_id[:8]}.{format}"
         return Response(
             content=file_bytes,
             media_type=media_type,

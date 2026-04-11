@@ -322,6 +322,33 @@ class EmployerWaitlistORM(Base):
     signed_up_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
+# ── P3.4 Persistent session store ─────────────────────────────────────
+
+class SessionORM(Base):
+    """Durable record of an active user session.
+
+    The in-memory ``src.session_store`` dict is still the fast path, but
+    persisting session identity lets an authenticated user survive an
+    API restart: on the next request, ``require_session`` finds the row,
+    rebuilds the agent from their profile, and repopulates the in-memory
+    cache transparently.
+
+    ``user_id`` is intentionally a weak reference: it may hold a Firebase
+    UID (from the bearer token), a user_profile.id, or NULL for legacy
+    anonymous sessions. We don't enforce a FK because the authoritative
+    mapping lives in ``user_profiles.firebase_uid``.
+    """
+    __tablename__ = "sessions"
+    __table_args__ = (
+        Index("ix_sessions_user_last_access", "user_id", "last_access"),
+    )
+
+    id = Column(String(64), primary_key=True)
+    user_id = Column(String(128), nullable=True, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    last_access = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+
 # ── P3.3 Privacy Ledger ─────────────────────────────────────────────
 
 class PrivacyLedgerORM(Base):
