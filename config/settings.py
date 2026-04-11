@@ -121,7 +121,7 @@ USE_VERTEX_PRIMARY: bool = get_secret("USE_VERTEX_PRIMARY", "false").lower() == 
 # Primary: OpenRouter. Fallback handled by llm_client.py.
 USE_OPENROUTER: bool = bool(OPENROUTER_API_KEY)
 LLM_API_KEY: str = OPENROUTER_API_KEY if USE_OPENROUTER else ANTHROPIC_API_KEY
-LLM_BASE_URL: str | None = "https://openrouter.ai/api/v1" if USE_OPENROUTER else None
+LLM_BASE_URL = "https://openrouter.ai/api" if USE_OPENROUTER else None  # type: str | None
 
 if not LLM_API_KEY and not USE_VERTEX_PRIMARY:
     import warnings
@@ -137,9 +137,6 @@ if not LLM_API_KEY and not USE_VERTEX_PRIMARY:
 VERTEX_PROJECT: str = get_secret("VERTEX_PROJECT", GCP_PROJECT_ID)
 VERTEX_LOCATION: str = get_secret("VERTEX_LOCATION", "us-central1")
 VERTEX_MODEL: str = get_secret("VERTEX_MODEL", "claude-sonnet-4-6")
-# Vertex failover is OFF by default: OpenRouter + direct Anthropic cover the
-# primary path, and Vertex's quotas caused more pain than it was worth.
-# Set USE_VERTEX_FAILOVER=true to re-enable.
 USE_VERTEX_FAILOVER: bool = get_secret("USE_VERTEX_FAILOVER", "false").lower() == "true"
 
 if USE_VERTEX_PRIMARY and not VERTEX_PROJECT:

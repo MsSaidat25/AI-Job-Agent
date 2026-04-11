@@ -1,4 +1,5 @@
 """Email OAuth Service -- Gmail integration for sending applications and monitoring replies."""
+from __future__ import annotations
 
 import logging
 from typing import Any, Optional, cast

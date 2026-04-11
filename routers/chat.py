@@ -2,6 +2,7 @@
 
 import asyncio
 import base64
+import io
 import json as _json
 from typing import Any, cast
 
@@ -58,13 +59,17 @@ def _setup_routes(
         session_id: str = session_dep,
     ):
         """Parse a resume file (PDF or text) via Claude."""
-        _ALLOWED_MIME = {"application/pdf", "text/plain", "text/csv", "text/markdown"}
+        _ALLOWED_MIME = {
+            "application/pdf", "text/plain", "text/csv", "text/markdown",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/msword",
+        }
         if not file.content_type:
             raise HTTPException(status_code=400, detail="File type not detected.")
         if file.content_type not in _ALLOWED_MIME:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported file type. Allowed: {', '.join(_ALLOWED_MIME)}",
+                detail="Unsupported file type. Allowed: PDF, DOCX, DOC, TXT",
             )
 
         _MAX_UPLOAD = 5_000_000
@@ -82,6 +87,11 @@ def _setup_routes(
 
         client = get_llm_client()
 
+        _DOCX_MIMES = {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/msword",
+        }
+
         if file.content_type == "application/pdf":
             b64 = base64.b64encode(raw).decode()
             messages = [
@@ -96,6 +106,13 @@ def _setup_routes(
                     ],
                 }
             ]
+        elif file.content_type in _DOCX_MIMES:
+            import docx
+            doc = docx.Document(io.BytesIO(raw))
+            text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())[:4000]
+            if not text.strip():
+                raise HTTPException(status_code=400, detail="Could not extract text from document.")
+            messages = [{"role": "user", "content": _RESUME_PARSE_PROMPT + "\n\nResume:\n" + text}]
         else:
             text = raw.decode("utf-8", errors="replace")[:4000]
             messages = [{"role": "user", "content": _RESUME_PARSE_PROMPT + "\n\nResume:\n" + text}]
