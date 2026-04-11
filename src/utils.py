@@ -17,6 +17,6 @@ def strip_json_fences(text: str) -> str:
     return text
 
 
-def parse_json_response(text: str) -> dict[str, Any]:
+def parse_json_response(text: str) -> Any:
     """Strip fences then parse JSON from an LLM response."""
     return json.loads(strip_json_fences(text))

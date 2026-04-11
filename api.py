@@ -232,6 +232,20 @@ async def set_profile(request: Request, body: ProfileRequest, session_id: str = 
         linkedin_url=body.linkedin_url,
         preferred_currency=body.preferred_currency,
     )
+
+    # Persist profile to DB
+    from src.models import init_db, profile_to_orm
+    db = init_db()
+    try:
+        orm_obj = profile_to_orm(profile)
+        db.merge(orm_obj)
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.warning("Failed to persist profile to DB", exc_info=True)
+    finally:
+        db.close()
+
     agent = JobAgent(profile=profile)
     set_session_agent(session_id, agent, profile)
     return ProfileResponse(
@@ -250,6 +264,8 @@ async def get_profile_endpoint(request: Request, session_id: str = SessionId):
 
 # ── Mount domain routers ────────────────────────────────────────────────────
 
+from routers.auth import router as auth_router, _setup_routes as _setup_auth  # noqa: E402
+from routers.onboarding import router as onboard_router, _setup_routes as _setup_onboard  # noqa: E402
 from routers.jobs import router as jobs_router, _setup_routes as _setup_jobs  # noqa: E402
 from routers.applications import router as apps_router, _setup_routes as _setup_apps  # noqa: E402
 from routers.chat import router as chat_router, _setup_routes as _setup_chat  # noqa: E402
@@ -257,7 +273,19 @@ from routers.employer import router as employer_router, _setup_routes as _setup_
 from routers.documents import router as docs_router, _setup_routes as _setup_docs  # noqa: E402
 from routers.kanban import router as kanban_router, _setup_routes as _setup_kanban  # noqa: E402
 from routers.dashboard import router as dash_router, _setup_routes as _setup_dash  # noqa: E402
+from routers.career import router as career_router, _setup_routes as _setup_career  # noqa: E402
+from routers.salary import router as salary_router, _setup_routes as _setup_salary  # noqa: E402
+from routers.feed import router as feed_router, _setup_routes as _setup_feed  # noqa: E402
+from routers.nudges import router as nudges_router, _setup_routes as _setup_nudges  # noqa: E402
+from routers.auto_apply import router as auto_apply_router, _setup_routes as _setup_auto_apply  # noqa: E402
+from routers.interview import router as interview_router, _setup_routes as _setup_interview  # noqa: E402
+from routers.email_oauth import router as email_router, _setup_routes as _setup_email  # noqa: E402
+from routers.insights import router as insights_router, _setup_routes as _setup_insights  # noqa: E402
+from routers.account import router as account_router, _setup_routes as _setup_account  # noqa: E402
+from routers.offers import router as offers_router, _setup_routes as _setup_offers  # noqa: E402
 
+_setup_auth(limiter=limiter, session_dep=SessionId)
+_setup_onboard(limiter=limiter, get_agent_fn=get_agent, session_dep=SessionId)
 _setup_jobs(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
 _setup_apps(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
 _setup_chat(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
@@ -265,8 +293,25 @@ _setup_employer(limiter=limiter)
 _setup_docs(limiter=limiter, get_agent_fn=get_agent, session_dep=SessionId)
 _setup_kanban(limiter=limiter, get_agent_fn=get_agent, session_dep=SessionId)
 _setup_dash(limiter=limiter, get_agent_fn=get_agent, session_dep=SessionId)
+_setup_career(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_salary(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_feed(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_nudges(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_auto_apply(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_interview(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_email(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_insights(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_account(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_offers(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
 
-for r in [jobs_router, apps_router, chat_router, employer_router, docs_router, kanban_router, dash_router]:
+_all_routers = [
+    auth_router, onboard_router, jobs_router, apps_router, chat_router,
+    employer_router, docs_router, kanban_router, dash_router,
+    career_router, salary_router, feed_router, nudges_router,
+    auto_apply_router, interview_router, email_router, insights_router,
+    account_router, offers_router,
+]
+for r in _all_routers:
     app.include_router(r)
 
 

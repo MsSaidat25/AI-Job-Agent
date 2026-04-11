@@ -15,6 +15,7 @@ from src.auth import get_current_user_id
 logger = logging.getLogger(__name__)
 
 _sessions: dict[str, dict[str, Any]] = {}
+_user_to_session: dict[str, str] = {}  # Firebase UID -> session_id
 _sessions_lock = threading.Lock()
 _MAX_SESSIONS = 500
 _SESSION_TTL_SECONDS = 3600
@@ -54,6 +55,10 @@ def _cleanup_sessions_sync() -> None:
         for sid in expired:
             agents_to_close.append(_sessions[sid])
             del _sessions[sid]
+            # Clean reverse mapping
+            uids = [u for u, s in _user_to_session.items() if s == sid]
+            for u in uids:
+                del _user_to_session[u]
         evicted_cap = 0
         while len(_sessions) > _MAX_SESSIONS:
             oldest = min(_sessions, key=lambda k: _sessions[k].get("last_access", 0))
@@ -103,16 +108,30 @@ def get_session_lock(session_id: str) -> asyncio.Lock:
         return sess["lock"]
 
 
-def create_session() -> str:
-    """Create a new empty session and return the session_id."""
+def create_session(user_id: str | None = None) -> str:
+    """Create a new empty session and return the session_id.
+
+    When *user_id* is supplied (authenticated flow), the session is keyed
+    by the user_id itself and a reverse mapping is stored so
+    ``require_session`` can find it.  When omitted (legacy flow), a random
+    UUID is used as before.
+    """
     import uuid
 
     session_id = str(uuid.uuid4())
     with _sessions_lock:
+        # If an authenticated user already has a session, return it
+        if user_id and user_id in _user_to_session:
+            existing = _user_to_session[user_id]
+            if existing in _sessions:
+                touch_session(existing)
+                return existing
         _sessions[session_id] = {
             "agent": None, "profile": None,
             "last_access": time.monotonic(), "lock": asyncio.Lock(),
         }
+        if user_id:
+            _user_to_session[user_id] = session_id
     return session_id
 
 
@@ -143,21 +162,46 @@ def close_all_sessions() -> None:
     with _sessions_lock:
         all_sessions = list(_sessions.values())
         _sessions.clear()
+        _user_to_session.clear()
     for session_data in all_sessions:
         close_session_agent(session_data)
     logger.info("All sessions closed on shutdown.")
+
+
+def delete_session(session_id: str) -> None:
+    """Delete a session by ID (sign-out)."""
+    with _sessions_lock:
+        sess = _sessions.pop(session_id, None)
+        # Also remove reverse mapping
+        user_ids_to_remove = [
+            uid for uid, sid in _user_to_session.items() if sid == session_id
+        ]
+        for uid in user_ids_to_remove:
+            del _user_to_session[uid]
+    if sess:
+        close_session_agent(sess)
 
 
 async def require_session(
     user_id: str = Depends(get_current_user_id),
 ) -> str:
     with _sessions_lock:
-        if user_id not in _sessions:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Session not found. POST /api/session first.",
-            )
-    return user_id
+        # Direct match (legacy flow or auth-keyed session)
+        if user_id in _sessions:
+            return user_id
+        # Check reverse mapping (authenticated user -> session)
+        mapped = _user_to_session.get(user_id)
+        if mapped and mapped in _sessions:
+            return mapped
+        # Auto-create session for authenticated users
+        from config.settings import AUTH_ENABLED
+        if AUTH_ENABLED:
+            sid = create_session(user_id=user_id)
+            return sid
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found. POST /api/session first.",
+        )
 
 
 SessionId = Depends(require_session)

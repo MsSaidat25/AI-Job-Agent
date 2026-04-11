@@ -1,4 +1,163 @@
-UAT_ID,Feature,Priority,Status,Tester,Date,Defect_ID,Notes
-UAT-001,Health Check,P0,PASS,Claude Code,2026-03-16,,Automated: tests/test_api.py::TestHealthAndSession::test_health
-UAT-002,Structured Error Response,P1,PASS,Claude Code,2026-03-16,,FastAPI returns {detail: msg} JSON with no stack traces
-UAT-003,Graceful Shutdown,P1,MANUAL REQUIRED,,,,Requires running server + SIGTERM; cannot be automated in test suite
+ID,Feature,Scenario,Priority,Status,Tester,Date,Notes
+S1-01,Health Check,Verify health endpoint returns system status,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestHealthAndSession::test_health - checks 200 + status/sessions/db/llm_configured
+S1-02,Health Check,DB down returns degraded status,P1,MANUAL_REQUIRED,manual,2026-04-11,Requires simulating DB failure at runtime
+S1-03,Session Create,Create new session,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestHealthAndSession::test_create_session - checks 201 + session_id
+S1-04,Session Create,Rate limit enforced at 30/hour,P1,VERIFIED,code-review,2026-04-11,Rate limiter disabled in tests; decorator present on endpoint (api.py:205)
+S1-05,Session Create,Session cleanup evicts expired sessions (TTL 3600s),P1,MANUAL_REQUIRED,manual,2026-04-11,Requires waiting >3600s or manipulating time
+S1-06,Session Create,Max 500 concurrent sessions enforced,P2,AUTO_PASS,automated,2026-04-11,test_api.py::TestSessionCleanup::test_max_sessions_enforced
+S1-07,Profile Set,Create profile and initialize agent,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestProfile::test_set_profile - checks 201 + message + currency
+S1-08,Profile Set,Profile validation -- name max 200 chars,P1,VERIFIED,code-review,2026-04-11,schemas.py:16 has max_length=200 on name field; Pydantic enforces
+S1-09,Profile Set,Profile validation -- invalid email,P1,VERIFIED,code-review,2026-04-11,schemas.py:17 has EmailStr validator; Pydantic enforces
+S1-10,Profile Set,Profile validation -- years_of_experience range 0-70,P1,VERIFIED,code-review,2026-04-11,schemas.py:22 has ge=0 le=70; Pydantic enforces
+S1-11,Profile Set,URL validation -- portfolio_url must start with http(s)://,P1,VERIFIED,code-review,2026-04-11,schemas.py:35-42 has custom validator for URL prefix
+S1-12,Profile Set,Skills deduplication on create,P1,AUTO_PASS,automated,2026-04-11,test_models.py::test_user_profile_deduplication - verifies duplicate skills removed
+S1-13,Profile Set,Rate limit 10/minute,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (api.py:213)
+S1-14,Profile Get,Retrieve saved profile,P0,VERIFIED,code-review,2026-04-11,Endpoint exists and returns profile; no dedicated happy-path test with full roundtrip
+S1-15,Profile Get,No profile returns 404,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestProfile::test_get_profile_no_profile
+S1-16,Session Missing,Endpoint without session header,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestHealthAndSession::test_missing_session_header + test_auth.py::test_get_user_id_legacy_missing_header
+S1-17,Signup,Create new account via GCP Identity Platform,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires GCP Identity Platform API key; external service
+S1-18,Signup,Auth service not configured,P1,VERIFIED,code-review,2026-04-11,routers/auth.py:40-44 checks for empty API key and returns 503
+S1-19,Signup,Password too short (<6 chars),P1,VERIFIED,code-review,2026-04-11,schemas.py:152 has min_length=6; Pydantic enforces
+S1-20,Signup,Rate limit 10/hour,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/auth.py:37)
+S1-21,Login,Sign in with email and password,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires GCP Identity Platform; external service
+S1-22,Login,Wrong password,P1,MANUAL_REQUIRED,manual,2026-04-11,Requires GCP Identity Platform; external service
+S1-23,Login,Rate limit 20/hour,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/auth.py:69)
+S1-24,Google OAuth,Exchange Google ID token for credentials,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires real Google OAuth flow; external service
+S1-25,Token Refresh,Exchange refresh token for new ID token,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires GCP Identity Platform; external service
+S1-26,Sign Out,Delete server-side session,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires running server with active session
+S1-27,Auth Guard,Bearer token required when AUTH_ENABLED=true,P0,AUTO_PASS,automated,2026-04-11,test_auth.py::test_get_user_id_auth_missing_bearer - checks 401
+S1-28,Auth Guard,Expired token rejected,P1,AUTO_PASS,automated,2026-04-11,test_auth.py::test_verify_expired_token - checks 401
+S1-29,Generate Tasks,Generate tasks for a role,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires LLM call via onboarding router; no test coverage
+S1-30,Generate Tasks,Role max length 200,P1,VERIFIED,code-review,2026-04-11,schemas.py:179 has max_length=200; Pydantic enforces
+S1-31,Generate Skills,Generate skills from role + tasks,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires LLM call via onboarding router; no test coverage
+S1-32,Identity Statement,Generate career identity statement,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires LLM call via onboarding router; no test coverage
+S1-33,Confirm Profile,Finalize profile after onboarding wizard,P0,MANUAL_REQUIRED,manual,2026-04-11,Requires full onboarding flow; no test coverage
+S1-34,Confirm Profile,Non-compete companies stored,P1,VERIFIED,code-review,2026-04-11,routers/onboarding.py:98 stores non_compete_companies field
+S1-35,Search V1,Basic job search,P0,AUTO_PASS,automated,2026-04-11,test_routers_golden.py::TestJobsRouter::test_search_jobs - checks 200 + response/job_ids
+S1-36,Search V1,Max results capped at 50,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestInputValidation::test_max_results_bounds - checks 422
+S1-37,Search V1,Job cache max 200 -- oldest evicted,P1,VERIFIED,code-review,2026-04-11,routers/jobs.py:53-55 and agent.py:57 enforce cache max
+S1-38,Search V2,Enhanced search with filters and pagination,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/jobs/search/v2 endpoint
+S1-39,Search V2,Sort by date,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for V2 sort_by=date
+S1-40,Search V2,Invalid sort_by value,P1,VERIFIED,code-review,2026-04-11,schemas.py:230 has pattern validation; Pydantic enforces
+S1-41,Job Detail,Get specific job by ID,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/jobs/{job_id} endpoint
+S1-42,Job Detail,Job not found,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for job not found 404
+S1-43,Save Job,Save a job to user's list,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/jobs/{job_id}/save endpoint
+S1-44,Save Job,Duplicate save returns already saved,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for duplicate save
+S1-45,Unsave Job,Remove job from saved list,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for DELETE /api/jobs/{job_id}/save
+S1-46,Saved Jobs,List all saved jobs,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/jobs/saved
+S1-47,Job Import,Import job from Chrome extension,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/jobs/import endpoint
+S1-48,Job Import,Duplicate URL returns is_duplicate=true,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for duplicate import
+S2-01,Dream Analysis,Run career dream analysis,P0,AUTO_PASS,automated,2026-04-11,test_career_dreamer.py::TestBuildGapReport::test_returns_gap_report - unit test for dreamer module
+S2-02,Dream Analysis,Timeline range 1-120 months,P1,VERIFIED,code-review,2026-04-11,routers/career.py:22 has le=120 on timeline_months; Pydantic enforces
+S2-03,Dream Detail,Get saved dream by ID,P0,MANUAL_REQUIRED,manual,2026-04-11,No router-level test for GET /api/career/dream/{id}/detail
+S2-04,Dream Detail,Dream not found,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for dream 404
+S2-05,Find Jobs,Get search terms from dream,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/career/dream/{id}/find-jobs
+S2-06,Save Dream,Save dream to database,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/career/dream/{id}/save
+S2-07,Save Dream,Duplicate save returns already saved,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for duplicate dream save
+S2-08,List Dreams,List all saved career dreams,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/career/dreams
+S2-09,Career Report,Generate comparison report across dreams,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/career/report
+S2-10,Calibrate,Calibrate salary for role across locations,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/salary/calibrate endpoint
+S2-11,Calibrate,Role max length 500,P1,VERIFIED,code-review,2026-04-11,routers/salary.py:19 has max_length=500; Pydantic enforces
+S2-12,Negotiate,Generate counter-offer strategy,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/salary/negotiate endpoint
+S2-13,Negotiate,Competing offer included in prompt,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for competing offer in prompt
+S2-14,Compare,Compare multiple offers,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/salary/compare-offers
+S2-15,Resume,Generate tailored resume,P0,AUTO_PASS,automated,2026-04-11,test_document_generator.py::TestDocumentGenerator::test_generate_resume_with_ats - unit test
+S2-16,Resume,Invalid tone rejected,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestInputValidation::test_tone_whitelist - checks 422
+S2-17,Resume,Job ID not in cache,P1,AUTO_PASS,automated,2026-04-11,test_agent_dispatch.py::TestDispatchTool::test_generate_resume_missing_job - returns error
+S2-18,Cover Letter,Generate tailored cover letter,P0,AUTO_PASS,automated,2026-04-11,test_document_generator.py::TestDocumentGenerator::test_generate_cover_letter - unit test
+S2-19,Templates,List available resume templates,P0,AUTO_PASS,automated,2026-04-11,test_routers_golden.py::TestDocumentsRouter::test_list_templates - checks 200 + templates list
+S2-20,Template Detail,Get specific template,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/documents/templates/{id}
+S2-21,Template Detail,Template not found,P1,VERIFIED,code-review,2026-04-11,routers/documents.py:68 returns 404 for unknown template
+S2-22,Export,Export resume as PDF with template,P0,AUTO_PASS,automated,2026-04-11,test_document_generator.py::TestExportDocument::test_export_pdf_has_pdf_magic_bytes
+S2-23,Export,Export as DOCX,P1,AUTO_PASS,automated,2026-04-11,test_document_generator.py::TestExportDocument::test_export_docx_is_valid
+S2-24,Export,Invalid format rejected,P1,AUTO_PASS,automated,2026-04-11,test_document_generator.py::TestExportDocument::test_export_unsupported_format_raises
+S2-25,Export Content,Export raw markdown content,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/documents/export-content endpoint
+S3-01,Daily Feed,Get curated daily job feed,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/feed/daily endpoint (Sprint 3 feature)
+S3-02,Refresh Feed,Force regenerate feed,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/feed/refresh
+S3-03,Refresh Feed,Rate limit 3/minute,P1,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/feed.py:59)
+S3-04,Pending Nudges,Get active nudges,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/nudges/pending endpoint (Sprint 3 feature)
+S3-05,Respond,User responds heard_back,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for nudge respond endpoint
+S3-06,Respond,User responds no_response,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for nudge no_response
+S3-07,Respond,Nudge not found,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for nudge 404
+S3-08,Draft Email,AI-draft follow-up email,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/nudges/{id}/draft-email
+S3-09,Pause,Pause a nudge schedule,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for PUT /api/nudges/{id}/pause
+S3-10,Settings,Update nudge settings,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for PUT /api/nudges/settings
+S3-11,Settings,Interval range 1-60 days,P1,VERIFIED,code-review,2026-04-11,routers/nudges.py:41 has le=60; Pydantic enforces
+S3-12,Settings,Max nudges range 1-10,P1,VERIFIED,code-review,2026-04-11,routers/nudges.py:42 has le=10; Pydantic enforces
+S3-13,Get Settings,Get auto-apply settings,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/auto-apply/settings (Sprint 3 feature)
+S3-14,Get Settings,Default settings when none saved,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for auto-apply defaults
+S3-15,Update Settings,Enable auto-apply with custom threshold,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for PUT /api/auto-apply/settings
+S3-16,Update Settings,Threshold range 0.0-1.0,P1,VERIFIED,code-review,2026-04-11,routers/auto_apply.py:28 has le=1.0; Pydantic enforces
+S3-17,Update Settings,Max daily range 1-50,P1,VERIFIED,code-review,2026-04-11,routers/auto_apply.py:30 has le=50; Pydantic enforces
+S3-18,Queue,View queued applications,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/auto-apply/queue
+S3-19,Approve,Approve queued application,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/auto-apply/queue/{id}/approve
+S3-20,Approve,Item not found,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for auto-apply queue item 404
+S3-21,Reject,Reject queued application,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/auto-apply/queue/{id}/reject
+S3-22,Briefing,Morning briefing,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/auto-apply/briefing
+S3-23,Full Prep,Generate interview prep package,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/interview/{id}/prep (Sprint 3 feature)
+S3-24,Company Brief,Get company research brief,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/interview/{id}/company-brief
+S3-25,Questions,Generate practice questions,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/interview/{id}/questions
+S3-26,Debrief,Post-interview analysis,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/interview/{id}/debrief
+S3-27,Debrief,Max 30 questions_asked,P1,VERIFIED,code-review,2026-04-11,routers/interview.py:41 has max_length=30; Pydantic enforces
+S3-28,Gmail Auth,Get OAuth redirect URL,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/email/auth/gmail (requires OAuth config)
+S3-29,Gmail Callback,Handle OAuth callback,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for Gmail OAuth callback
+S3-30,Gmail Callback,Missing authorization code,P1,VERIFIED,code-review,2026-04-11,routers/email_oauth.py:98 checks for missing code and returns 400
+S3-31,Auth Status,Check email connection status,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/email/auth/status
+S3-32,Disconnect,Disconnect Gmail,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for DELETE /api/email/auth/gmail
+S3-33,Compose,Compose application email,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/email/compose
+S3-34,Inbox,Check inbox for replies,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/email/inbox
+S3-35,Chat,Send free-form message,P0,AUTO_PASS,automated,2026-04-11,test_routers_golden.py::TestChatRouter::test_chat_message - checks 200 + response
+S3-36,Chat,Message max length 5000,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestInputValidation::test_chat_message_too_long - checks 422
+S3-37,Chat,Rate limit 15/minute,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/chat.py:34)
+S3-38,Chat Reset,Clear conversation history,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for DELETE /api/chat/reset
+S3-39,Resume Parse,Parse PDF resume via Claude,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestParseResume::test_parse_resume_text_success + test_resume_parser.py coverage
+S3-40,Resume Parse,File too large (>5 MB),P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestParseResume::test_parse_resume_too_large
+S3-41,Resume Parse,Unsupported file type,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestParseResume::test_parse_resume_unsupported_type
+S4-01,Outcome Learning,Get variant correlation data,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/insights/outcome-learning (Sprint 4 feature)
+S4-02,Rejection Patterns,Analyse rejection patterns,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/insights/rejection-patterns
+S4-03,Restrategize,Get actionable improvement advice,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/insights/restrategize
+S4-04,Weekly Report,Generate weekly advisor report,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for /api/insights/weekly-report
+S4-05,Weekly Report,Rate limit 3/minute,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/insights.py:95)
+S4-06,Track App,Log new application,P0,AUTO_PASS,automated,2026-04-11,test_routers_golden.py::TestApplicationsRouter::test_track_application + test_agent_dispatch.py::test_track_application
+S4-07,Update App,Update application status,P0,AUTO_PASS,automated,2026-04-11,test_analytics.py::test_update_status + test_agent_dispatch.py::test_update_application
+S4-08,Update App,Valid ApplicationStatus values only,P1,VERIFIED,code-review,2026-04-11,schemas.py:82 uses ApplicationStatus enum; Pydantic enforces
+S4-09,Analytics,Get application metrics and insights,P0,AUTO_PASS,automated,2026-04-11,test_routers_golden.py::TestApplicationsRouter::test_get_analytics + test_analytics.py::test_metrics_with_applications
+S4-10,Feedback,Get employer feedback analysis,P1,AUTO_PASS,automated,2026-04-11,test_agent_dispatch.py::TestDispatchTool::test_get_feedback_analysis
+S4-11,Market Insights,Get market report for region/industry,P0,AUTO_PASS,automated,2026-04-11,test_job_search.py::TestMarketIntelligenceService::test_get_insights_returns_model
+S4-12,Application Tips,Get culturally-aware tips,P1,AUTO_PASS,automated,2026-04-11,test_job_search.py::TestMarketIntelligenceService::test_get_application_tips
+S4-13,Export Data,Export all user data as JSON,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/account/export (Sprint 4 feature)
+S4-14,Export Data,No user data found,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for account export with no data
+S4-15,Delete Account,Cascading delete of all user data,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for DELETE /api/account/
+S4-16,Delete Account,No data to delete,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for account delete with no data
+S4-17,Delete Account,Rate limit 1/minute,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/account.py:107)
+S4-18,Summary,Get dashboard summary metrics,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestDashboardEndpoints::test_dashboard_summary_with_profile + test_routers_golden.py::TestDashboardRouter::test_dashboard_summary
+S4-19,Applications,Get dashboard applications list,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestDashboardEndpoints::test_dashboard_applications_empty
+S4-20,Activity,Get activity timeline,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestDashboardEndpoints::test_dashboard_activity_empty + test_routers_golden.py::TestDashboardRouter::test_dashboard_activity
+S4-21,Skills,Get skills gap analysis,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestDashboardEndpoints::test_dashboard_skills_empty_cache
+S4-22,Board,Get full Kanban board,P0,AUTO_PASS,automated,2026-04-11,test_routers_golden.py::TestKanbanRouter::test_kanban_board - checks 200 + 7 columns + total_cards
+S4-23,Move Card,Move card to new column,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for PUT /api/kanban/cards/{id}/move
+S4-24,Move Card,Card not found,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for kanban card 404
+S4-25,Card Detail,Get single Kanban card,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/kanban/cards/{id}
+S4-26,Negotiate,Salary negotiation with leverage points,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/salary/negotiate (Sprint 4 feature)
+S4-27,Negotiate,Current offer must be >= 0,P1,VERIFIED,code-review,2026-04-11,routers/salary.py:34 has ge=0; Pydantic enforces
+S5-01,Add Offer,Create new job offer,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for POST /api/offers/ (Sprint 5 feature)
+S5-02,Add Offer,Base salary >= 0,P1,VERIFIED,code-review,2026-04-11,routers/offers.py:23 has ge=0; Pydantic enforces
+S5-03,Add Offer,Deadline date format,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for deadline date parsing
+S5-04,Add Offer,Invalid deadline ignored,P2,VERIFIED,code-review,2026-04-11,routers/offers.py:94 catches ValueError and sets deadline to None
+S5-05,List Offers,List all user offers,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/offers/
+S5-06,Compare Offers,Side-by-side comparison,P0,MANUAL_REQUIRED,manual,2026-04-11,No test for GET /api/offers/compare
+S5-07,Compare Offers,No offers to compare,P1,MANUAL_REQUIRED,manual,2026-04-11,No test for empty offers comparison
+S5-08,Waitlist,Join employer waitlist,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestEmployerWaitlist::test_join_waitlist_success + test_routers_golden.py::TestEmployerRouter::test_employer_waitlist
+S5-09,Waitlist,Duplicate email returns existing,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestEmployerWaitlist::test_join_waitlist_duplicate
+S5-10,Waitlist,Rate limit 5/hour,P2,VERIFIED,code-review,2026-04-11,Rate limiter decorator present on endpoint (routers/employer.py:19)
+CC-01,Security Headers,All responses include security headers,P0,AUTO_PASS,automated,2026-04-11,test_api.py::TestSecurityHeaders::test_security_headers_present - checks X-Frame-Options/X-Content-Type-Options/Referrer-Policy/CSP
+CC-02,HSTS,HSTS header on HTTPS,P1,MANUAL_REQUIRED,manual,2026-04-11,Requires HTTPS or X-Forwarded-Proto=https with TRUST_PROXY=true
+CC-03,Request ID,X-Request-ID propagated,P1,VERIFIED,code-review,2026-04-11,api.py:142-145 propagates or generates X-Request-ID
+CC-04,CORS,Only allowed origins accepted,P1,AUTO_PASS,automated,2026-04-11,test_api.py::TestCORS::test_cors_no_credentials
+CC-05,Global Error,Unhandled exceptions return 500,P0,VERIFIED,code-review,2026-04-11,api.py:112-114 has global exception handler returning 500
+CC-06,Rate Limit,429 format consistent,P1,VERIFIED,code-review,2026-04-11,api.py:107-108 has rate limit handler returning 429 with detail message
+CC-07,Prod Auth,AUTH_ENABLED must be true in production,P0,AUTO_PASS,automated,2026-04-11,test_settings_guard.py::test_production_without_auth_raises - checks SystemExit
+CC-08,Docs Hidden,Swagger/ReDoc hidden when AUTH_ENABLED=true,P1,VERIFIED,code-review,2026-04-11,api.py:81-82 sets docs_url=None when AUTH_ENABLED
+CC-09,PII Stripping,Protected attributes stripped before LLM,P0,AUTO_PASS,automated,2026-04-11,test_agent_privacy.py::test_safe_profile_dict_strips_pii_and_protected + test_privacy.py::test_strip_protected_attributes
+CC-10,Sanitisation,Only safe fields sent to LLM,P0,AUTO_PASS,automated,2026-04-11,test_agent_privacy.py::test_system_prompt_excludes_pii + test_privacy.py::test_sanitise_for_llm_removes_pii_fields
+CC-11,Encryption,AES-256-GCM encryption at rest,P1,AUTO_PASS,automated,2026-04-11,test_privacy.py::test_encrypt_decrypt_roundtrip + test_encryption_wiring.py (full ORM roundtrip)

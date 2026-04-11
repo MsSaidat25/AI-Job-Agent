@@ -184,6 +184,93 @@ TOOLS: list[dict[str, Any]] = [
             "required": ["job_id"],
         },
     },
+    # ── Sprint 2: Salary Calibration ────────────────────────────────────────
+    {
+        "name": "salary_calibrate",
+        "description": (
+            "Get salary calibration data for a role across locations. "
+            "Combines BLS OEWS, H-1B LCA, and job posting data to show market rates."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "role": {"type": "string", "description": "Target job title, e.g. 'Senior Software Engineer'"},
+                "locations": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of locations to compare, e.g. ['San Francisco', 'Austin', 'Remote']",
+                },
+            },
+            "required": ["role"],
+        },
+    },
+    {
+        "name": "save_dream",
+        "description": "Save a career dream scenario for future tracking and comparison.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "dream_role": {"type": "string", "description": "The dream role title"},
+                "dream_industry": {"type": "string", "description": "Target industry", "default": ""},
+                "dream_location": {"type": "string", "description": "Target location", "default": ""},
+            },
+            "required": ["dream_role"],
+        },
+    },
+    # ── Sprint 3: Interview Prep ─────────────────────────────────────────
+    {
+        "name": "prepare_interview",
+        "description": (
+            "Generate a complete interview preparation package for a specific job application. "
+            "Includes company research, practice Q&A, and questions to ask."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "job_id": {"type": "string", "description": "ID of the job to prepare for."},
+            },
+            "required": ["job_id"],
+        },
+    },
+    {
+        "name": "debrief_interview",
+        "description": "Analyze a post-interview debrief to identify strengths, improvements, and next steps.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "job_id": {"type": "string", "description": "ID of the job interviewed for."},
+                "how_it_went": {"type": "string", "description": "User's description of how the interview went."},
+                "questions_asked": {"type": "string", "description": "Questions they remember being asked."},
+                "concerns": {"type": "string", "description": "Any concerns or things they felt went poorly.", "default": ""},
+            },
+            "required": ["job_id", "how_it_went"],
+        },
+    },
+    # ── Sprint 4: Outcome Learning & Negotiation ─────────────────────────
+    {
+        "name": "outcome_insights",
+        "description": "Get AI-powered insights from application outcomes -- what's working and what to change.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+    },
+    {
+        "name": "restrategize",
+        "description": "Analyze rejection patterns and get actionable advice to improve your application strategy.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+    },
+    {
+        "name": "negotiate_salary",
+        "description": "Generate a salary negotiation counter-offer script with market data.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "company": {"type": "string", "description": "Company name"},
+                "role": {"type": "string", "description": "Job title"},
+                "base_salary": {"type": "integer", "description": "Offered base salary in USD"},
+                "location": {"type": "string", "description": "Job location", "default": ""},
+            },
+            "required": ["company", "role", "base_salary"],
+        },
+    },
 ]
 
 
@@ -200,6 +287,11 @@ Your capabilities:
 - Analyse skill gaps against live job postings
 - Explore dream career transitions with gap analysis and timelines
 - Track application progress and analyse success patterns
+- Calibrate salary expectations across locations using market data
+- Prepare for interviews with company research and practice Q&A
+- Learn from outcomes to improve future applications
+- Analyze rejection patterns and restrategize
+- Generate salary negotiation scripts with market data
 - Offer unbiased, skill-based recommendations
 
 Principles you ALWAYS follow:

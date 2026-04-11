@@ -20,7 +20,11 @@ from src.agent_tools import TOOLS, SYSTEM_PROMPT
 from src.analytics import ApplicationTracker
 from src.career_dreamer import CareerDreamer
 from src.document_generator import DocumentGenerator
+from src.interview_service import InterviewPrepService
 from src.job_search import JobSearchEngine, MarketIntelligenceService
+from src.outcome_service import OutcomeLearningService
+from src.restrategizer import RejectionRestrategizer
+from src.salary_service import SalaryCalibrationService
 from src.models import (
     ApplicationRecord,
     ApplicationStatus,
@@ -44,6 +48,10 @@ class JobAgent:
         self._doc_gen = DocumentGenerator(self._client)
         self._tracker = ApplicationTracker(self._session, self._client)
         self._career_dreamer = CareerDreamer(self._client)
+        self._salary_svc = SalaryCalibrationService(self._client)
+        self._interview_svc = InterviewPrepService(self._client)
+        self._outcome_svc = OutcomeLearningService(self._client)
+        self._restrategizer = RejectionRestrategizer(self._client)
 
         self._job_cache: dict[str, Any] = {}
         self._job_cache_max = 200
@@ -90,14 +98,18 @@ class JobAgent:
     def _agent_loop(self, max_turns: int = 20) -> str:
         system = self._build_system_prompt()
         for _turn in range(max_turns):
-            response = create_message_with_failover(
-                self._client,
-                model=AGENT_MODEL,
-                max_tokens=MAX_TOKENS,
-                system=system,
-                tools=cast(Any, TOOLS),
-                messages=cast(Any, self._messages),
-            )
+            try:
+                response = create_message_with_failover(
+                    self._client,
+                    model=AGENT_MODEL,
+                    max_tokens=MAX_TOKENS,
+                    system=system,
+                    tools=cast(Any, TOOLS),
+                    messages=cast(Any, self._messages),
+                )
+            except Exception as exc:
+                logger.error("LLM call failed in agent loop: %s", exc)
+                return f"I'm unable to process your request right now. The AI service returned an error: {type(exc).__name__}. Please try again shortly."
             self._messages.append({"role": "assistant", "content": response.content})
 
             if response.stop_reason == "end_turn":
@@ -237,6 +249,88 @@ class JobAgent:
         desc = job.get("job_description", "") or job.get("description", "") if isinstance(job, dict) else job.description
         return json.dumps(self._doc_gen.score_ats_match(resume_text, desc), indent=2)
 
+    # ── Sprint 2 tools ────────────────────────────────────────────────────
+
+    def _tool_salary_calibrate(self, role: str, locations: list[str] | None = None) -> str:
+        locs = locations or [self.profile.location or "United States"]
+        result = self._salary_svc.calibrate(role, locs, self.profile.skills)
+        return json.dumps(result.model_dump(mode="json"), indent=2)
+
+    def _tool_save_dream(self, dream_role: str, dream_industry: str = "", dream_location: str = "") -> str:
+        from src.models import CareerDreamORM
+        dream_orm = CareerDreamORM(
+            user_id=self.profile.id,
+            dream_role=dream_role,
+            dream_industry=dream_industry,
+            dream_location=dream_location,
+        )
+        self._session.add(dream_orm)
+        self._session.commit()
+        return json.dumps({"saved": True, "dream_id": dream_orm.id, "dream_role": dream_role})
+
+    # ── Sprint 3 tools ────────────────────────────────────────────────────
+
+    def _tool_prepare_interview(self, job_id: str) -> str:
+        job = self._job_cache.get(job_id)
+        if not job:
+            return json.dumps({"error": "Job not found. Run search_jobs first."})
+        if isinstance(job, dict):
+            title = job.get("job_title", job.get("title", ""))
+            company = job.get("employer_name", job.get("company", ""))
+            desc = job.get("job_description", "")
+        else:
+            title, company, desc = job.title, job.company, job.description
+        package = self._interview_svc.full_prep(title, company, desc, self.profile.skills)
+        return json.dumps(package.model_dump(mode="json"), indent=2)
+
+    def _tool_debrief_interview(self, job_id: str, how_it_went: str, questions_asked: str = "", concerns: str = "") -> str:
+        job = self._job_cache.get(job_id)
+        title = "the role"
+        company = "the company"
+        if job:
+            if isinstance(job, dict):
+                title = job.get("job_title", job.get("title", title))
+                company = job.get("employer_name", job.get("company", company))
+            else:
+                title, company = job.title, job.company
+        report = self._interview_svc.debrief(title, company, {
+            "How did it go?": how_it_went,
+            "Questions asked": questions_asked,
+            "Concerns": concerns,
+        })
+        return json.dumps(report.model_dump(mode="json"), indent=2)
+
+    # ── Sprint 4 tools ────────────────────────────────────────────────────
+
+    def _tool_outcome_insights(self) -> str:
+        apps = self._tracker.get_applications(self.profile.id)
+        apps_dicts = [{"id": a.id, "job_id": a.job_id, "status": a.status.value,
+                        "job_title": getattr(self._job_cache.get(a.job_id), "title", None) or
+                        (self._job_cache.get(a.job_id, {}).get("job_title") if isinstance(self._job_cache.get(a.job_id), dict) else None),
+                        "company": getattr(self._job_cache.get(a.job_id), "company", None) or
+                        (self._job_cache.get(a.job_id, {}).get("employer_name") if isinstance(self._job_cache.get(a.job_id), dict) else None),
+                        } for a in apps]
+        insights = self._outcome_svc.generate_insights(apps_dicts, [])
+        return insights
+
+    def _tool_restrategize(self) -> str:
+        apps = self._tracker.get_applications(self.profile.id)
+        rejections = [{"id": a.id, "job_id": a.job_id, "status": a.status.value,
+                        "job_title": getattr(self._job_cache.get(a.job_id), "title", "Unknown"),
+                        "company": getattr(self._job_cache.get(a.job_id), "company", "Unknown"),
+                        } for a in apps if a.status.value == "rejected"]
+        patterns = self._restrategizer.detect_patterns(rejections)
+        profile_summary = f"{self.profile.desired_roles}, {self.profile.experience_level.value} level, skills: {', '.join(self.profile.skills[:10])}"
+        advice = self._restrategizer.generate_advice(patterns, profile_summary)
+        return json.dumps(advice.model_dump(mode="json"), indent=2)
+
+    def _tool_negotiate_salary(self, company: str, role: str, base_salary: int, location: str = "") -> str:
+        from src.salary_service import OfferDetails
+        offer = OfferDetails(company=company, role=role, base_salary=base_salary, location=location)
+        market_data = self._salary_svc.get_bls_oews_data(role, location)
+        script = self._salary_svc.generate_counter_offer(offer, market_data)
+        return json.dumps(script.model_dump(mode="json"), indent=2)
+
     _TOOL_MAP: dict[str, Any] = {
         "search_jobs": _tool_search_jobs,
         "get_market_insights": _tool_market_insights,
@@ -251,4 +345,11 @@ class JobAgent:
         "career_dreamer": _tool_career_dreamer,
         "analyze_skill_gaps": _tool_analyze_skill_gaps,
         "score_ats_match": _tool_score_ats_match,
+        "salary_calibrate": _tool_salary_calibrate,
+        "save_dream": _tool_save_dream,
+        "prepare_interview": _tool_prepare_interview,
+        "debrief_interview": _tool_debrief_interview,
+        "outcome_insights": _tool_outcome_insights,
+        "restrategize": _tool_restrategize,
+        "negotiate_salary": _tool_negotiate_salary,
     }

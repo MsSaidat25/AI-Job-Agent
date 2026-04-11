@@ -142,3 +142,150 @@ class ResumeParseResponse(BaseModel):
     languages: list[str] = Field(default_factory=list)
     linkedin_url: Optional[str] = None
     portfolio_url: Optional[str] = None
+
+
+# ── Auth schemas ──────────────────────────────────────────────────────────────
+
+
+class SignupRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=6, max_length=128)
+    name: str = Field(..., max_length=200)
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=1, max_length=128)
+
+
+class GoogleAuthRequest(BaseModel):
+    id_token: str = Field(..., min_length=1, max_length=4096)
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str = Field(..., min_length=1, max_length=2048)
+
+
+class AuthResponse(BaseModel):
+    id_token: str
+    refresh_token: str
+    user_id: str
+    expires_in: int
+
+
+# ── Onboarding schemas ────────────────────────────────────────────────────────
+
+
+class GenerateTasksRequest(BaseModel):
+    role: str = Field(..., max_length=200)
+
+
+class GenerateTasksResponse(BaseModel):
+    tasks: list[str]
+    role: str
+
+
+class GenerateSkillsRequest(BaseModel):
+    role: str = Field(..., max_length=200)
+    selected_tasks: list[str] = Field(..., max_length=50)
+
+
+class GenerateSkillsResponse(BaseModel):
+    skills: list[str]
+
+
+class GenerateIdentityRequest(BaseModel):
+    name: str = Field(..., max_length=200)
+    skills: list[str] = Field(default_factory=list)
+    desired_roles: list[str] = Field(default_factory=list)
+    experience_level: ExperienceLevel = ExperienceLevel.MID
+    interests: list[str] = Field(default_factory=list)
+
+
+class GenerateIdentityResponse(BaseModel):
+    statement: str
+    label: str = "STARTER DRAFT"
+
+
+class ConfirmProfileRequest(ProfileRequest):
+    career_identity_statement: Optional[str] = None
+    preferred_locations: list[str] = Field(default_factory=list)
+    remote_preference: str = Field(default="flexible", max_length=30)
+    non_compete_companies: list[str] = Field(default_factory=list)
+    interests: list[str] = Field(default_factory=list)
+
+
+# ── Enhanced Job Search schemas ───────────────────────────────────────────────
+
+
+class JobSearchRequestV2(BaseModel):
+    location_filter: str = Field(default="", max_length=200)
+    include_remote: bool = True
+    max_results: int = Field(default=10, ge=1, le=50)
+    job_type: Optional[str] = Field(default=None, max_length=50)
+    experience_level: Optional[str] = Field(default=None, max_length=50)
+    salary_min: Optional[int] = Field(default=None, ge=0)
+    salary_max: Optional[int] = Field(default=None, ge=0)
+    date_posted: Optional[str] = Field(default=None, max_length=20)
+    sort_by: str = Field(default="relevance", pattern="^(relevance|date|salary)$")
+    page: int = Field(default=1, ge=1)
+
+
+class JobDetailResponse(BaseModel):
+    id: str
+    title: str
+    company: str
+    location: str
+    remote_allowed: bool = False
+    job_type: str = "full_time"
+    experience_level: str = "mid"
+    description: str = ""
+    requirements: list[str] = Field(default_factory=list)
+    nice_to_have: list[str] = Field(default_factory=list)
+    salary_min: Optional[int] = None
+    salary_max: Optional[int] = None
+    currency: str = "USD"
+    posted_date: Optional[str] = None
+    source_url: str = ""
+    source_platform: str = ""
+    match_score: Optional[float] = None
+    match_rationale: Optional[str] = None
+    is_saved: bool = False
+
+
+class JobSearchResponseV2(BaseModel):
+    jobs: list[JobDetailResponse]
+    total: int
+    page: int
+    has_more: bool
+
+
+class SaveJobResponse(BaseModel):
+    message: str
+    job_id: str
+    saved: bool
+
+
+class SavedJobListResponse(BaseModel):
+    jobs: list[JobDetailResponse]
+    total: int
+
+
+# ── Job Import schema (Chrome extension) ─────────────────────────────────────
+
+
+class JobImportRequest(BaseModel):
+    title: str = Field(..., max_length=500)
+    company: str = Field(..., max_length=300)
+    location: str = Field(default="", max_length=200)
+    description: str = Field(default="", max_length=10000)
+    salary_text: Optional[str] = Field(default=None, max_length=200)
+    source_url: str = Field(default="", max_length=2000)
+    source_platform: str = Field(default="", max_length=100)
+
+
+class JobImportResponse(BaseModel):
+    job_id: str
+    title: str
+    company: str
+    is_duplicate: bool = False

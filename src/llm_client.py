@@ -82,6 +82,11 @@ def _is_retryable(exc: Exception) -> bool:
         return True
     if isinstance(exc, anthropic.APIStatusError) and exc.status_code >= 500:
         return True
+    # Model not available in region -- failover to alternative
+    if isinstance(exc, anthropic.BadRequestError):
+        msg = str(exc).lower()
+        if "not servable" in msg or "not found" in msg or "not available" in msg:
+            return True
     return False
 
 
@@ -96,13 +101,25 @@ def create_message_with_failover(
     try:
         return client.messages.create(**kwargs)
     except Exception as exc:
-        if USE_VERTEX_FAILOVER and (not USE_VERTEX_PRIMARY) and VERTEX_PROJECT and _is_retryable(exc):
+        if not _is_retryable(exc):
+            raise
+        # Failover: Vertex primary -> OpenRouter, or OpenRouter primary -> Vertex
+        if USE_VERTEX_PRIMARY and LLM_API_KEY:
+            logger.warning(
+                "Primary Vertex AI failed (%s), failing over to OpenRouter",
+                type(exc).__name__,
+            )
+            fallback_kwargs: dict[str, Any] = {"api_key": LLM_API_KEY}
+            if LLM_BASE_URL:
+                fallback_kwargs["base_url"] = LLM_BASE_URL
+            fallback_client = anthropic.Anthropic(**fallback_kwargs)
+            return fallback_client.messages.create(**kwargs)
+        if (not USE_VERTEX_PRIMARY) and USE_VERTEX_FAILOVER and VERTEX_PROJECT:
             logger.warning(
                 "Primary LLM failed (%s), failing over to Vertex AI",
                 type(exc).__name__,
             )
             vertex = _get_vertex_client()
-            # Vertex may use a different model identifier
             vertex_kwargs = dict(kwargs)
             vertex_kwargs["model"] = VERTEX_MODEL
             return vertex.messages.create(**vertex_kwargs)
