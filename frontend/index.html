@@ -225,6 +225,14 @@ html:not(.dark) #sidebar { background: #f1f5f9; border-color: #e2e8f0; }
 html:not(.dark) .profile-field-value { color:#1f2937; }
 html:not(.dark) .profile-field { border-color: #e5e7eb; }
 </style>
+<script>
+// Inline: apply saved theme BEFORE first paint to prevent flash.
+// Default is always light -- dark only if user explicitly toggled.
+(function(){
+  var t = localStorage.getItem('jpai_theme');
+  if (t === 'dark') document.documentElement.classList.add('dark');
+})();
+</script>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
 
