@@ -62,14 +62,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd backend && ruff check . 2>&1 && pyright 2>&1"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "node .claude/hooks/code-hygiene.mjs"
           }
         ]

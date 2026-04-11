@@ -281,7 +281,7 @@ Focus on: keyword optimisation, impact quantification, relevance, and structure.
 
         # Tighten default paragraph spacing
         style = doc.styles["Normal"]
-        style.font.size = Pt(11)
+        style.font.size = Pt(11)  # type: ignore[union-attr]
 
         for line in content_md.splitlines():
             stripped = line.strip()

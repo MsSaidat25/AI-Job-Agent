@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, Switch } from "react-native";
+import { View, Text, ScrollView, Switch, Platform } from "react-native";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useProfileStore } from "../../stores/useProfileStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { ExperienceLevel, JobType } from "../../types/models";
 import type { ProfileRequest } from "../../types/api";
+
+const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 export function ProfileSetupScreen() {
   const { submitProfile, isLoading } = useProfileStore();
@@ -69,8 +71,13 @@ export function ProfileSetupScreen() {
   }
 
   return (
-    <ScreenWrapper>
-      <View className="px-6">
+    <ResponsiveContainer>
+      <ScrollView
+        className="flex-1 px-6"
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={webScrollStyle}
+      >
         <Text
           className="text-2xl font-bold mt-6 mb-2"
           style={{ color: colors.text }}
@@ -183,7 +190,7 @@ export function ProfileSetupScreen() {
         />
 
         <View className="h-12" />
-      </View>
-    </ScreenWrapper>
+      </ScrollView>
+    </ResponsiveContainer>
   );
 }

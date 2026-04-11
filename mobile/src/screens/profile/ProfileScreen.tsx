@@ -1,15 +1,17 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useProfileStore } from "../../stores/useProfileStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 import type { ProfileStackParamList } from "../../types/navigation";
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList, "Profile">;
+
+const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 export function ProfileScreen() {
   const navigation = useNavigation<Nav>();
@@ -19,8 +21,12 @@ export function ProfileScreen() {
   if (!profile) return null;
 
   return (
-    <ScreenWrapper>
-      <View className="px-4 pt-4">
+    <ResponsiveContainer>
+      <ScrollView
+        className="flex-1 px-4 pt-4"
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={webScrollStyle}
+      >
         {/* Header */}
         <View className="items-center mb-6">
           <View
@@ -115,8 +121,8 @@ export function ProfileScreen() {
             Settings
           </Text>
         </TouchableOpacity>
-      </View>
-    </ScreenWrapper>
+      </ScrollView>
+    </ResponsiveContainer>
   );
 }
 

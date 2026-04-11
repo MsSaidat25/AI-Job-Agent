@@ -1,11 +1,13 @@
 import React, { useEffect, useCallback } from "react";
-import { View, Text, RefreshControl } from "react-native";
+import { View, Text, ScrollView, RefreshControl, Platform } from "react-native";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useDashboardStore } from "../../stores/useDashboardStore";
 import { useThemeStore } from "../../stores/useThemeStore";
+
+const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 export function DashboardScreen() {
   const { summary, skills, activity, isLoading, error, loadAll } = useDashboardStore();
@@ -21,33 +23,38 @@ export function DashboardScreen() {
 
   if (!summary && !isLoading && error) {
     return (
-      <EmptyState
-        title="Something went wrong"
-        message={error}
-        action={<Button title="Retry" onPress={loadAll} variant="secondary" />}
-      />
+      <ResponsiveContainer>
+        <EmptyState
+          title="Something went wrong"
+          message={error}
+          action={<Button title="Retry" onPress={loadAll} variant="secondary" />}
+        />
+      </ResponsiveContainer>
     );
   }
 
   if (!summary && !isLoading) {
     return (
-      <EmptyState
-        title="Welcome!"
-        message="Start searching for jobs to see your dashboard metrics here."
-        action={<Button title="Refresh" onPress={loadAll} variant="secondary" />}
-      />
+      <ResponsiveContainer>
+        <EmptyState
+          title="Welcome!"
+          message="Start searching for jobs to see your dashboard metrics here."
+          action={<Button title="Refresh" onPress={loadAll} variant="secondary" />}
+        />
+      </ResponsiveContainer>
     );
   }
 
   return (
-    <ScreenWrapper
-      scrollViewProps={{
-        refreshControl: (
+    <ResponsiveContainer>
+      <ScrollView
+        className="flex-1 px-4 pt-4"
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={webScrollStyle}
+        refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
-        ),
-      }}
-    >
-      <View className="px-4 pt-4">
+        }
+      >
         {/* Summary Cards */}
         {summary && (
           <View className="flex-row flex-wrap gap-3 mb-4">
@@ -143,8 +150,8 @@ export function DashboardScreen() {
         )}
 
         <View className="h-4" />
-      </View>
-    </ScreenWrapper>
+      </ScrollView>
+    </ResponsiveContainer>
   );
 }
 

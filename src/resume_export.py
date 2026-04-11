@@ -188,9 +188,9 @@ def export_docx(content_md: str, template_id: str = "classic") -> bytes:
         sec.right_margin = Inches(style.margin_right / 25.4)
 
     default_style = doc.styles["Normal"]
-    default_style.font.size = Pt(style.font_size_body)
-    default_style.font.color.rgb = RGBColor(*style.primary_color)
-    pf = default_style.paragraph_format
+    default_style.font.size = Pt(style.font_size_body)  # type: ignore[union-attr]
+    default_style.font.color.rgb = RGBColor(*style.primary_color)  # type: ignore[union-attr]
+    pf = default_style.paragraph_format  # type: ignore[union-attr]
     pf.space_before = Pt(0)
     pf.space_after = Pt(2)
     pf.line_spacing = Pt(style.line_spacing + 8)

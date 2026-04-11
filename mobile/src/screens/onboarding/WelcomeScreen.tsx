@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "../../components/ui/Button";
-import { ScreenWrapper } from "../../components/ScreenWrapper";
+import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useThemeStore } from "../../stores/useThemeStore";
 import type { OnboardingStackParamList } from "../../types/navigation";
 
@@ -15,7 +15,7 @@ export function WelcomeScreen() {
   const colors = useThemeStore((s) => s.colors);
 
   return (
-    <ScreenWrapper>
+    <ResponsiveContainer>
       <View className="flex-1 justify-center items-center px-8">
         {/* Logo area */}
         <View
@@ -72,7 +72,7 @@ export function WelcomeScreen() {
           size="lg"
         />
       </View>
-    </ScreenWrapper>
+    </ResponsiveContainer>
   );
 }
 
