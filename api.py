@@ -6,11 +6,11 @@ Thin orchestration layer: app setup, middleware, and router mounting.
 Session management lives in src/session_store.py.
 All domain endpoints live in routers/*.
 """
-from __future__ import annotations
 
 from contextlib import asynccontextmanager
 import logging
 import os
+from typing import Optional
 import uuid
 
 from dotenv import load_dotenv
@@ -79,8 +79,8 @@ def _get_real_client_ip(request: Request) -> str:
 
 limiter = Limiter(key_func=_get_real_client_ip)
 
-_docs_url: str | None = "/docs" if not AUTH_ENABLED else None
-_redoc_url: str | None = "/redoc" if not AUTH_ENABLED else None
+_docs_url: Optional[str] = "/docs" if not AUTH_ENABLED else None
+_redoc_url: Optional[str] = "/redoc" if not AUTH_ENABLED else None
 
 
 validate_production_config()
