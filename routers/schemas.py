@@ -34,7 +34,7 @@ class ProfileRequest(BaseModel):
 
     @field_validator("portfolio_url", "linkedin_url", mode="before")
     @classmethod
-    def validate_urls(cls, v: str | None) -> str | None:
+    def validate_urls(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return v
         if not v.startswith(("https://", "http://")):
@@ -164,6 +164,23 @@ class GoogleAuthRequest(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str = Field(..., min_length=1, max_length=2048)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+
+class ChangePasswordRequest(BaseModel):
+    id_token: str = Field(..., min_length=1, max_length=4096)
+    new_password: str = Field(..., min_length=6, max_length=128)
+
+
+class ChangePasswordResponse(BaseModel):
+    message: str
 
 
 class AuthResponse(BaseModel):

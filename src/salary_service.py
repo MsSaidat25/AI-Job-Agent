@@ -1,4 +1,5 @@
 """Salary Calibration Service -- BLS OEWS, H-1B LCA, and job posting salary data."""
+from __future__ import annotations
 
 import logging
 from typing import Any, Optional, cast
