@@ -1083,14 +1083,10 @@ function setResult(id, t) {
 
 // ── Health check ───────────────────────────────────
 async function checkHealth() {
-  const b = document.getElementById('statusBadge');
   try {
-    const d = await api('GET', '/api/health');
-    b.textContent = '● Online · ' + d.sessions + ' session' + (d.sessions !== 1 ? 's' : '');
-    b.className = 'text-[11px] font-bold px-3 py-1.5 rounded-full bg-sage/10 text-sage border border-sage/20';
+    await api('GET', '/api/health');
   } catch {
-    b.textContent = '● Backend Offline';
-    b.className = 'text-[11px] font-bold px-3 py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20';
+    // Health check failed silently -- no user-facing indicator needed
   }
 }
 
