@@ -67,6 +67,12 @@ class UserProfile(BaseModel):
     portfolio_url: Optional[str] = None
     linkedin_url: Optional[str] = None
     preferred_currency: str = "USD"
+    career_identity_statement: Optional[str] = None
+    preferred_locations: list[str] = Field(default_factory=list)
+    remote_preference: str = "flexible"
+    non_compete_companies: list[str] = Field(default_factory=list)
+    interests: list[str] = Field(default_factory=list)
+    firebase_uid: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("skills", "desired_roles", mode="before")
@@ -190,6 +196,15 @@ from src.models_db import (  # noqa: E402, F401
     GeneratedDocumentORM,
     CareerDreamORM,
     EmployerWaitlistORM,
+    SavedJobORM,
+    DocumentVariantORM,
+    DailyFeedORM,
+    FollowUpScheduleORM,
+    AutoApplySettingsORM,
+    AutoApplyQueueORM,
+    EmailOAuthTokenORM,
+    OfferORM,
+    SavedSearchORM,
     profile_to_orm,
     orm_to_profile,
     reset_encryption_key,

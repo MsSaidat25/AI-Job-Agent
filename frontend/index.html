@@ -367,16 +367,127 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
 <!-- ════════════════════════════════
      SETUP MODAL
 ════════════════════════════════ -->
+<!-- ═══ AUTH GATE MODAL ═══ -->
+<div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="authModal">
+  <div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-primary/20 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
+    <button onclick="document.getElementById('authModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Close">
+      <span class="material-symbols-outlined text-lg">close</span>
+    </button>
+    <div class="flex items-center gap-2 mb-6">
+      <span class="material-symbols-outlined text-primary text-3xl">route</span>
+      <div>
+        <h2 class="text-lg font-bold">Welcome to JobPath AI</h2>
+        <p class="text-xs text-slate-500">Your AI-powered career strategist</p>
+      </div>
+    </div>
+
+    <!-- Login Form (default) -->
+    <div id="authLogin">
+      <h3 class="text-base font-bold mb-4">Sign in to your account</h3>
+      <div class="flex flex-col gap-3 mb-4">
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Email</label><input id="authEmail" type="email" placeholder="you@example.com"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Password</label><input id="authPassword" type="password" placeholder="Min 6 characters"/></div>
+      </div>
+      <button onclick="doLogin()" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Sign In</button>
+      <div class="flex items-center gap-3 mb-3"><div class="flex-1 h-px bg-slate-200 dark:bg-white/10"></div><span class="text-xs text-slate-400">or</span><div class="flex-1 h-px bg-slate-200 dark:bg-white/10"></div></div>
+      <button onclick="doGoogleAuth()" class="w-full border border-slate-300 dark:border-slate-600 font-medium py-3 px-4 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all mb-4 flex items-center justify-center gap-2 text-sm">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <p class="text-center text-sm text-slate-500">Don't have an account? <button onclick="showAuthSignup()" class="text-primary font-bold hover:underline">Sign up</button></p>
+      <p class="text-center text-xs text-slate-400 mt-2"><button onclick="skipAuth()" class="hover:text-primary transition-colors">Continue without account</button></p>
+    </div>
+
+    <!-- Signup Form (hidden) -->
+    <div id="authSignup" style="display:none">
+      <h3 class="text-base font-bold mb-4">Create your account</h3>
+      <div class="flex flex-col gap-3 mb-4">
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Full Name</label><input id="authSignupName" placeholder="Jane Doe"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Email</label><input id="authSignupEmail" type="email" placeholder="you@example.com"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Password</label><input id="authSignupPassword" type="password" placeholder="Min 6 characters"/></div>
+      </div>
+      <button onclick="doSignup()" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Create Account</button>
+      <p class="text-center text-sm text-slate-500">Already have an account? <button onclick="showAuthLogin()" class="text-primary font-bold hover:underline">Sign in</button></p>
+      <p class="text-center text-xs text-slate-400 mt-2"><button onclick="skipAuth()" class="hover:text-primary transition-colors">Continue without account</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ONBOARDING PATH MODAL ═══ -->
+<div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="onboardingPathModal">
+  <div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
+    <button onclick="document.getElementById('onboardingPathModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Close">
+      <span class="material-symbols-outlined text-lg">close</span>
+    </button>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="material-symbols-outlined text-primary">route</span>
+      <span class="text-xs font-bold uppercase tracking-widest text-sage">JobPath AI</span>
+    </div>
+    <h2 class="text-xl font-bold mb-1">How would you like to get started?</h2>
+    <p class="text-sm text-slate-500 mb-6">Choose your onboarding path. You can always edit later.</p>
+
+    <div class="flex flex-col gap-3">
+      <!-- Path A: Resume Upload -->
+      <button onclick="startOnboardingPath('resume')" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-primary">upload_file</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm group-hover:text-primary transition-colors">Upload Resume</h3>
+            <p class="text-xs text-slate-500 mt-0.5">AI reads your resume and auto-fills your profile in seconds</p>
+            <span class="text-[10px] text-primary font-bold mt-1 inline-block">Fastest -- 30 seconds</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Path B: Guided Wizard -->
+      <button onclick="startOnboardingPath('wizard')" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-primary">edit_note</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm group-hover:text-primary transition-colors">Guided Setup</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Answer a few questions about your role, skills, and goals</p>
+            <span class="text-[10px] text-primary font-bold mt-1 inline-block">5 steps -- 2 minutes</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Path C: Browse First -->
+      <button onclick="startOnboardingPath('browse')" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-primary">explore</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm group-hover:text-primary transition-colors">Just Browse</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Skip setup and explore the platform. Set up profile later.</p>
+            <span class="text-[10px] text-slate-400 font-bold mt-1 inline-block">Limited features until profile is complete</span>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <button onclick="document.getElementById('onboardingPathModal').classList.add('hidden')" class="mt-4 text-xs text-slate-400 hover:text-primary transition-colors w-full text-center">Back</button>
+  </div>
+</div>
+
+<!-- ═══ PROFILE SETUP MODAL ═══ -->
 <div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="setupModal">
-  <div class="bg-background-dark border border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl">
+  <div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
+    <button onclick="document.getElementById('setupModal').classList.add('hidden'); showOnboardingPath();" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Back to options">
+      <span class="material-symbols-outlined text-lg">close</span>
+    </button>
     <div class="flex items-center gap-2 mb-5">
       <span class="material-symbols-outlined text-primary">route</span>
       <span class="text-xs font-bold uppercase tracking-widest text-sage">JobPath AI · Avien Solutions</span>
     </div>
     <div class="flex gap-1 mb-6">
       <div class="h-1 flex-1 rounded-full bg-primary transition-all" id="sb0"></div>
-      <div class="h-1 flex-1 rounded-full bg-white/10 transition-all" id="sb1"></div>
-      <div class="h-1 flex-1 rounded-full bg-white/10 transition-all" id="sb2"></div>
+      <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-white/10 transition-all" id="sb1"></div>
+      <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-white/10 transition-all" id="sb2"></div>
     </div>
     <h2 class="text-xl font-bold mb-1" id="setupTitle">Create your profile</h2>
     <p class="text-sm text-slate-500 mb-6" id="setupSub">Tell us about you so AI can find and rank the best opportunities.</p>
@@ -384,12 +495,12 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
     <!-- STEP 0 -->
     <div id="step0">
       <div class="grid grid-cols-2 gap-3">
-        <div class="col-span-2 flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Full Name *</label><input id="pName" placeholder="Jane Doe"/></div>
-        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Email *</label><input id="pEmail" type="email" placeholder="jane@example.com"/></div>
-        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Phone</label><input id="pPhone" placeholder="+1 555 000 0000"/></div>
-        <div class="col-span-2 flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Location *</label><input id="pLocation" placeholder="City, Country"/></div>
-        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Experience Level *</label><select id="pExpLevel" required><option value="">Select level…</option><option value="entry">Entry</option><option value="mid">Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select></div>
-        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Years of Experience *</label><input id="pYears" type="number" placeholder="e.g. 3" min="0" required/></div>
+        <div class="col-span-2 flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Full Name *</label><input id="pName" placeholder="Jane Doe"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Email *</label><input id="pEmail" type="email" placeholder="jane@example.com"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Phone</label><input id="pPhone" placeholder="+1 555 000 0000"/></div>
+        <div class="col-span-2 flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Location *</label><input id="pLocation" placeholder="City, Country"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Experience Level *</label><select id="pExpLevel" required><option value="">Select level…</option><option value="entry">Entry</option><option value="mid">Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Years of Experience *</label><input id="pYears" type="number" placeholder="e.g. 3" min="0" required/></div>
       </div>
     </div>
 
@@ -397,34 +508,34 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
     <div id="step1" style="display:none">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Skills (Enter to add)</label>
-          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="skillsTagsInput">
+          <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Skills (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="skillsTagsInput">
             <input id="skillsInput" placeholder="Python, React, SQL…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Desired Roles (Enter to add)</label>
-          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="rolesTagsInput">
+          <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Desired Roles (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="rolesTagsInput">
             <input id="rolesInput" placeholder="Software Engineer…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Job Types</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Job Types</label>
           <div class="flex flex-wrap gap-2" id="jobTypesGroup">
-            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="full_time" class="accent-primary" checked/> Full Time</label>
-            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="part_time" class="accent-primary"/> Part Time</label>
-            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="contract" class="accent-primary"/> Contract</label>
-            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="remote" class="accent-primary"/> Remote</label>
-            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="internship" class="accent-primary"/> Internship</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="full_time" class="accent-primary" checked/> Full Time</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="part_time" class="accent-primary"/> Part Time</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="contract" class="accent-primary"/> Contract</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="remote" class="accent-primary"/> Remote</label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 text-sm cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"><input type="checkbox" value="internship" class="accent-primary"/> Internship</label>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Preferred Currency</label>
+          <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Preferred Currency</label>
           <select id="pCurrency"><option value="CAD">🇨🇦 CAD — Canadian Dollar</option><option value="USD">🇺🇸 USD — US Dollar</option><option value="GBP">🇬🇧 GBP — British Pound</option><option value="EUR">🇪🇺 EUR — Euro</option></select>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Min Salary</label><input id="pSalMin" type="number" placeholder="e.g. 60000"/></div>
-          <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Max Salary</label><input id="pSalMax" type="number" placeholder="e.g. 120000"/></div>
+          <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Min Salary</label><input id="pSalMin" type="number" placeholder="e.g. 60000"/></div>
+          <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Max Salary</label><input id="pSalMax" type="number" placeholder="e.g. 120000"/></div>
         </div>
       </div>
     </div>
@@ -436,7 +547,7 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
         <div class="bg-primary/5 border border-primary/20 rounded-xl p-4">
           <div class="flex items-center gap-2 mb-3">
             <span class="material-symbols-outlined text-primary text-lg">upload_file</span>
-            <span class="text-sm font-bold text-slate-200">Upload Resume</span>
+            <span class="text-sm font-bold text-slate-800 dark:text-slate-200">Upload Resume</span>
             <span class="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-bold ml-auto">AI Auto-fill</span>
           </div>
           <p class="text-xs text-slate-500 mb-3">Upload your resume and AI will auto-fill all profile fields instantly.</p>
@@ -464,16 +575,16 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
           </div>
           <p class="text-[10px] text-slate-600 mt-2 flex items-center gap-1"><span class="material-symbols-outlined text-xs">info</span>URL is used to personalise AI outputs. Full import coming soon.</p>
         </div>
-        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Portfolio URL</label><input id="pPortfolio" placeholder="https://yoursite.com"/></div>
+        <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Portfolio URL</label><input id="pPortfolio" placeholder="https://yoursite.com"/></div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Certifications (Enter to add)</label>
-          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="certsTagsInput">
+          <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Certifications (Enter to add)</label>
+          <div class="flex flex-wrap gap-1.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="certsTagsInput">
             <input id="certsInput" placeholder="AWS Certified…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Languages</label>
-          <div class="flex flex-wrap gap-1.5 bg-white/5 border border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="langsTagsInput">
+          <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Languages</label>
+          <div class="flex flex-wrap gap-1.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-sage/20 rounded-xl p-2 min-h-[44px] focus-within:border-primary/50 transition-colors" id="langsTagsInput">
             <input id="langsInput" placeholder="English, French…" style="background:transparent;border:none;padding:2px 6px;width:auto;flex:1;min-width:80px;color:inherit;"/>
           </div>
         </div>
@@ -495,9 +606,9 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
 <div class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4" id="updateModal">
   <div class="bg-background-dark border border-sage/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
     <h3 class="font-bold text-base mb-4">Update Application</h3>
-    <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">New Status</label><select id="updateStatus"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select></div>
-    <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Employer Feedback</label><textarea id="updateFeedback" placeholder="What did they say?" rows="3"></textarea></div>
-    <div class="flex flex-col gap-1.5 mb-5"><label class="text-[10px] uppercase tracking-widest text-slate-200 font-bold">Notes</label><textarea id="updateNotes" placeholder="Additional notes…" rows="2"></textarea></div>
+    <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">New Status</label><select id="updateStatus"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select></div>
+    <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Employer Feedback</label><textarea id="updateFeedback" placeholder="What did they say?" rows="3"></textarea></div>
+    <div class="flex flex-col gap-1.5 mb-5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Notes</label><textarea id="updateNotes" placeholder="Additional notes…" rows="2"></textarea></div>
     <div class="flex gap-2 justify-end">
       <button onclick="closeUpdateModal()" class="text-sm font-medium px-4 py-2 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all">Cancel</button>
       <button onclick="submitUpdate()" class="bg-primary text-background-dark font-bold py-2 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">Update <span class="material-symbols-outlined text-sm">check</span></button>
@@ -993,7 +1104,92 @@ const rObs = new IntersectionObserver(e => { e.forEach(x => { if (x.isIntersecti
 document.querySelectorAll('.reveal').forEach(el => rObs.observe(el));
 
 // ── Setup modal ────────────────────────────────────
-function openSetup() { document.getElementById('setupModal').classList.remove('hidden'); }
+function openSetup() { document.getElementById('authModal').classList.remove('hidden'); }
+
+// ── Auth flow ──
+function showAuthSignup() {
+  document.getElementById('authLogin').style.display = 'none';
+  document.getElementById('authSignup').style.display = '';
+}
+function showAuthLogin() {
+  document.getElementById('authSignup').style.display = 'none';
+  document.getElementById('authLogin').style.display = '';
+}
+async function doLogin() {
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) { toast('Please fill in email and password.', 'error'); return; }
+  try {
+    const r = await api('POST', '/api/auth/login', { email, password });
+    toast('Signed in!', 'success');
+    document.getElementById('authModal').classList.add('hidden');
+    showOnboardingPath();
+  } catch (e) {
+    // Auth not configured or invalid -- fall through to onboarding
+    toast('Auth service not available. Continuing as guest.', 'info');
+    document.getElementById('authModal').classList.add('hidden');
+    showOnboardingPath();
+  }
+}
+async function doSignup() {
+  const name = document.getElementById('authSignupName').value;
+  const email = document.getElementById('authSignupEmail').value;
+  const password = document.getElementById('authSignupPassword').value;
+  if (!name || !email || !password) { toast('Please fill in all fields.', 'error'); return; }
+  if (password.length < 6) { toast('Password must be at least 6 characters.', 'error'); return; }
+  try {
+    const r = await api('POST', '/api/auth/signup', { name, email, password });
+    toast('Account created!', 'success');
+    document.getElementById('authModal').classList.add('hidden');
+    // Pre-fill name and email in profile form
+    document.getElementById('pName').value = name;
+    document.getElementById('pEmail').value = email;
+    showOnboardingPath();
+  } catch (e) {
+    toast('Auth service not available. Continuing as guest.', 'info');
+    document.getElementById('authModal').classList.add('hidden');
+    showOnboardingPath();
+  }
+}
+function doGoogleAuth() {
+  toast('Google sign-in requires server configuration.', 'info');
+}
+function skipAuth() {
+  document.getElementById('authModal').classList.add('hidden');
+  showOnboardingPath();
+}
+
+// ── Onboarding path selection ──
+function showOnboardingPath() {
+  document.getElementById('onboardingPathModal').classList.remove('hidden');
+}
+function startOnboardingPath(path) {
+  document.getElementById('onboardingPathModal').classList.add('hidden');
+  if (path === 'resume') {
+    // Jump to step 2 (resume upload) in setup modal
+    document.getElementById('setupModal').classList.remove('hidden');
+    goStep(2);
+  } else if (path === 'wizard') {
+    // Start from step 0 (guided form)
+    document.getElementById('setupModal').classList.remove('hidden');
+    goStep(0);
+  } else if (path === 'browse') {
+    // Create minimal profile and launch dashboard
+    launchBrowseMode();
+  }
+}
+async function launchBrowseMode() {
+  try {
+    await api('POST', '/api/profile', {
+      name: 'Guest User', email: 'guest@jobpath.ai', location: 'Anywhere',
+      skills: [], desired_roles: [], experience_level: 'mid', years_of_experience: 0,
+    });
+    const p = await api('GET', '/api/profile');
+    document.getElementById('landing').style.display = 'none';
+    launchDashboard(p);
+    toast('Browse mode active. Set up your full profile anytime from Settings.', 'info');
+  } catch(e) { toast('Could not start browse mode.', 'error'); }
+}
 
 function setupTags(inp, con, arr) {
   const i = document.getElementById(inp); if (!i) return;
@@ -1018,6 +1214,21 @@ function addTag(con, arr, val, inp) {
   c.insertBefore(t, i);
 }
 
+function goStep(n) {
+  // Jump directly to a setup step (used by onboarding path selection)
+  document.getElementById('step0').style.display = n === 0 ? '' : 'none';
+  document.getElementById('step1').style.display = n === 1 ? '' : 'none';
+  document.getElementById('step2').style.display = n === 2 ? '' : 'none';
+  const titles = ['Create your profile', 'Skills & Preferences', 'Final Details & Resume Upload'];
+  const subs = ['Tell us about you so AI can find the best opportunities.', 'What are you looking for?', 'Upload your resume for AI auto-fill, or skip to finish.'];
+  document.getElementById('setupTitle').textContent = titles[n] || titles[0];
+  document.getElementById('setupSub').textContent = subs[n] || subs[0];
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('sb' + i).className = 'h-1 flex-1 rounded-full transition-all ' + (i <= n ? 'bg-primary' : 'bg-slate-200 dark:bg-white/10');
+  }
+  if (n > 0) document.getElementById('setupBackBtn').style.display = '';
+  setupPage = n;
+}
 function setupNext() {
   if (setupPage === 0) {
     if (!document.getElementById('pName').value.trim() || !document.getElementById('pEmail').value.trim() || !document.getElementById('pLocation').value.trim()) { toast('Fill in name, email, and location', 'error'); return; }
@@ -1040,13 +1251,13 @@ function setupNext() {
 function setupPrev() {
   if (setupPage === 1) {
     document.getElementById('step1').style.display = 'none'; document.getElementById('step0').style.display = '';
-    document.getElementById('sb1').className = 'h-1 flex-1 rounded-full bg-white/10 transition-all';
+    document.getElementById('sb1').className = 'h-1 flex-1 rounded-full bg-slate-200 dark:bg-white/10 transition-all';
     document.getElementById('setupTitle').textContent = 'Create your profile';
     document.getElementById('setupSub').textContent = 'Tell us about you so AI can find the best opportunities.';
     document.getElementById('setupBackBtn').style.display = 'none'; setupPage = 0;
   } else if (setupPage === 2) {
     document.getElementById('step2').style.display = 'none'; document.getElementById('step1').style.display = '';
-    document.getElementById('sb2').className = 'h-1 flex-1 rounded-full bg-white/10 transition-all';
+    document.getElementById('sb2').className = 'h-1 flex-1 rounded-full bg-slate-200 dark:bg-white/10 transition-all';
     document.getElementById('setupTitle').textContent = 'Skills & Preferences';
     document.getElementById('setupSub').textContent = 'What are you looking for and what do you bring?';
     document.getElementById('setupNextBtn').innerHTML = 'Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>';

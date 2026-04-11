@@ -63,9 +63,16 @@ class UserProfileORM(Base):
     portfolio_url = Column(String, nullable=True)
     linkedin_url = Column(String, nullable=True)
     preferred_currency = Column(String(5), default="USD")
+    career_identity_statement = Column(Text, nullable=True)
+    preferred_locations = Column(JSON, nullable=True)
+    remote_preference = Column(String(30), default="flexible")
+    non_compete_companies = Column(JSON, nullable=True)
+    interests = Column(JSON, nullable=True)
+    firebase_uid = Column(String(128), unique=True, nullable=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     applications = relationship("ApplicationRecordORM", back_populates="user")
+    saved_jobs = relationship("SavedJobORM", back_populates="user")
 
 
 class JobListingORM(Base):
@@ -167,6 +174,144 @@ class CareerDreamORM(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
+class SavedJobORM(Base):
+    __tablename__ = "saved_jobs"
+    __table_args__ = (
+        Index("ix_saved_jobs_user_job", "user_id", "job_id", unique=True),
+    )
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(String(36), ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    saved_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("UserProfileORM", back_populates="saved_jobs")
+    job = relationship("JobListingORM")
+
+
+# ── Sprint 2 tables ───────────────────────────────────────────────────────
+
+
+class DocumentVariantORM(Base):
+    __tablename__ = "document_variants"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(String(36), ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    application_id = Column(String(36), ForeignKey("application_records.id", ondelete="SET NULL"), nullable=True, index=True)
+    resume_content = Column(Text, nullable=True)
+    cover_letter_content = Column(Text, nullable=True)
+    resume_tone = Column(String(30), default="professional")
+    ats_score = Column(Float, nullable=True)
+    tailoring_notes = Column(Text, default="")
+    status = Column(String(20), default="active")  # active, archived, winning
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+# ── Sprint 3 tables ───────────────────────────────────────────────────────
+
+
+class DailyFeedORM(Base):
+    __tablename__ = "daily_feeds"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    jobs = Column(JSON)
+    generated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    viewed = Column(Boolean, default=False)
+
+
+class FollowUpScheduleORM(Base):
+    __tablename__ = "follow_up_schedule"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    application_id = Column(String(36), ForeignKey("application_records.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_title = Column(String(500), default="")
+    company = Column(String(300), default="")
+    next_nudge_date = Column(DateTime, nullable=False, index=True)
+    nudge_count = Column(Integer, default=0)
+    nudge_type = Column(String(30), default="check_in")
+    status = Column(String(20), default="active")  # active, paused, completed, archived
+    last_response = Column(String(20), nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class AutoApplySettingsORM(Base):
+    __tablename__ = "auto_apply_settings"
+
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), primary_key=True)
+    enabled = Column(Boolean, default=False)
+    confidence_threshold = Column(Float, default=0.85)
+    safe_channels = Column(JSON, default=list)
+    max_daily = Column(Integer, default=5)
+
+
+class AutoApplyQueueORM(Base):
+    __tablename__ = "auto_apply_queue"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(String(36), ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_title = Column(String(500), default="")
+    company = Column(String(300), default="")
+    channel = Column(String(30), default="email")
+    confidence_score = Column(Float, default=0.0)
+    status = Column(String(20), default="queued")  # queued, approved, sent, rejected, failed
+    reason = Column(Text, default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class EmailOAuthTokenORM(Base):
+    __tablename__ = "email_oauth_tokens"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    provider = Column(String(30), default="gmail")
+    access_token_enc = Column(Text, nullable=True)
+    refresh_token_enc = Column(Text, nullable=True)
+    email_address = Column(String(500), nullable=True)
+    scopes = Column(Text, default="")
+    expires_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+# ── Sprint 5 tables ───────────────────────────────────────────────────────
+
+
+class OfferORM(Base):
+    __tablename__ = "offers"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(String(36), ForeignKey("job_listings.id", ondelete="SET NULL"), nullable=True)
+    company = Column(String(300), nullable=False)
+    role = Column(String(500), nullable=False)
+    base_salary = Column(Integer, nullable=False)
+    bonus = Column(Integer, nullable=True)
+    equity = Column(String(200), nullable=True)
+    benefits = Column(Text, default="")
+    location = Column(String(200), default="")
+    remote = Column(Boolean, default=False)
+    status = Column(String(30), default="pending")  # pending, accepted, declined, expired
+    deadline = Column(Date, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class SavedSearchORM(Base):
+    __tablename__ = "saved_searches"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(200), default="")
+    query = Column(Text, default="")
+    filters = Column(JSON, default=dict)
+    notify = Column(Boolean, default=True)
+    frequency = Column(String(20), default="daily")
+    last_run = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
 class EmployerWaitlistORM(Base):
     __tablename__ = "employer_waitlist"
 
@@ -231,6 +376,12 @@ def profile_to_orm(profile: UserProfile) -> UserProfileORM:
         portfolio_url=profile.portfolio_url,
         linkedin_url=profile.linkedin_url,
         preferred_currency=profile.preferred_currency,
+        career_identity_statement=profile.career_identity_statement,
+        preferred_locations=profile.preferred_locations,
+        remote_preference=profile.remote_preference,
+        non_compete_companies=profile.non_compete_companies,
+        interests=profile.interests,
+        firebase_uid=profile.firebase_uid,
         created_at=profile.created_at,
     )
 
@@ -274,6 +425,12 @@ def orm_to_profile(orm: UserProfileORM) -> UserProfile:
         portfolio_url=r.portfolio_url,
         linkedin_url=r.linkedin_url,
         preferred_currency=r.preferred_currency or "USD",
+        career_identity_statement=r.career_identity_statement,
+        preferred_locations=r.preferred_locations or [],
+        remote_preference=r.remote_preference or "flexible",
+        non_compete_companies=r.non_compete_companies or [],
+        interests=r.interests or [],
+        firebase_uid=r.firebase_uid,
     )
 
 

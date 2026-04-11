@@ -202,3 +202,10 @@ def validate_production_config() -> None:
             "FATAL: AUTH_ENABLED must be true when ENV=production. "
             "Refusing to start without authentication."
         )
+    if ENV == "production" and ENCRYPT_USER_DATA:
+        passphrase = os.getenv("PII_ENCRYPTION_PASSPHRASE", "")
+        if not passphrase or passphrase == "jobagent-default-dev-key":
+            raise SystemExit(
+                "FATAL: PII_ENCRYPTION_PASSPHRASE must be set to a strong, unique value "
+                "when ENV=production. The default key is publicly known."
+            )
