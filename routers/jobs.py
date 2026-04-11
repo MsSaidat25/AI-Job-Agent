@@ -69,12 +69,15 @@ def _setup_routes(
     ):
         """Enhanced job search with filters, sorting, and pagination."""
         agent = get_agent_fn(session_id)
-        response_text, job_ids, raw_jobs = await search_jobs_live(
-            profile=agent.profile,
-            location_filter=body.location_filter,
-            include_remote=body.include_remote,
-            max_results=body.max_results,
-        )
+        try:
+            response_text, job_ids, raw_jobs = await search_jobs_live(
+                profile=agent.profile,
+                location_filter=body.location_filter,
+                include_remote=body.include_remote,
+                max_results=body.max_results,
+            )
+        except Exception:
+            return JobSearchResponseV2(jobs=[], total=0, page=body.page, has_more=False)
         for job_id, job in zip(job_ids, raw_jobs):
             if len(agent._job_cache) >= agent._job_cache_max:
                 oldest_key = next(iter(agent._job_cache))
