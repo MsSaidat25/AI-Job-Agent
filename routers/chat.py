@@ -69,7 +69,7 @@ def _setup_routes(
         if file.content_type not in _ALLOWED_MIME:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported file type. Allowed: PDF, DOCX, DOC, TXT",
+                detail="Unsupported file type. Allowed: PDF, DOCX, DOC, TXT",
             )
 
         _MAX_UPLOAD = 5_000_000
