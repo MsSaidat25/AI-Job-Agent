@@ -206,6 +206,7 @@ from src.models_db import (  # noqa: E402, F401
     OfferORM,
     SavedSearchORM,
     PrivacyLedgerORM,
+    SessionORM,
     profile_to_orm,
     orm_to_profile,
     reset_encryption_key,

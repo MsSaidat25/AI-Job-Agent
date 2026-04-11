@@ -276,6 +276,106 @@ class TestDocumentsRouter:
         assert isinstance(data["templates"], list)
 
 
+def _seed_job_and_document(
+    user_id: str,
+    doc_id: str,
+    job_id: str = "job-xyz",
+    content: str = "# Name\n\n## Summary\n\nExperienced engineer.\n",
+) -> None:
+    """Insert a JobListing + GeneratedDocument row pair for ownership tests."""
+    from src.models import GeneratedDocumentORM, JobListingORM, init_db
+    db = init_db()
+    try:
+        if not db.query(JobListingORM).filter_by(id=job_id).first():
+            db.add(JobListingORM(
+                id=job_id,
+                title="Test Role",
+                company="Test Co",
+                location="Remote",
+                description="Test description",
+            ))
+            db.flush()
+        db.add(GeneratedDocumentORM(
+            id=doc_id,
+            user_id=user_id,
+            job_id=job_id,
+            doc_type="resume",
+            content=content,
+            model_used="test",
+        ))
+        db.commit()
+    finally:
+        db.close()
+
+
+class TestDocumentDownload:
+    """P3.4: /api/documents/stored/{id}/download serves a persisted
+    GeneratedDocumentORM as PDF or DOCX, enforcing user ownership."""
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_download_owned_document_pdf(self, mock_init, client, session_id, monkeypatch):
+        _setup_agent(session_id, monkeypatch)
+        from src.session_store import get_session_profile
+        profile = get_session_profile(session_id)
+
+        doc_id = "doc-abc"
+        _seed_job_and_document(profile.id, doc_id)
+
+        r = client.get(
+            f"/api/documents/stored/{doc_id}/download?format=pdf",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r.status_code == 200, r.text
+        assert r.headers["content-type"] == "application/pdf"
+        assert r.content[:4] == b"%PDF"  # PDF magic number
+        assert f"{doc_id[:8]}.pdf" in r.headers.get("content-disposition", "")
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_download_document_not_owned_404s(self, mock_init, client, session_id, monkeypatch):
+        """A document belonging to a different user_id must 404."""
+        _setup_agent(session_id, monkeypatch)
+
+        # Create a second real user profile and a document owned by them.
+        from src.models import UserProfileORM, init_db
+        other_uid = "other-user-id"
+        db = init_db()
+        try:
+            db.add(UserProfileORM(
+                id=other_uid,
+                name_enc="Other",
+                email_enc="other@test",
+                location="Earth",
+                skills=[],
+                experience_level="mid",
+                education=[],
+                work_history=[],
+                desired_roles=[],
+                desired_job_types=[],
+                languages=["English"],
+                certifications=[],
+            ))
+            db.commit()
+        finally:
+            db.close()
+
+        _seed_job_and_document(other_uid, "doc-theirs", job_id="job-theirs")
+
+        r = client.get(
+            "/api/documents/stored/doc-theirs/download?format=pdf",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r.status_code == 404
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_download_rejects_invalid_format(self, mock_init, client, session_id, monkeypatch):
+        _setup_agent(session_id, monkeypatch)
+        r = client.get(
+            "/api/documents/stored/any/download?format=md",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r.status_code == 422
+
+
 class TestDashboardRouter:
     @patch("src.agent.JobAgent.__init__", return_value=None)
     def test_dashboard_summary(self, mock_init, client, session_id, monkeypatch):
