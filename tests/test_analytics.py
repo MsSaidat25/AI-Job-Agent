@@ -1,4 +1,6 @@
 """Tests for ApplicationTracker (no Anthropic API calls needed)."""
+from __future__ import annotations
+
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
