@@ -27,6 +27,35 @@ class RejectionPatternsResponse(BaseModel):
     analysis: str = ""
 
 
+class ResumeVariantBucket(BaseModel):
+    resume_tone: str
+    sample_variant_id: str
+    total_applications: int
+    submitted: int
+    responses: int
+    interviews: int
+    offers: int
+    response_rate: float
+    interview_rate: float
+    offer_rate: float
+    avg_ats_score: float = 0.0
+
+
+class ResumeAbResponse(BaseModel):
+    variants: list[ResumeVariantBucket] = Field(default_factory=list)
+    winning_variant_id: str | None = None
+    total_variants: int = 0
+
+
+class MarkWinningRequest(BaseModel):
+    variant_id: str
+
+
+class MarkWinningResponse(BaseModel):
+    ok: bool
+    variant_id: str
+
+
 # ── Routes ───────────────────────────────────────────────────────────────────
 
 
@@ -90,6 +119,44 @@ def _setup_routes(
                 "Include specific changes to my resume, cover letters, and application strategy.",
             )
         return AgentResponse(response=response)
+
+    @router.get("/resume-ab", response_model=ResumeAbResponse)
+    @limiter.limit("10/minute")
+    async def resume_ab(
+        request: Request,
+        session_id: str = session_dep,
+    ):
+        """Return per-tone resume A/B response-rate metrics.
+
+        P3.2: surfaces the winning resume tone (professional vs. creative
+        vs. technical) once the user has enough submissions to call it.
+        """
+        from src.session_store import get_session_profile
+
+        profile = get_session_profile(session_id)
+        agent = get_agent_fn(session_id)
+        data = await asyncio.to_thread(
+            agent._tracker.compute_variant_performance, profile.id
+        )
+        return ResumeAbResponse(
+            variants=[ResumeVariantBucket(**v) for v in data["variants"]],
+            winning_variant_id=data["winning_variant_id"],
+            total_variants=data["total_variants"],
+        )
+
+    @router.post("/resume-ab/mark-winning", response_model=MarkWinningResponse)
+    @limiter.limit("10/minute")
+    async def mark_winning(
+        request: Request,
+        body: MarkWinningRequest,
+        session_id: str = session_dep,
+    ):
+        """Persist a user's choice of winning variant (status='winning')."""
+        agent = get_agent_fn(session_id)
+        ok = await asyncio.to_thread(
+            agent._tracker.mark_winning_variant, body.variant_id
+        )
+        return MarkWinningResponse(ok=ok, variant_id=body.variant_id)
 
     @router.get("/weekly-report", response_model=AgentResponse)
     @limiter.limit("3/minute")

@@ -322,6 +322,65 @@ class EmployerWaitlistORM(Base):
     signed_up_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
+# ── P3.4 Persistent session store ─────────────────────────────────────
+
+class SessionORM(Base):
+    """Durable record of an active user session.
+
+    The in-memory ``src.session_store`` dict is still the fast path, but
+    persisting session identity lets an authenticated user survive an
+    API restart: on the next request, ``require_session`` finds the row,
+    rebuilds the agent from their profile, and repopulates the in-memory
+    cache transparently.
+
+    ``user_id`` is intentionally a weak reference: it may hold a Firebase
+    UID (from the bearer token), a user_profile.id, or NULL for legacy
+    anonymous sessions. We don't enforce a FK because the authoritative
+    mapping lives in ``user_profiles.firebase_uid``.
+    """
+    __tablename__ = "sessions"
+    __table_args__ = (
+        Index("ix_sessions_user_last_access", "user_id", "last_access"),
+    )
+
+    id = Column(String(64), primary_key=True)
+    user_id = Column(String(128), nullable=True, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    last_access = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+
+# ── P3.3 Privacy Ledger ─────────────────────────────────────────────
+
+class PrivacyLedgerORM(Base):
+    """Append-only record of every agent action that touches user data.
+
+    Used to satisfy the transparency + logging requirements of the EU AI
+    Act (Art. 12, 13, 26) and to give users a durable audit trail of how
+    their profile, resume text, and application history has been used.
+    Rows are never updated or deleted except via an explicit data-erasure
+    request.
+    """
+    __tablename__ = "privacy_ledger"
+    __table_args__ = (
+        Index("ix_privacy_ledger_user_ts", "user_id", "created_at"),
+    )
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    action = Column(String(60), nullable=False)  # e.g. "tool.generate_resume"
+    tool_name = Column(String(60), default="")
+    # Semantic categories of data that passed through this event:
+    #   {"profile", "resume_content", "job_description", "application_feedback"}
+    data_categories = Column(JSON, default=list)
+    purpose = Column(String(120), default="")  # e.g. "match scoring", "document generation"
+    llm_provider = Column(String(40), default="")  # e.g. "anthropic", "openrouter", "vertex"
+    llm_model = Column(String(80), default="")
+    retention_days = Column(Integer, default=90)
+    # Extra structured payload (not PII) — tool args summary, token count, etc.
+    details = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+
 # ── PII encryption helpers ─────────────────────────────────────────────
 
 _ENCRYPTION_KEY: bytes | None = None

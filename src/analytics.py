@@ -231,6 +231,153 @@ Keep each bullet under 2 sentences. Do NOT repeat the raw numbers verbatim.
         )
         return cast(TextBlock, response.content[0]).text.strip()
 
+    # ── Resume A/B: per-variant response-rate loop ────────────────────────
+
+    def compute_variant_performance(self, user_id: str) -> dict:
+        """Aggregate per-variant response rates for the A/B resume loop.
+
+        For every ``DocumentVariantORM`` owned by ``user_id`` that has been
+        linked to an application (``application_id`` not NULL), we count how
+        many of those applications progressed past ``SUBMITTED`` -- i.e.
+        received any form of employer response. That gives us a per-tone
+        response rate we can rank, surface to the user, and feed back into
+        document generation (the "winning" template).
+
+        Returns a dict with:
+            - ``variants`` — list of per-tone buckets, sorted by response rate
+            - ``winning_variant_id`` — id of a sample variant from the top
+              tone IF it has statistically meaningful signal, else None
+            - ``total_variants`` — number of distinct tones with samples
+        """
+        from src.models import DocumentVariantORM  # local import to avoid cycles
+
+        rows: list[Any] = (
+            self._session.query(DocumentVariantORM)
+            .filter(
+                DocumentVariantORM.user_id == user_id,
+                DocumentVariantORM.application_id.isnot(None),
+            )
+            .all()
+        )
+        if not rows:
+            return {"variants": [], "winning_variant_id": None, "total_variants": 0}
+
+        app_ids = {str(r.application_id) for r in rows if r.application_id}
+        app_map: dict[str, ApplicationRecordORM] = {}
+        if app_ids:
+            app_rows = (
+                self._session.query(ApplicationRecordORM)
+                .filter(ApplicationRecordORM.id.in_(app_ids))
+                .all()
+            )
+            for a in app_rows:
+                app_map[str(a.id)] = a
+
+        by_tone: dict[str, dict[str, Any]] = {}
+        responded_statuses = {
+            ApplicationStatus.UNDER_REVIEW.value,
+            ApplicationStatus.INTERVIEW_SCHEDULED.value,
+            ApplicationStatus.OFFER_RECEIVED.value,
+            ApplicationStatus.REJECTED.value,
+        }
+
+        for v in rows:
+            tone = str(v.resume_tone or "professional")
+            bucket = by_tone.setdefault(
+                tone,
+                {
+                    "resume_tone": tone,
+                    "sample_variant_id": str(v.id),
+                    "total_applications": 0,
+                    "submitted": 0,
+                    "responses": 0,
+                    "interviews": 0,
+                    "offers": 0,
+                    "avg_ats_score": 0.0,
+                    "_ats_sum": 0.0,
+                    "_ats_count": 0,
+                },
+            )
+            bucket["total_applications"] += 1
+            if v.ats_score is not None:
+                bucket["_ats_sum"] += float(v.ats_score)
+                bucket["_ats_count"] += 1
+
+            app = app_map.get(str(v.application_id))
+            if app is None:
+                continue
+            status = str(app.status)
+            if status != ApplicationStatus.DRAFT.value:
+                bucket["submitted"] += 1
+            if status in responded_statuses:
+                bucket["responses"] += 1
+            if status in (
+                ApplicationStatus.INTERVIEW_SCHEDULED.value,
+                ApplicationStatus.OFFER_RECEIVED.value,
+            ):
+                bucket["interviews"] += 1
+            if status == ApplicationStatus.OFFER_RECEIVED.value:
+                bucket["offers"] += 1
+
+        variants: list[dict[str, Any]] = []
+        for bucket in by_tone.values():
+            denom = max(bucket["submitted"], 1)
+            bucket["response_rate"] = round(bucket["responses"] / denom, 4)
+            bucket["interview_rate"] = round(bucket["interviews"] / denom, 4)
+            bucket["offer_rate"] = round(bucket["offers"] / denom, 4)
+            if bucket["_ats_count"]:
+                bucket["avg_ats_score"] = round(
+                    bucket["_ats_sum"] / bucket["_ats_count"], 2
+                )
+            bucket.pop("_ats_sum", None)
+            bucket.pop("_ats_count", None)
+            variants.append(bucket)
+
+        variants.sort(
+            key=lambda v: (v["response_rate"], v["submitted"]),
+            reverse=True,
+        )
+
+        # Declare a winner only when the signal is unambiguous:
+        #   - top tone has >= 3 submissions AND beats runner-up by >= 10 pts, OR
+        #   - top tone has >= 5 submissions AND hits a perfect response rate.
+        winning_variant_id: Optional[str] = None
+        if variants:
+            top = variants[0]
+            if top["submitted"] >= 3:
+                runner_up = variants[1] if len(variants) > 1 else None
+                margin = (
+                    top["response_rate"] - runner_up["response_rate"]
+                    if runner_up
+                    else top["response_rate"]
+                )
+                if margin >= 0.10 or (top["submitted"] >= 5 and top["response_rate"] >= 1.0):
+                    winning_variant_id = top["sample_variant_id"]
+
+        return {
+            "variants": variants,
+            "winning_variant_id": winning_variant_id,
+            "total_variants": len(variants),
+        }
+
+    def mark_winning_variant(self, variant_id: str) -> bool:
+        """Persist ``status='winning'`` for a specific variant.
+
+        Returns True if the row was found and updated, False otherwise.
+        """
+        from src.models import DocumentVariantORM
+
+        orm = (
+            self._session.query(DocumentVariantORM)
+            .filter_by(id=variant_id)
+            .first()
+        )
+        if orm is None:
+            return False
+        orm.status = "winning"  # type: ignore[assignment]
+        self._session.commit()
+        return True
+
     def employer_feedback_analysis(self, user_id: str) -> str:
         """Aggregate employer feedback and extract patterns via Claude."""
         apps = self.get_applications(user_id)

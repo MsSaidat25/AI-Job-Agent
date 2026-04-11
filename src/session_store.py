@@ -1,4 +1,11 @@
-"""In-memory session store for per-user JobAgent instances."""
+"""Session store for per-user JobAgent instances.
+
+Fast path is still a threadsafe in-memory dict; the slow path persists to
+SQLite via ``SessionORM`` so that authenticated users survive an API
+restart. After a restart the agent is rebuilt lazily on the next request
+from the user's profile row -- the DB session record is just the handle
+that lets ``require_session`` know which user to rehydrate.
+"""
 
 from __future__ import annotations
 
@@ -6,13 +13,87 @@ import asyncio
 import logging
 import threading
 import time
-from typing import Any
+from datetime import datetime, timezone
+from typing import Any, Optional
 
 from fastapi import Depends, HTTPException, status
 
 from src.auth import get_current_user_id
 
 logger = logging.getLogger(__name__)
+
+
+# ── Persistence helpers (SQLite-backed session store) ────────────────────
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _persist_session(session_id: str, user_id: Optional[str]) -> None:
+    """Upsert a SessionORM row. Swallow DB errors to stay advisory."""
+    from src.models import SessionORM, init_db
+
+    db = init_db()
+    try:
+        existing = db.query(SessionORM).filter_by(id=session_id).first()
+        now = _utcnow()
+        if existing is None:
+            db.add(SessionORM(
+                id=session_id,
+                user_id=user_id,
+                created_at=now,
+                last_access=now,
+            ))
+        else:
+            existing.last_access = now  # type: ignore[assignment]
+            if user_id:
+                existing.user_id = user_id  # type: ignore[assignment]
+        db.commit()
+    except Exception:
+        logger.warning("persist_session: DB write failed", exc_info=True)
+        try:
+            db.rollback()
+        except Exception:
+            pass
+    finally:
+        db.close()
+
+
+def _delete_persisted_session(session_id: str) -> None:
+    from src.models import SessionORM, init_db
+
+    db = init_db()
+    try:
+        db.query(SessionORM).filter_by(id=session_id).delete()
+        db.commit()
+    except Exception:
+        logger.warning("delete_persisted_session: DB write failed", exc_info=True)
+        try:
+            db.rollback()
+        except Exception:
+            pass
+    finally:
+        db.close()
+
+
+def _load_persisted_session(user_id: str) -> Optional[str]:
+    """Return the most recent persisted session_id for a user_id, if any."""
+    from src.models import SessionORM, init_db
+
+    db = init_db()
+    try:
+        row = (
+            db.query(SessionORM)
+            .filter_by(user_id=user_id)
+            .order_by(SessionORM.last_access.desc())
+            .first()
+        )
+        return str(row.id) if row else None
+    except Exception:
+        logger.warning("load_persisted_session: DB read failed", exc_info=True)
+        return None
+    finally:
+        db.close()
 
 _sessions: dict[str, dict[str, Any]] = {}
 _user_to_session: dict[str, str] = {}  # Firebase UID -> session_id
@@ -115,6 +196,9 @@ def create_session(user_id: str | None = None) -> str:
     by the user_id itself and a reverse mapping is stored so
     ``require_session`` can find it.  When omitted (legacy flow), a random
     UUID is used as before.
+
+    The session is also upserted into the ``SessionORM`` table so it
+    survives process restarts (P3.4).
     """
     import uuid
 
@@ -132,6 +216,7 @@ def create_session(user_id: str | None = None) -> str:
         }
         if user_id:
             _user_to_session[user_id] = session_id
+    _persist_session(session_id, user_id)
     return session_id
 
 
@@ -169,7 +254,11 @@ def close_all_sessions() -> None:
 
 
 def delete_session(session_id: str) -> None:
-    """Delete a session by ID (sign-out)."""
+    """Delete a session by ID (sign-out).
+
+    Also removes the persisted ``SessionORM`` row so the session cannot
+    be rehydrated by a later request.
+    """
     with _sessions_lock:
         sess = _sessions.pop(session_id, None)
         # Also remove reverse mapping
@@ -180,6 +269,62 @@ def delete_session(session_id: str) -> None:
             del _user_to_session[uid]
     if sess:
         close_session_agent(sess)
+    _delete_persisted_session(session_id)
+
+
+def rehydrate_session_from_db(user_id: str) -> Optional[str]:
+    """Rebuild an in-memory session for *user_id* from the persisted row.
+
+    Called by ``require_session`` when the in-memory cache has lost the
+    session (e.g. after an API restart). Looks up the most recent
+    ``SessionORM`` row for the user, loads their ``UserProfile`` from
+    the DB, builds a fresh ``JobAgent``, and returns the session_id.
+
+    Returns None if no persisted session exists or if the profile can't
+    be loaded (in which case the caller should fall through to 404).
+    """
+    from src.agent import JobAgent  # deferred to avoid circular import
+    from src.models import UserProfileORM, init_db, orm_to_profile
+
+    persisted_sid = _load_persisted_session(user_id)
+    if not persisted_sid:
+        return None
+
+    db = init_db()
+    try:
+        orm = (
+            db.query(UserProfileORM)
+            .filter_by(firebase_uid=user_id)
+            .first()
+        )
+        if orm is None:
+            orm = db.query(UserProfileORM).filter_by(id=user_id).first()
+        if orm is None:
+            logger.info("rehydrate_session_from_db: no profile for user %s", user_id)
+            return None
+        profile = orm_to_profile(orm)
+    except Exception:
+        logger.warning("rehydrate_session_from_db: profile load failed", exc_info=True)
+        return None
+    finally:
+        db.close()
+
+    try:
+        agent = JobAgent(profile=profile)
+    except Exception:
+        logger.warning("rehydrate_session_from_db: agent rebuild failed", exc_info=True)
+        return None
+
+    with _sessions_lock:
+        _sessions[persisted_sid] = {
+            "agent": agent,
+            "profile": profile,
+            "last_access": time.monotonic(),
+            "lock": asyncio.Lock(),
+        }
+        _user_to_session[user_id] = persisted_sid
+    _persist_session(persisted_sid, user_id)
+    return persisted_sid
 
 
 async def require_session(
@@ -196,8 +341,15 @@ async def require_session(
         if mapped and mapped in _sessions:
             return mapped
 
-    # Slow path: auto-create a session for authenticated Bearer users.
-    # Reading AUTH_ENABLED via a deferred import so tests that monkeypatch
+    # Slow path: try to rehydrate from the SQLite session store (P3.4).
+    # This covers the "API restart" case -- the persisted SessionORM row
+    # tells us which user to rebuild from profile.
+    rehydrated = await asyncio.to_thread(rehydrate_session_from_db, user_id)
+    if rehydrated:
+        return rehydrated
+
+    # Auto-create a session for authenticated Bearer users. Reading
+    # AUTH_ENABLED via a deferred import so tests that monkeypatch
     # ``config.settings.AUTH_ENABLED`` get the patched value on each call.
     from config.settings import AUTH_ENABLED
     if AUTH_ENABLED:

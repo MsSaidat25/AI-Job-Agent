@@ -373,6 +373,7 @@ from routers.email_oauth import router as email_router, _setup_routes as _setup_
 from routers.insights import router as insights_router, _setup_routes as _setup_insights  # noqa: E402
 from routers.account import router as account_router, _setup_routes as _setup_account  # noqa: E402
 from routers.offers import router as offers_router, _setup_routes as _setup_offers  # noqa: E402
+from routers.privacy import router as privacy_router, _setup_routes as _setup_privacy  # noqa: E402
 
 _setup_auth(limiter=limiter, session_dep=SessionId)
 _setup_onboard(limiter=limiter, get_agent_fn=get_agent, session_dep=SessionId)
@@ -393,13 +394,14 @@ _setup_email(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lo
 _setup_insights(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
 _setup_account(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
 _setup_offers(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
+_setup_privacy(limiter=limiter, get_agent_fn=get_agent, get_lock_fn=get_session_lock, session_dep=SessionId)
 
 _all_routers = [
     auth_router, onboard_router, jobs_router, apps_router, chat_router,
     employer_router, docs_router, kanban_router, dash_router,
     career_router, salary_router, feed_router, nudges_router,
     auto_apply_router, interview_router, email_router, insights_router,
-    account_router, offers_router,
+    account_router, offers_router, privacy_router,
 ]
 for r in _all_routers:
     app.include_router(r)
