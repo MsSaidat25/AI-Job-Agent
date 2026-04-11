@@ -10,6 +10,10 @@ from slowapi import Limiter
 
 from routers.schemas import (
     AuthResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
     GoogleAuthRequest,
     LoginRequest,
     RefreshRequest,
@@ -156,6 +160,63 @@ def _setup_routes(limiter: Limiter, session_dep: Any) -> None:
             user_id=data["user_id"],
             expires_in=int(data.get("expires_in", 3600)),
         )
+
+    @router.post("/forgot-password", response_model=ForgotPasswordResponse)
+    @limiter.limit("5/hour")
+    async def forgot_password(request: Request, body: ForgotPasswordRequest):
+        """Send a password reset email via GCP Identity Platform."""
+        if not GCP_IDENTITY_PLATFORM_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Authentication service not configured.",
+            )
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                _idp_url("accounts:sendOobCode"),
+                json={
+                    "requestType": "PASSWORD_RESET",
+                    "email": body.email,
+                },
+            )
+        data = resp.json()
+        if resp.status_code != 200:
+            err = data.get("error", {}).get("message", "")
+            if "EMAIL_NOT_FOUND" in err:
+                # Don't reveal whether the email exists
+                return ForgotPasswordResponse(
+                    message="If that email is registered, a reset link has been sent."
+                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=data.get("error", {}).get("message", "Password reset failed"),
+            )
+        return ForgotPasswordResponse(
+            message="If that email is registered, a reset link has been sent."
+        )
+
+    @router.post("/change-password", response_model=ChangePasswordResponse)
+    @limiter.limit("10/hour")
+    async def change_password(request: Request, body: ChangePasswordRequest):
+        """Change password for authenticated user (requires valid id_token)."""
+        if not GCP_IDENTITY_PLATFORM_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Authentication service not configured.",
+            )
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                _idp_url("accounts:update"),
+                json={
+                    "idToken": body.id_token,
+                    "password": body.new_password,
+                    "returnSecureToken": True,
+                },
+            )
+        data = resp.json()
+        if resp.status_code != 200:
+            detail = data.get("error", {}).get("message", "Password change failed")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+        return ChangePasswordResponse(message="Password updated successfully.")
 
     @router.delete("/session", status_code=status.HTTP_204_NO_CONTENT)
     @limiter.limit("30/hour")
