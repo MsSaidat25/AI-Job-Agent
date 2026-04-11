@@ -121,7 +121,7 @@ USE_VERTEX_PRIMARY: bool = get_secret("USE_VERTEX_PRIMARY", "false").lower() == 
 # Primary: OpenRouter. Fallback handled by llm_client.py.
 USE_OPENROUTER: bool = bool(OPENROUTER_API_KEY)
 LLM_API_KEY: str = OPENROUTER_API_KEY if USE_OPENROUTER else ANTHROPIC_API_KEY
-LLM_BASE_URL: str | None = "https://openrouter.ai/api/v1" if USE_OPENROUTER else None
+LLM_BASE_URL = "https://openrouter.ai/api/v1" if USE_OPENROUTER else None  # type: str | None
 
 if not LLM_API_KEY and not USE_VERTEX_PRIMARY:
     import warnings

@@ -34,7 +34,7 @@ class ProfileRequest(BaseModel):
 
     @field_validator("portfolio_url", "linkedin_url", mode="before")
     @classmethod
-    def validate_urls(cls, v: str | None) -> str | None:
+    def validate_urls(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return v
         if not v.startswith(("https://", "http://")):
