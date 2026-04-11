@@ -6,6 +6,7 @@ Thin orchestration layer: app setup, middleware, and router mounting.
 Session management lives in src/session_store.py.
 All domain endpoints live in routers/*.
 """
+from __future__ import annotations
 
 from contextlib import asynccontextmanager
 import logging
