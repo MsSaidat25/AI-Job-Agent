@@ -185,23 +185,28 @@ def delete_session(session_id: str) -> None:
 async def require_session(
     user_id: str = Depends(get_current_user_id),
 ) -> str:
+    # Fast path: check for an existing session under the lock. Must release
+    # the lock before calling ``create_session`` because that function
+    # acquires ``_sessions_lock`` itself and ``threading.Lock`` is NOT
+    # reentrant — holding it across the call would deadlock.
     with _sessions_lock:
-        # Direct match (legacy flow or auth-keyed session)
         if user_id in _sessions:
             return user_id
-        # Check reverse mapping (authenticated user -> session)
         mapped = _user_to_session.get(user_id)
         if mapped and mapped in _sessions:
             return mapped
-        # Auto-create session for authenticated users
-        from config.settings import AUTH_ENABLED
-        if AUTH_ENABLED:
-            sid = create_session(user_id=user_id)
-            return sid
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Session not found. POST /api/session first.",
-        )
+
+    # Slow path: auto-create a session for authenticated Bearer users.
+    # Reading AUTH_ENABLED via a deferred import so tests that monkeypatch
+    # ``config.settings.AUTH_ENABLED`` get the patched value on each call.
+    from config.settings import AUTH_ENABLED
+    if AUTH_ENABLED:
+        return create_session(user_id=user_id)
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Session not found. POST /api/session first.",
+    )
 
 
 SessionId = Depends(require_session)

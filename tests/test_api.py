@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(autouse=True)
 def _isolate_db(tmp_path, monkeypatch):
-    """Point DB to temp dir and disable rate limiting for tests."""
+    """Point DB to temp dir, force AUTH_ENABLED=false, disable rate limiting."""
     db_path = tmp_path / "test_api.db"
     monkeypatch.setattr("config.settings.DB_PATH", db_path)
     monkeypatch.setattr("src.models.DB_PATH", db_path)
@@ -21,6 +21,12 @@ def _isolate_db(tmp_path, monkeypatch):
     monkeypatch.setattr("src.models.DATABASE_URL_FAILOVER", "")
     monkeypatch.setattr("src.models_bootstrap.DATABASE_URL", "")
     monkeypatch.setattr("src.models_bootstrap.DATABASE_URL_FAILOVER", "")
+    # Force legacy X-Session-ID flow. These tests predate Bearer auth; the new
+    # Bearer path is exercised in tests/test_auth_bearer.py. Patching both
+    # settings.AUTH_ENABLED and src.auth.AUTH_ENABLED because src.auth imports
+    # it at module load time (see P0.7 fix).
+    monkeypatch.setattr("config.settings.AUTH_ENABLED", False)
+    monkeypatch.setattr("src.auth.AUTH_ENABLED", False)
     # Reset cached engine so each test gets a fresh DB, then create tables
     from src.models import reset_db_state, init_db
     reset_db_state()

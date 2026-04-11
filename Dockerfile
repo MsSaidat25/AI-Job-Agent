@@ -31,4 +31,7 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')" || exit 1
 
-CMD ["sh", "-c", "exec uvicorn api:app --host 0.0.0.0 --port ${PORT} --workers ${WEB_CONCURRENCY:-2}"]
+# Entrypoint: optionally run alembic migrations before starting the web server.
+# Set RUN_MIGRATIONS_ON_START=1 in your deploy config (Cloud Run / Render) to
+# apply schema changes on boot. Local and test envs can leave it unset.
+CMD ["sh", "-c", "if [ \"${RUN_MIGRATIONS_ON_START:-0}\" = \"1\" ]; then echo '==> Running alembic upgrade head'; alembic upgrade head || exit 1; fi && exec uvicorn api:app --host 0.0.0.0 --port ${PORT} --workers ${WEB_CONCURRENCY:-2}"]

@@ -45,8 +45,10 @@ gcloud run deploy "${SERVICE_NAME}" \
   --set-env-vars "GCP_PROJECT_ID=${PROJECT_ID}" \
   --set-env-vars "VERTEX_PROJECT=${PROJECT_ID}" \
   --set-env-vars "VERTEX_LOCATION=${REGION}" \
-  --set-env-vars "USE_VERTEX_FAILOVER=true" \
+  --set-env-vars "USE_VERTEX_FAILOVER=false" \
   --set-env-vars "AUTH_ENABLED=true" \
+  --set-env-vars "RUN_MIGRATIONS_ON_START=1" \
+  --set-env-vars "ENV=production" \
   --set-secrets "OPENROUTER_API_KEY=OPENROUTER_API_KEY:latest" \
   --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest" \
   --set-secrets "ADZUNA_APP_ID=ADZUNA_APP_ID:latest" \

@@ -19,6 +19,12 @@ def _isolate_db(tmp_path, monkeypatch):
     monkeypatch.setattr("src.models.DATABASE_URL_FAILOVER", "")
     monkeypatch.setattr("src.models_bootstrap.DATABASE_URL", "")
     monkeypatch.setattr("src.models_bootstrap.DATABASE_URL_FAILOVER", "")
+    # Golden-path tests use the legacy X-Session-ID flow; force AUTH_ENABLED=false
+    # so src.auth.get_current_user_id reads the X-Session-ID header rather than
+    # requiring a Bearer token. See P0.7 fix and tests/test_auth_bearer.py for
+    # the dedicated Bearer flow coverage.
+    monkeypatch.setattr("config.settings.AUTH_ENABLED", False)
+    monkeypatch.setattr("src.auth.AUTH_ENABLED", False)
     from src.models import reset_db_state, init_db
     reset_db_state()
     s = init_db()

@@ -195,17 +195,39 @@ PROTECTED_ATTRIBUTES = {"gender", "age", "ethnicity", "religion", "nationality"}
 ENV: str = get_secret("ENV", "development").lower()
 
 
+_NON_DEV_ENVS = frozenset({"production", "staging", "prod", "stage"})
+
+
 def validate_production_config() -> None:
-    """Raise SystemExit if production is misconfigured."""
+    """Raise SystemExit if production/staging is misconfigured.
+
+    Checks enforced when ENV is in ``_NON_DEV_ENVS`` (production, staging, ...):
+      1. AUTH_ENABLED must be true — no unauthenticated prod.
+      2. PII_ENCRYPTION_PASSPHRASE must be set to a non-default value.
+      3. DATABASE_URL must be set (and non-SQLite) — Cloud Run's filesystem is
+         ephemeral, so a SQLite fallthrough would lose data on every cold start.
+
+    Dev/test envs skip all checks so local and CI work unchanged.
+    """
     if ENV == "production" and not AUTH_ENABLED:
         raise SystemExit(
             "FATAL: AUTH_ENABLED must be true when ENV=production. "
             "Refusing to start without authentication."
         )
-    if ENV == "production" and ENCRYPT_USER_DATA:
+
+    if ENV in _NON_DEV_ENVS and ENCRYPT_USER_DATA:
         passphrase = os.getenv("PII_ENCRYPTION_PASSPHRASE", "")
         if not passphrase or passphrase == "jobagent-default-dev-key":
             raise SystemExit(
-                "FATAL: PII_ENCRYPTION_PASSPHRASE must be set to a strong, unique value "
-                "when ENV=production. The default key is publicly known."
+                f"FATAL: PII_ENCRYPTION_PASSPHRASE must be set to a strong, unique value "
+                f"when ENV={ENV!r}. The default key is publicly known."
+            )
+
+    if ENV in _NON_DEV_ENVS:
+        url = (DATABASE_URL or "").strip()
+        if not url or url.startswith("sqlite:"):
+            raise SystemExit(
+                f"FATAL: DATABASE_URL must be set to a non-SQLite database when "
+                f"ENV={ENV!r}. Cloud Run's filesystem is ephemeral; a SQLite "
+                "fallthrough would lose every row on the next cold start."
             )

@@ -178,10 +178,18 @@ def _setup_routes(
         )
 
 
-def _build_location(cached: dict[str, Any]) -> str:
-    """Build location string from cached job data."""
-    city = cached.get("job_city", "")
-    state = cached.get("job_state", "")
-    country = cached.get("job_country", "")
-    parts = [p for p in [city, state, country] if p]
-    return ", ".join(parts) if parts else ""
+def build_location(cached: dict[str, Any]) -> str:
+    """Build a location string from a cached JSearch job dict.
+
+    JSearch frequently returns ``None`` for individual location fields, so
+    ``.get(key, default)`` still yields ``None``. We defensively coerce every
+    component to ``str``, join the non-empty ones, and fall back to the
+    pre-normalised ``location`` key if everything else is blank.
+    """
+    parts = [str(cached.get(k) or "") for k in ("job_city", "job_state", "job_country")]
+    built = ", ".join(p for p in parts if p)
+    return built or str(cached.get("location") or "")
+
+
+# Backwards-compat alias: older callers imported the underscore-prefixed name.
+_build_location = build_location

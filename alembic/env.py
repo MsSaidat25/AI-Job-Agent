@@ -17,9 +17,14 @@ config = context.config
 _url = DATABASE_URL or f"sqlite:///{DB_PATH}"
 config.set_main_option("sqlalchemy.url", _url)
 
-# Python logging from ini file
+# Python logging from ini file (optional — only if [loggers]/[handlers]/[formatters]
+# sections are present). alembic.ini intentionally omits them to keep config minimal,
+# so we swallow the resulting KeyError rather than crash `alembic upgrade head`.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    try:
+        fileConfig(config.config_file_name)
+    except KeyError:
+        pass
 
 # Target metadata for autogenerate support
 target_metadata = Base.metadata

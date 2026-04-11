@@ -68,26 +68,107 @@ def get_engine(failover: bool = False):  # type: ignore[no-untyped-def]
 
 
 def _run_migrations(engine) -> None:  # type: ignore[no-untyped-def]
-    """Run Alembic migrations to HEAD, falling back to create_all for fresh DBs."""
+    """Bring the database schema up to HEAD, safely.
+
+    Three paths:
+
+    1. **Fresh database** — no ``alembic_version`` table. Bootstrap via
+       ``Base.metadata.create_all()`` and stamp HEAD. This is the first-run
+       path for local dev, tests, and brand-new prod deploys. We explicitly
+       do NOT call ``alembic upgrade head`` on fresh DBs because our initial
+       migration is a diff, not a baseline, and will fail against an empty
+       schema.
+
+    2. **Orphaned bootstrap** — ``alembic_version`` table exists but is empty.
+       This happens when a previous stamp transaction was rolled back, when
+       somebody ran ``alembic stamp base`` by hand, or when a row was deleted.
+       If every ORM-declared table already exists in the DB, the schema is
+       identical to HEAD and we just insert the missing version row. If any
+       ORM table is missing, the schema is mixed — fail loud so the operator
+       can investigate.
+
+    3. **Existing database** — ``alembic_version`` has a row. Run
+       ``alembic upgrade head``. If that fails, re-raise loudly: a silent
+       ``create_all`` fallback here would mask real schema drift (the exact
+       bug P0 was opened to fix).
+    """
+    from sqlalchemy import inspect, text
+    from alembic import command
+    from alembic.config import Config
+
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    alembic_cfg = Config("alembic.ini")
+
+    if "alembic_version" not in existing_tables:
+        logger.info(
+            "Fresh database detected (no alembic_version table); "
+            "bootstrapping via create_all + stamp HEAD"
+        )
+        Base.metadata.create_all(engine)
+        try:
+            with engine.begin() as conn:
+                alembic_cfg.attributes["connection"] = conn
+                command.stamp(alembic_cfg, "head")
+        except Exception:
+            logger.error(
+                "Failed to stamp Alembic HEAD on fresh-DB bootstrap. "
+                "Next migration run will likely fail. Investigate immediately.",
+                exc_info=True,
+            )
+            raise
+        logger.info("Fresh database bootstrapped and stamped at HEAD")
+        return
+
+    # alembic_version table exists — check whether a row is recorded.
+    with engine.connect() as conn:
+        current_rev = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
+
+    if current_rev is None:
+        # Orphaned bootstrap: schema may already be at HEAD, just missing the row.
+        orm_tables = set(Base.metadata.tables.keys())
+        missing = orm_tables - existing_tables
+        if missing:
+            logger.error(
+                "alembic_version table is empty AND ORM tables are missing (%s). "
+                "This is a mixed schema state. Refusing to auto-recover. "
+                "Either stamp the correct revision manually or rebuild the database.",
+                sorted(missing),
+            )
+            raise RuntimeError(
+                "Orphaned alembic_version with missing ORM tables; manual recovery required"
+            )
+        logger.warning(
+            "alembic_version table exists but is empty and ORM schema matches HEAD; "
+            "stamping HEAD to repair the orphaned bootstrap state."
+        )
+        try:
+            with engine.begin() as conn:
+                alembic_cfg.attributes["connection"] = conn
+                command.stamp(alembic_cfg, "head")
+            logger.info("Orphaned alembic_version stamped at HEAD")
+        except Exception:
+            logger.error(
+                "Failed to stamp HEAD on orphaned alembic_version recovery.",
+                exc_info=True,
+            )
+            raise
+        return
+
+    # Existing database with a real version row: run the real migration path.
     try:
-        from alembic import command
-        from alembic.config import Config
-        alembic_cfg = Config("alembic.ini")
         with engine.begin() as conn:
             alembic_cfg.attributes["connection"] = conn
             command.upgrade(alembic_cfg, "head")
-        logger.info("Alembic migrations applied successfully")
+        logger.info("Alembic migrations applied to HEAD")
     except Exception:
-        logger.warning("Alembic migration failed, falling back to create_all", exc_info=True)
-        Base.metadata.create_all(engine)
-        try:
-            from alembic import command
-            from alembic.config import Config
-            alembic_cfg = Config("alembic.ini")
-            command.stamp(alembic_cfg, "head")
-            logger.info("Stamped database at Alembic HEAD after create_all fallback")
-        except Exception:
-            logger.warning("Could not stamp Alembic HEAD", exc_info=True)
+        logger.error(
+            "Alembic migration failed against a database that already has "
+            "alembic_version (tables=%d). Refusing to silently fall back to "
+            "create_all — investigate schema drift.",
+            len(existing_tables),
+        )
+        raise
 
 
 def init_db() -> Session:

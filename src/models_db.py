@@ -328,14 +328,39 @@ _ENCRYPTION_KEY: bytes | None = None
 _ENCRYPTION_SALT: bytes | None = None
 
 
+_DEV_ENVS = frozenset({"development", "dev", "test", "testing", ""})
+_DEV_FALLBACK_PASSPHRASE = "jobagent-default-dev-key"  # NEVER used outside dev/test.
+
+
 def _get_encryption_key() -> bytes:
-    """Return (and cache) the PII encryption key derived from a passphrase."""
+    """Return (and cache) the PII encryption key derived from a passphrase.
+
+    Security contract:
+      - In dev/test envs (ENV in {"development","dev","test","testing",""}),
+        missing ``PII_ENCRYPTION_PASSPHRASE`` falls back to a well-known dev key
+        so local development works out of the box.
+      - In *every other* env (production, staging, anything else), a missing
+        passphrase raises ``RuntimeError`` — we refuse to encrypt PII under a
+        publicly-known key. This closes the staging/Cloud Run gap flagged in
+        the security audit (H1).
+    """
     global _ENCRYPTION_KEY, _ENCRYPTION_SALT
     if _ENCRYPTION_KEY is not None:
         return _ENCRYPTION_KEY
     import os
     from src.privacy import derive_key
-    passphrase = os.environ.get("PII_ENCRYPTION_PASSPHRASE", "jobagent-default-dev-key")
+
+    passphrase = os.environ.get("PII_ENCRYPTION_PASSPHRASE")
+    env = os.environ.get("ENV", "development").lower()
+    if not passphrase:
+        if env in _DEV_ENVS:
+            passphrase = _DEV_FALLBACK_PASSPHRASE
+        else:
+            raise RuntimeError(
+                f"PII_ENCRYPTION_PASSPHRASE must be set when ENV={env!r}. "
+                "Refusing to encrypt PII with a public default key."
+            )
+
     salt_hex = os.environ.get("PII_ENCRYPTION_SALT")
     salt = bytes.fromhex(salt_hex) if salt_hex else None
     _ENCRYPTION_KEY, _ENCRYPTION_SALT = derive_key(passphrase, salt)

@@ -91,18 +91,19 @@ def _setup_routes(
             if not cached:
                 continue
             if isinstance(cached, dict):
+                from routers.kanban import build_location
                 jobs.append(JobDetailResponse(
                     id=job_id,
-                    title=cached.get("job_title", cached.get("title", "")),
-                    company=cached.get("employer_name", cached.get("company", "")),
-                    location=cached.get("job_city", cached.get("location", "")),
+                    title=str(cached.get("job_title") or cached.get("title") or ""),
+                    company=str(cached.get("employer_name") or cached.get("company") or ""),
+                    location=build_location(cached),
                     remote_allowed=bool(cached.get("job_is_remote", False)),
-                    job_type=cached.get("job_employment_type", "full_time"),
-                    description=(cached.get("job_description", "") or "")[:3000],
+                    job_type=str(cached.get("job_employment_type") or "full_time"),
+                    description=(cached.get("job_description") or "")[:3000],
                     salary_min=cached.get("job_min_salary"),
                     salary_max=cached.get("job_max_salary"),
-                    source_url=cached.get("job_apply_link", cached.get("redirect_url", "")),
-                    source_platform=cached.get("_source", ""),
+                    source_url=str(cached.get("job_apply_link") or cached.get("redirect_url") or ""),
+                    source_platform=str(cached.get("_source") or ""),
                     match_score=cached.get("_match_score"),
                     match_rationale=cached.get("_match_rationale"),
                 ))

@@ -4,7 +4,9 @@ services:
     runtime: python
     pythonVersion: "3.12"
     buildCommand: pip install -r requirements.txt && mkdir -p data
-    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT --workers ${WEB_CONCURRENCY:-2}
+    # Run alembic migrations on every deploy before traffic shift, then start
+    # uvicorn. `exec` is important so uvicorn becomes PID 1 and receives signals.
+    startCommand: alembic upgrade head && exec uvicorn api:app --host 0.0.0.0 --port $PORT --workers ${WEB_CONCURRENCY:-2}
     healthCheckPath: /api/health
     envVars:
       # LLM -- OpenRouter primary, direct Anthropic available as manual fallback
