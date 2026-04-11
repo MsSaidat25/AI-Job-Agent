@@ -25,8 +25,10 @@ from config.settings import (
     ADZUNA_APP_ID,
     ADZUNA_APP_KEY,
     ADZUNA_COUNTRY,
+    GREENHOUSE_BOARDS,
     JSEARCH_API_KEY,
 )
+from src.job_boards_greenhouse import fetch_all as _greenhouse_fetch_all
 from src.llm_client import create_message_with_failover
 from src.models import JobListing, JobType, UserProfile
 from src.utils import strip_json_fences
@@ -494,21 +496,33 @@ async def search_jobs_live(
 
     has_jsearch = bool(JSEARCH_API_KEY)
     has_adzuna = bool(ADZUNA_APP_ID and ADZUNA_APP_KEY)
+    has_greenhouse = bool(GREENHOUSE_BOARDS)
 
-    if not has_jsearch and not has_adzuna:
-        return ("⚠ No job search API configured. Set JSEARCH_API_KEY or ADZUNA_APP_ID/ADZUNA_APP_KEY.", [], [])
+    if not has_jsearch and not has_adzuna and not has_greenhouse:
+        return (
+            "⚠ No job search API configured. Set JSEARCH_API_KEY, "
+            "ADZUNA_APP_ID/ADZUNA_APP_KEY, or GREENHOUSE_BOARDS.",
+            [],
+            [],
+        )
 
     query = _build_query(profile, location_filter)
 
     async def _noop() -> list[dict]:
         return []
 
-    # Fire both providers in parallel
+    # Fire all providers in parallel. Greenhouse has its own internal
+    # fan-out across configured board tokens.
     jsearch_coro = _jsearch_async(query) if has_jsearch else _noop()
     adzuna_coro = _adzuna_async(query) if has_adzuna else _noop()
-    jsearch_result, adzuna_result = await _aio.gather(jsearch_coro, adzuna_coro)
+    greenhouse_coro = (
+        _greenhouse_fetch_all(GREENHOUSE_BOARDS, query) if has_greenhouse else _noop()
+    )
+    jsearch_result, adzuna_result, greenhouse_result = await _aio.gather(
+        jsearch_coro, adzuna_coro, greenhouse_coro,
+    )
 
-    raw: list[dict] = jsearch_result + adzuna_result
+    raw: list[dict] = jsearch_result + adzuna_result + greenhouse_result
 
     if not raw:
         return (f"No jobs found for **{query}**. Try a broader location or different role.", [], [])
@@ -544,6 +558,8 @@ async def search_jobs_live(
         sources.add("JSearch")
     if has_adzuna and adzuna_result:
         sources.add("Adzuna")
+    if has_greenhouse and greenhouse_result:
+        sources.add("Greenhouse")
     source_label = " + ".join(sorted(sources)) if sources else "search"
 
     header = (

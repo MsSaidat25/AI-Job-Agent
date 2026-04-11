@@ -188,6 +188,15 @@ ADZUNA_COUNTRY: str = _raw_adzuna_country if _raw_adzuna_country in _ADZUNA_VALI
 if _raw_adzuna_country not in _ADZUNA_VALID_COUNTRIES and _raw_adzuna_country:
     logger.warning("Invalid ADZUNA_COUNTRY=%r, defaulting to 'us'", _raw_adzuna_country)
 
+# Greenhouse public job-board tokens. Comma-separated list of board slugs
+# like "stripe,shopify,notion". Each token maps to a public board at
+# https://boards-api.greenhouse.io/v1/boards/{token}/jobs and requires no
+# API key. Leave unset to skip the Greenhouse provider in search.
+_raw_greenhouse_boards = get_secret("GREENHOUSE_BOARDS", "")
+GREENHOUSE_BOARDS: list[str] = [
+    b.strip() for b in _raw_greenhouse_boards.split(",") if b.strip()
+]
+
 # ── Bias-mitigation ───────────────────────────────────────────────────────
 PROTECTED_ATTRIBUTES = {"gender", "age", "ethnicity", "religion", "nationality"}
 
