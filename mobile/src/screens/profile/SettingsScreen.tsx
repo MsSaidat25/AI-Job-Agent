@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, ScrollView, useColorScheme, Platform } from "react-native";
+import { View, Text, useColorScheme } from "react-native";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { WebSafeScrollView } from "../../components/WebSafeScrollView";
 import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { useSessionStore } from "../../stores/useSessionStore";
@@ -11,8 +12,6 @@ import { useChatStore } from "../../stores/useChatStore";
 import { useJobStore } from "../../stores/useJobStore";
 import { useDashboardStore } from "../../stores/useDashboardStore";
 import { useApplicationStore } from "../../stores/useApplicationStore";
-
-const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 function isValidApiUrl(url: string): boolean {
   if (/^https?:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:\d+)?/.test(url)) {
@@ -45,11 +44,7 @@ export function SettingsScreen() {
 
   return (
     <ResponsiveContainer>
-      <ScrollView
-        className="flex-1 px-4 pt-4"
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={webScrollStyle}
-      >
+      <WebSafeScrollView className="flex-1 px-4 pt-4">
         {/* Theme */}
         <Card>
           <Text
@@ -117,7 +112,7 @@ export function SettingsScreen() {
             Built by AVIEN Solutions
           </Text>
         </View>
-      </ScrollView>
+      </WebSafeScrollView>
     </ResponsiveContainer>
   );
 }

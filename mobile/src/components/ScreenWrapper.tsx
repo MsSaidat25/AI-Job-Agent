@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, ScrollView, View, type ScrollViewProps } from "react-native";
+import { Platform, View, type ScrollViewProps } from "react-native";
+import { WebSafeScrollView } from "./WebSafeScrollView";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeStore } from "../stores/useThemeStore";
 
@@ -38,14 +39,9 @@ export function ScreenWrapper({
         ]}
       >
         {scroll ? (
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            {...scrollViewProps}
-          >
+          <WebSafeScrollView {...scrollViewProps}>
             {children}
-          </ScrollView>
+          </WebSafeScrollView>
         ) : (
           <View style={{ flex: 1 }}>{children}</View>
         )}

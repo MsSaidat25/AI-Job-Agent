@@ -190,3 +190,15 @@ if _raw_adzuna_country not in _ADZUNA_VALID_COUNTRIES and _raw_adzuna_country:
 
 # ── Bias-mitigation ───────────────────────────────────────────────────────
 PROTECTED_ATTRIBUTES = {"gender", "age", "ethnicity", "religion", "nationality"}
+
+# ── Environment ──────────────────────────────────────────────────────────
+ENV: str = get_secret("ENV", "development").lower()
+
+
+def validate_production_config() -> None:
+    """Raise SystemExit if production is misconfigured."""
+    if ENV == "production" and not AUTH_ENABLED:
+        raise SystemExit(
+            "FATAL: AUTH_ENABLED must be true when ENV=production. "
+            "Refusing to start without authentication."
+        )

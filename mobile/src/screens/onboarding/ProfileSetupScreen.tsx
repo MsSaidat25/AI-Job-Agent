@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Switch, Platform } from "react-native";
+import { View, Text, Switch } from "react-native";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
-import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
+import { WebSafeScrollView } from "../../components/WebSafeScrollView";
+import { ResponsiveContainer, useBreakpoint } from "../../components/layout/ResponsiveContainer";
 import { useProfileStore } from "../../stores/useProfileStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { ExperienceLevel, JobType } from "../../types/models";
 import type { ProfileRequest } from "../../types/api";
 
-const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
-
 export function ProfileSetupScreen() {
   const { submitProfile, isLoading } = useProfileStore();
   const colors = useThemeStore((s) => s.colors);
+  const bp = useBreakpoint();
+  const isWide = bp !== "mobile";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,12 +73,7 @@ export function ProfileSetupScreen() {
 
   return (
     <ResponsiveContainer>
-      <ScrollView
-        className="flex-1 px-6"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={webScrollStyle}
-      >
+      <WebSafeScrollView className="flex-1 px-6">
         <Text
           className="text-2xl font-bold mt-6 mb-2"
           style={{ color: colors.text }}
@@ -91,36 +87,46 @@ export function ProfileSetupScreen() {
           Tell us about yourself so we can find the best matches.
         </Text>
 
-        <Input
-          label="Full Name *"
-          value={name}
-          onChangeText={setName}
-          placeholder="Jane Doe"
-        />
+        <View style={isWide ? { flexDirection: "row", gap: 12 } : undefined}>
+          <View style={isWide ? { flex: 1 } : undefined}>
+            <Input
+              label="Full Name *"
+              value={name}
+              onChangeText={setName}
+              placeholder="Jane Doe"
+            />
+          </View>
+          <View style={isWide ? { flex: 1 } : undefined}>
+            <Input
+              label="Email *"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="jane@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+        </View>
 
-        <Input
-          label="Email *"
-          value={email}
-          onChangeText={setEmail}
-          placeholder="jane@example.com"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        <Input
-          label="Phone"
-          value={phone}
-          onChangeText={setPhone}
-          placeholder="+1 555 123 4567"
-          keyboardType="phone-pad"
-        />
-
-        <Input
-          label="Location *"
-          value={location}
-          onChangeText={setLocation}
-          placeholder="San Francisco, CA"
-        />
+        <View style={isWide ? { flexDirection: "row", gap: 12 } : undefined}>
+          <View style={isWide ? { flex: 1 } : undefined}>
+            <Input
+              label="Phone"
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="+1 555 123 4567"
+              keyboardType="phone-pad"
+            />
+          </View>
+          <View style={isWide ? { flex: 1 } : undefined}>
+            <Input
+              label="Location *"
+              value={location}
+              onChangeText={setLocation}
+              placeholder="San Francisco, CA"
+            />
+          </View>
+        </View>
 
         <Input
           label="Skills (comma-separated)"
@@ -190,7 +196,7 @@ export function ProfileSetupScreen() {
         />
 
         <View className="h-12" />
-      </ScrollView>
+      </WebSafeScrollView>
     </ResponsiveContainer>
   );
 }
