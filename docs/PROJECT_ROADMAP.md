@@ -206,6 +206,16 @@
 - [ ] Progress bar showing completion
 - [ ] Transitions to active dashboard once first application is submitted
 
+### Interview Prep (triggered when application moves to Interview stage)
+- [ ] Company research brief: what the company does, recent news, culture signals, tech stack, funding stage, team size
+- [ ] Role-specific Q&A: AI generates likely interview questions by analyzing the job description + user's resume
+  - "Based on the job description asking for campaign analytics and your experience in government marketing, expect questions about: measuring ROI on public campaigns, cross-department stakeholder management, working with limited budgets"
+  - Each question includes a suggested answer drawn from the USER'S actual experience (not generic)
+- [ ] "What to ask them" suggestions: thoughtful questions about the role/team/company the user can ask the interviewer
+- [ ] Interview format hints when detectable: "This company typically does a 3-round process: recruiter screen, hiring manager, panel"
+- [ ] Post-interview debrief: "How did it go? What questions did they ask? Any feedback?" (logged for pattern analysis across all interviews)
+- [ ] If rejected after interview: agent analyzes what questions were asked vs. user's debrief to identify gaps for next time
+
 ### Contextual AI (replace dedicated chat page)
 - [ ] Floating AI button component on every screen
 - [ ] Context injection: button knows which screen, which job, which application
@@ -231,11 +241,13 @@
 - [ ] Agent applies winning patterns to future applications proactively
 - [ ] "Your technical-tone resumes get 2x more callbacks for backend roles"
 
-### Rejection Analysis
-- [ ] Pattern detection across all rejections
-- [ ] "3 rejections from roles requiring system design - add a prep module?"
-- [ ] Resume variant comparison: what did rejected versions lack?
-- [ ] Automatic base resume adjustment suggestions
+### Rejection Restrategizer (not "stop applying" - help them win)
+- [ ] Pattern detection across all rejections by company type, role level, industry
+- [ ] Restrategize, not discourage: "Your enterprise applications aren't landing. Enterprise hiring values X, Y, Z differently. Here's how to adjust your resume and approach for that audience."
+- [ ] "3 rejections from roles requiring system design. Want me to add a system design section to your resume using your existing distributed systems experience?"
+- [ ] Resume variant comparison: what did rejected versions lack vs. successful ones?
+- [ ] Automatic base resume adjustment suggestions with one-tap apply
+- [ ] Sector-specific advice: "Startups care about shipping speed. Enterprise cares about process and scale. Your resume leads with shipping - let's add a process section for enterprise roles."
 
 ### Weekly Advisor Report
 - [ ] Performance card: applications, callbacks, trend chart
@@ -284,17 +296,21 @@
 
 ## Sprint 5+ (Backlog - User-Critical Features)
 
-These are features a paying user would expect but don't fit cleanly into Sprints 1-4:
+Features a paying user would expect, prioritized for future sprints:
 
+**High priority:**
 - [ ] Offer comparison dashboard (side-by-side: salary, benefits, equity, growth, location for 2+ active offers)
 - [ ] Job alerts / saved searches ("Notify me when new Senior PM roles post in Berlin paying 90K+")
 - [ ] Application deadline warnings ("This role closes in 2 days. Prepare application now?")
-- [ ] Interview prep depth: format hints (panel/whiteboard/take-home), culture cues, post-interview debrief template
-- [ ] Multi-language document generation (resume/cover letter in target country's language)
-- [ ] Referral tracking per application ("Were you referred? By whom?" - changes follow-up strategy)
-- [ ] Accessibility: screen reader support, high contrast mode, full keyboard navigation
+- [ ] Referral tracking per application ("Were you referred? By whom?" - changes follow-up strategy and timing)
 - [ ] Application analytics breakdown by company type/size/industry (not just overall rates)
+
+**Medium priority:**
+- [ ] Accessibility: screen reader support, high contrast mode, full keyboard navigation
 - [ ] Portfolio/project showcase section (for creative roles, developers, designers)
+- [ ] Company bookmarks / watchlist ("Watch [Company] for new openings matching my profile")
+- [ ] Application history export (CSV/PDF for personal records)
+- [ ] Multi-language document generation (resume/cover letter in target country's language - defer until English experience is polished)
 
 ---
 
