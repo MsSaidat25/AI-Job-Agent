@@ -4,26 +4,29 @@ import {
   Text,
   ScrollView,
   RefreshControl,
-  Platform,
   useWindowDimensions,
 } from "react-native";
+import { WebSafeScrollView } from "../../components/WebSafeScrollView";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
-import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
+import { ResponsiveContainer, useBreakpoint } from "../../components/layout/ResponsiveContainer";
 import { useApplicationStore } from "../../stores/useApplicationStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { formatRelativeDate } from "../../utils/formatters";
 
 const MAX_BOARD_WIDTH = 1024;
-const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 export function KanbanBoardScreen() {
   const { board, isLoading, loadBoard } = useApplicationStore();
   const colors = useThemeStore((s) => s.colors);
+  const bp = useBreakpoint();
   const { width: screenWidth } = useWindowDimensions();
-  const columnWidth = Math.min(screenWidth, MAX_BOARD_WIDTH) - 32;
+  // On desktop, show multiple columns side-by-side; on mobile, paginated scroll
+  const columnWidth = bp === "desktop"
+    ? Math.floor((Math.min(screenWidth, MAX_BOARD_WIDTH) - 48) / 4)
+    : Math.min(screenWidth, MAX_BOARD_WIDTH) - 32;
 
   useEffect(() => {
     loadBoard();
@@ -47,18 +50,16 @@ export function KanbanBoardScreen() {
 
   return (
     <ResponsiveContainer maxWidth={MAX_BOARD_WIDTH}>
-      <ScrollView
+      <WebSafeScrollView
         className="flex-1"
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={webScrollStyle}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
         }
       >
         <ScrollView
           horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
+          pagingEnabled={bp === "mobile"}
+          showsHorizontalScrollIndicator={bp !== "mobile"}
           nestedScrollEnabled
         >
           {board?.columns.map((column) => (
@@ -124,7 +125,7 @@ export function KanbanBoardScreen() {
             </View>
           ))}
         </ScrollView>
-      </ScrollView>
+      </WebSafeScrollView>
     </ResponsiveContainer>
   );
 }

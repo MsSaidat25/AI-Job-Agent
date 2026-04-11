@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { Card } from "../../components/ui/Card";
-import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
+import { ResponsiveContainer, useBreakpoint } from "../../components/layout/ResponsiveContainer";
 import { useChatStore, type ChatMessage } from "../../stores/useChatStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 
@@ -23,6 +23,8 @@ const QUICK_ACTIONS = [
 export function ChatScreen() {
   const { messages, isTyping, error, send } = useChatStore();
   const colors = useThemeStore((s) => s.colors);
+  const bp = useBreakpoint();
+  const bubbleMaxWidth = bp === "desktop" ? "60%" : "80%";
   const [input, setInput] = useState("");
   const listRef = useRef<FlatList>(null);
 
@@ -37,7 +39,7 @@ export function ChatScreen() {
     const isUser = item.role === "user";
     return (
       <View
-        className={`mb-3 max-w-[80%] ${isUser ? "self-end" : "self-start"}`}
+        style={{ marginBottom: 12, maxWidth: bubbleMaxWidth, alignSelf: isUser ? "flex-end" : "flex-start" }}
       >
         <View
           className="rounded-2xl px-4 py-3"

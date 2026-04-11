@@ -12,10 +12,13 @@ def fresh_db(tmp_path, monkeypatch):
     db_path = tmp_path / "test.db"
     monkeypatch.setattr("config.settings.DB_PATH", db_path)
     monkeypatch.setattr("src.models.DB_PATH", db_path)
+    monkeypatch.setattr("src.models_bootstrap.DB_PATH", db_path)
     monkeypatch.setattr("config.settings.DATABASE_URL", "")
     monkeypatch.setattr("config.settings.DATABASE_URL_FAILOVER", "")
     monkeypatch.setattr("src.models.DATABASE_URL", "")
     monkeypatch.setattr("src.models.DATABASE_URL_FAILOVER", "")
+    monkeypatch.setattr("src.models_bootstrap.DATABASE_URL", "")
+    monkeypatch.setattr("src.models_bootstrap.DATABASE_URL_FAILOVER", "")
     from src.models import reset_db_state
     reset_db_state()
     return db_path

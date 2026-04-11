@@ -1,17 +1,19 @@
 import React, { useEffect, useCallback } from "react";
-import { View, Text, ScrollView, RefreshControl, Platform } from "react-native";
+import { View, Text, RefreshControl } from "react-native";
+import { WebSafeScrollView } from "../../components/WebSafeScrollView";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
-import { ResponsiveContainer } from "../../components/layout/ResponsiveContainer";
+import { ResponsiveContainer, useBreakpoint } from "../../components/layout/ResponsiveContainer";
 import { useDashboardStore } from "../../stores/useDashboardStore";
 import { useThemeStore } from "../../stores/useThemeStore";
 
-const webScrollStyle = Platform.OS === "web" ? ({ flex: 1, overflow: "auto" } as any) : undefined;
 
 export function DashboardScreen() {
   const { summary, skills, activity, isLoading, error, loadAll } = useDashboardStore();
   const colors = useThemeStore((s) => s.colors);
+  const bp = useBreakpoint();
+  const metricMinWidth = bp === "desktop" ? "22%" : "45%";
 
   useEffect(() => {
     loadAll();
@@ -47,10 +49,8 @@ export function DashboardScreen() {
 
   return (
     <ResponsiveContainer>
-      <ScrollView
+      <WebSafeScrollView
         className="flex-1 px-4 pt-4"
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={webScrollStyle}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
         }
@@ -61,18 +61,22 @@ export function DashboardScreen() {
             <MetricCard
               label="Applications"
               value={String(summary.total_applications)}
+              minWidth={metricMinWidth}
             />
             <MetricCard
               label="Response Rate"
               value={`${Math.round(summary.response_rate)}%`}
+              minWidth={metricMinWidth}
             />
             <MetricCard
               label="Interview Rate"
               value={`${Math.round(summary.interview_rate)}%`}
+              minWidth={metricMinWidth}
             />
             <MetricCard
               label="Offers"
               value={`${Math.round(summary.offer_rate)}%`}
+              minWidth={metricMinWidth}
             />
           </View>
         )}
@@ -150,16 +154,16 @@ export function DashboardScreen() {
         )}
 
         <View className="h-4" />
-      </ScrollView>
+      </WebSafeScrollView>
     </ResponsiveContainer>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({ label, value, minWidth }: { label: string; value: string; minWidth?: string }) {
   const colors = useThemeStore((s) => s.colors);
 
   return (
-    <Card style={{ flex: 1, minWidth: "45%" }}>
+    <Card style={{ flex: 1, minWidth: minWidth ?? "45%" }}>
       <Text className="text-2xl font-bold" style={{ color: colors.primary }}>
         {value}
       </Text>

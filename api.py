@@ -37,6 +37,7 @@ from config.settings import (  # noqa: E402
     LLM_API_KEY,
     USE_VERTEX_PRIMARY,
     VERTEX_PROJECT,
+    validate_production_config,
 )
 from src.agent import JobAgent  # noqa: E402
 from src.models import UserProfile  # noqa: E402
@@ -79,6 +80,9 @@ limiter = Limiter(key_func=_get_real_client_ip)
 
 _docs_url: str | None = "/docs" if not AUTH_ENABLED else None
 _redoc_url: str | None = "/redoc" if not AUTH_ENABLED else None
+
+
+validate_production_config()
 
 
 @asynccontextmanager
