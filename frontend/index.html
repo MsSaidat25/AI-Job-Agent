@@ -3,7 +3,7 @@ Copyright 2026 AVIEN SOLUTIONS INC (www.aviensolutions.com). All Rights Reserved
 avien@aviensolutions.com
 -->
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
@@ -18,10 +18,10 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        "primary": "#f2cc0d",
-        "background-light": "#f8f8f5",
-        "background-dark": "#221f10",
-        "surface-dark": "#2a2714",
+        "primary": "#8C5543",
+        "background-light": "#f8fafc",
+        "background-dark": "#0f172a",
+        "surface-dark": "#1e293b",
         "sage": "#8da399",
       },
       fontFamily: { "display": ["Space Grotesk"] },
@@ -36,7 +36,7 @@ tailwind.config = {
 /* ── Base ── */
 body { font-family: "Space Grotesk", sans-serif; min-height: max(884px, 100dvh); }
 .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
-.step-anchor::before { content: ""; position: absolute; left: 50%; top: -24px; transform: translateX(-50%); width: 2px; height: 24px; background: linear-gradient(to bottom, transparent, #f2cc0d); opacity: 0.3; }
+.step-anchor::before { content: ""; position: absolute; left: 50%; top: -24px; transform: translateX(-50%); width: 2px; height: 24px; background: linear-gradient(to bottom, transparent, #8C5543); opacity: 0.3; }
 
 /* ── Form elements ── */
 input, select, textarea {
@@ -52,8 +52,8 @@ input, select, textarea {
   width: 100%;
 }
 input::placeholder, textarea::placeholder { color: #475569; }
-input:focus, select:focus, textarea:focus { border-color: rgba(242,204,13,0.6); }
-select option { background: #221f10; color: #e2e8f0; }
+input:focus, select:focus, textarea:focus { border-color: rgba(140,85,67,0.6); }
+select option { background: #0f172a; color: #e2e8f0; }
 textarea { resize: vertical; }
 
 /* ── Response area ── */
@@ -70,39 +70,38 @@ textarea { resize: vertical; }
   overflow-y: auto;
 }
 .response-area.empty { display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.75rem; }
-.response-area h2 { color: #f2cc0d; font-weight: 700; font-size: 1rem; margin: 1rem 0 0.5rem; }
-.response-area h3 { color: #f2cc0d; font-weight: 600; font-size: 0.9rem; margin: 0.75rem 0 0.35rem; }
-.response-area h4 { color: rgba(242,204,13,0.8); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.75rem 0 0.25rem; }
+.response-area h2 { color: #8C5543; font-weight: 700; font-size: 1rem; margin: 1rem 0 0.5rem; }
+.response-area h3 { color: #8C5543; font-weight: 600; font-size: 0.9rem; margin: 0.75rem 0 0.35rem; }
+.response-area h4 { color: rgba(140,85,67,0.8); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.75rem 0 0.25rem; }
 .response-area strong { color: #f1f5f9; font-weight: 600; }
-.response-area code { background: rgba(242,204,13,0.1); color: #f2cc0d; padding: 1px 5px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
+.response-area code { background: rgba(140,85,67,0.1); color: #8C5543; padding: 1px 5px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
 .response-area hr { border: none; border-top: 1px solid rgba(141,163,153,0.2); margin: 0.75rem 0; }
 .md-bullet { display:flex;gap:8px;margin:3px 0; }
-.md-bullet-dot { color:#f2cc0d;flex-shrink:0; }
+.md-bullet-dot { color:#8C5543;flex-shrink:0; }
 .md-num { display:flex;gap:8px;margin:3px 0; }
-.md-num-n { color:#f2cc0d;font-size:0.7rem;flex-shrink:0;min-width:18px; }
+.md-num-n { color:#8C5543;font-size:0.7rem;flex-shrink:0;min-width:18px; }
 
 /* ── Spinner ── */
-.spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(242,204,13,0.2);border-top-color:#f2cc0d;border-radius:50%;animation:spin 0.7s linear infinite; }
+.spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(140,85,67,0.2);border-top-color:#8C5543;border-radius:50%;animation:spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Job IDs box ── */
-.job-ids-box { margin-top:12px;padding:14px;background:rgba(242,204,13,0.06);border:1px solid rgba(242,204,13,0.15);border-radius:1rem; }
-.job-id-item { display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(242,204,13,0.08);color:#94a3b8;font-size:0.75rem; }
+.job-ids-box { margin-top:12px;padding:14px;background:rgba(140,85,67,0.06);border:1px solid rgba(140,85,67,0.15);border-radius:1rem; }
+.job-id-item { display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(140,85,67,0.08);color:#94a3b8;font-size:0.75rem; }
 .job-id-item:last-child { border-bottom:none; }
-.job-id-copy { cursor:pointer;color:#f2cc0d;font-size:0.65rem;padding:2px 8px;border:1px solid rgba(242,204,13,0.25);border-radius:4px;transition:all 0.15s; }
-.job-id-copy:hover { background:#f2cc0d;color:#221f10; }
+.job-id-copy { cursor:pointer;color:#8C5543;font-size:0.65rem;padding:2px 8px;border:1px solid rgba(140,85,67,0.25);border-radius:4px;transition:all 0.15s; }
+.job-id-copy:hover { background:#8C5543;color:#0f172a; }
 
 /* ── Toast ── */
 #toast { position:fixed;bottom:80px;right:16px;padding:11px 18px;border-radius:12px;font-size:0.8rem;z-index:9999;transform:translateY(12px);opacity:0;transition:all 0.25s;max-width:300px;border:1px solid; }
 @media (min-width: 640px) { #toast { bottom: 20px; right: 20px; } }
 #toast.show { transform:translateY(0);opacity:1; }
-#toast.success { background:#221f10;border-color:rgba(141,163,153,0.4);color:#8da399; }
-#toast.error { background:#221f10;border-color:rgba(244,63,94,0.3);color:#f87171; }
-#toast.info { background:#221f10;border-color:rgba(242,204,13,0.3);color:#f2cc0d; }
+#toast.success { background:#0f172a;border-color:rgba(141,163,153,0.4);color:#8da399; }
+#toast.error { background:#0f172a;border-color:rgba(244,63,94,0.3);color:#f87171; }
+#toast.info { background:#0f172a;border-color:rgba(140,85,67,0.3);color:#8C5543; }
 
 /* ── Scroll reveal ── */
-.reveal { opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease; }
-.reveal.visible { opacity:1;transform:translateY(0); }
+.reveal { opacity:1;transform:translateY(0);transition:opacity 0.6s ease,transform 0.6s ease; }
 
 /* ══════════════════════════════════════
    SIDEBAR — collapsible
@@ -142,8 +141,8 @@ textarea { resize: vertical; }
   position: fixed;
   bottom: 0; left: 0; right: 0;
   height: 60px;
-  background: #1a1810;
-  border-top: 1px solid rgba(242,204,13,0.1);
+  background: #0f172a;
+  border-top: 1px solid rgba(140,85,67,0.1);
   z-index: 200;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -152,7 +151,7 @@ textarea { resize: vertical; }
   gap: 2px; color: #475569; cursor: pointer; transition: color 0.15s; font-size: 9px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.05em;
 }
-#mobile-nav .mn-item.active { color: #f2cc0d; }
+#mobile-nav .mn-item.active { color: #8C5543; }
 #mobile-nav .mn-item .material-symbols-outlined { font-size: 20px; }
 
 /* ══════════════════════════════════════
@@ -182,12 +181,12 @@ textarea { resize: vertical; }
 /* ══════════════════════════════════════
    ACTIVE NAV
 ══════════════════════════════════════ */
-.nav-item.active-nav { background: rgba(242,204,13,0.1); color: #f2cc0d; border-radius: 0.75rem; }
+.nav-item.active-nav { background: rgba(140,85,67,0.1); color: #8C5543; border-radius: 0.75rem; }
 
 /* ══════════════════════════════════════
    LIGHT MODE OVERRIDES
 ══════════════════════════════════════ */
-html:not(.dark) body { background:#f8f8f5; color:#1a1a1a; }
+html:not(.dark) body { background:#f8fafc; color:#1a1a1a; }
 html:not(.dark) input, html:not(.dark) select, html:not(.dark) textarea {
   background:#fff; border-color:#d1d5db; color:#111827;
 }
@@ -195,19 +194,19 @@ html:not(.dark) input::placeholder, html:not(.dark) textarea::placeholder { colo
 html:not(.dark) select option { background: #fff; color: #111827; }
 html:not(.dark) .response-area { background:#fff; border-color:#e5e7eb; color:#374151; }
 html:not(.dark) .response-area.empty { color:#9ca3af; }
-html:not(.dark) .response-area h2, html:not(.dark) .response-area h3, html:not(.dark) .response-area h4 { color:#b45309; }
+html:not(.dark) .response-area h2, html:not(.dark) .response-area h3, html:not(.dark) .response-area h4 { color:#6E4535; }
 html:not(.dark) .response-area strong { color:#111827; }
-html:not(.dark) .response-area code { background:rgba(180,83,9,0.08); color:#b45309; }
-html:not(.dark) .job-ids-box { background:rgba(242,204,13,0.08); border-color:rgba(242,204,13,0.25); }
-html:not(.dark) .job-id-item { color:#6b7280; border-color:rgba(242,204,13,0.12); }
-html:not(.dark) #mobile-nav { background:#f8f8f5; border-color:#e5e7eb; }
+html:not(.dark) .response-area code { background:rgba(180,83,9,0.08); color:#6E4535; }
+html:not(.dark) .job-ids-box { background:rgba(140,85,67,0.08); border-color:rgba(140,85,67,0.25); }
+html:not(.dark) .job-id-item { color:#6b7280; border-color:rgba(140,85,67,0.12); }
+html:not(.dark) #mobile-nav { background:#f8fafc; border-color:#e5e7eb; }
 html:not(.dark) #mobile-nav .mn-item { color:#9ca3af; }
-html:not(.dark) #mobile-nav .mn-item.active { color:#b45309; }
-html:not(.dark) #sidebar { background: #f0efe8; border-color: #e5e4d5; }
+html:not(.dark) #mobile-nav .mn-item.active { color:#6E4535; }
+html:not(.dark) #sidebar { background: #f1f5f9; border-color: #e2e8f0; }
 
 /* ── Upload dropzone ── */
 .upload-dropzone {
-  border: 2px dashed rgba(242,204,13,0.25);
+  border: 2px dashed rgba(140,85,67,0.25);
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
@@ -215,7 +214,7 @@ html:not(.dark) #sidebar { background: #f0efe8; border-color: #e5e4d5; }
   transition: all 0.2s;
   position: relative;
 }
-.upload-dropzone:hover { border-color: rgba(242,204,13,0.6); background: rgba(242,204,13,0.04); }
+.upload-dropzone:hover { border-color: rgba(140,85,67,0.6); background: rgba(140,85,67,0.04); }
 .upload-dropzone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
 /* ── Profile card ── */
@@ -242,7 +241,6 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
   </div>
   <div class="flex items-center gap-3">
     <a href="#how" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">How It Works</a>
-    <a href="#roadmap" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">Roadmap</a>
     <button onclick="toggleTheme()" id="themeToggleLanding" class="w-9 h-9 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
       <span class="material-symbols-outlined text-lg" id="themeIconLanding">light_mode</span>
     </button>
@@ -251,29 +249,24 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
 </nav>
 
 <!-- HERO -->
-<main class="max-w-7xl mx-auto px-4 py-12">
-  <div class="flex flex-col gap-10">
+<main class="max-w-7xl mx-auto px-4 py-16 md:py-24">
+  <div class="flex flex-col gap-12">
     <div class="flex flex-col gap-6 text-center items-center">
       <h1 class="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight dark:text-slate-50">
-        Your Career Journey,<br/><span class="text-primary italic">Guided by Intelligence</span>
+        Stop applying blind.<br/><span class="text-primary">Land the right role.</span>
       </h1>
-      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
-        AI-powered job search, tailored resumes, smart tracking — everything you need to go from search to offer, faster.
+      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+        JobPath AI searches real job listings, scores each one against your profile, generates tailored resumes and cover letters, and tracks every application from submission to offer. All private, all in one place.
       </p>
-      <div class="flex items-center gap-8 py-2">
-        <div class="text-center"><div class="text-2xl font-bold text-primary" data-target="9">0</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">AI Tools</div></div>
-        <div class="w-px h-8 bg-primary/20"></div>
-        <div class="text-center"><div class="text-2xl font-bold text-primary" data-target="15">0</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Endpoints</div></div>
-        <div class="w-px h-8 bg-primary/20"></div>
-        <div class="text-center"><div class="text-2xl font-bold text-primary">100%</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Private</div></div>
-        <div class="w-px h-8 bg-primary/20"></div>
-        <div class="text-center"><div class="text-2xl font-bold text-primary" data-target="3">0</div><div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Resume Tones</div></div>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-3 pt-2 w-full max-w-sm">
-        <button onclick="openSetup()" class="flex-1 bg-primary text-background-dark font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-base flex items-center justify-center gap-2">
-          Begin Your Search <span class="material-symbols-outlined text-base">arrow_forward</span>
+      <div class="flex flex-col sm:flex-row gap-3 pt-4 w-full max-w-md">
+        <button onclick="openSetup()" class="flex-1 bg-primary text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-base flex items-center justify-center gap-2">
+          Get Started Free <span class="material-symbols-outlined text-base">arrow_forward</span>
         </button>
+        <a href="#how" class="flex-1 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-4 px-8 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all text-base flex items-center justify-center gap-2">
+          See How It Works
+        </a>
       </div>
+      <p class="text-xs text-slate-400 mt-1">Your data never leaves your control.</p>
     </div>
     <div class="relative w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-2xl">
       <div class="absolute inset-0 bg-gradient-to-t from-background-dark/90 via-background-dark/20 to-transparent z-10"></div>
@@ -311,140 +304,47 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
   </div>
 </main>
 
-<!-- STEP 1: THE PROBLEM -->
-<section class="py-20 bg-slate-100 dark:bg-primary/5 relative" id="how">
-  <div class="max-w-4xl mx-auto px-4">
-    <div class="text-center mb-12 space-y-4 reveal">
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary text-background-dark font-bold mb-4 shadow-lg shadow-primary/20">1</div>
-      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">The Problem</h2>
-      <h3 class="text-3xl font-bold dark:text-slate-50">What's holding you back?</h3>
-      <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Every job seeker faces a different wall. JobPath AI tears them all down.</p>
-    </div>
-    <div class="grid grid-cols-1 gap-4 reveal">
-      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
-        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all"><span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">mist</span></div>
-        <div><h4 class="text-lg font-bold">The Black Hole</h4><p class="text-sm text-slate-500 dark:text-slate-400">"I apply to dozens of jobs but never hear anything back."</p></div>
-        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
-      </div>
-      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
-        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all"><span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">description</span></div>
-        <div><h4 class="text-lg font-bold">Generic Documents</h4><p class="text-sm text-slate-500 dark:text-slate-400">"My resume looks the same as everyone else's — I can't stand out."</p></div>
-        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
-      </div>
-      <div class="w-full text-left bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/20 hover:border-primary transition-all group flex items-center gap-5 shadow-sm">
-        <div class="w-14 h-14 bg-primary/10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-all"><span class="material-symbols-outlined text-primary group-hover:text-background-dark text-3xl">battery_low</span></div>
-        <div><h4 class="text-lg font-bold">Application Chaos</h4><p class="text-sm text-slate-500 dark:text-slate-400">"I've lost track of where I applied and what stage each is at."</p></div>
-        <span class="material-symbols-outlined ml-auto text-primary">radio_button_checked</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STEP 2: THE SOLUTION -->
-<section class="py-20 bg-background-light dark:bg-background-dark relative overflow-hidden">
-  <div class="max-w-4xl mx-auto px-4">
+<!-- HOW IT WORKS -->
+<section class="py-20 bg-slate-50 dark:bg-slate-900/40 relative" id="how">
+  <div class="max-w-5xl mx-auto px-4">
     <div class="text-center mb-16 space-y-4 reveal">
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sage text-white font-bold mb-4 shadow-lg shadow-sage/20 step-anchor relative">2</div>
-      <h2 class="text-sage font-bold uppercase tracking-[0.2em] text-xs">The Solution</h2>
-      <h3 class="text-3xl font-bold dark:text-slate-50">How JobPath AI bridges the gap</h3>
-      <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Six intelligent tools that cover every step of your job search.</p>
+      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">How It Works</h2>
+      <h3 class="text-3xl md:text-4xl font-bold dark:text-slate-50">One platform. Every step of your job search.</h3>
+      <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Upload your resume or build a profile. JobPath AI handles the rest.</p>
     </div>
-    <div class="flex flex-col gap-6 reveal">
-      <div class="bg-sage/5 border-l-4 border-sage p-8 rounded-r-2xl">
-        <div class="flex items-center gap-3 mb-6"><span class="material-symbols-outlined text-sage">search</span><h4 class="text-xl font-bold">Intelligent Discovery</h4></div>
-        <div class="grid gap-5">
-          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sage text-sm">done_all</span></div><div><p class="font-bold">AI Job Search &amp; Scoring</p><p class="text-sm text-slate-500 dark:text-slate-400">Every result is scored 0–100 against your profile. Know exactly which roles to prioritise.</p></div></div>
-          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sage text-sm">analytics</span></div><div><p class="font-bold">Market Intelligence</p><p class="text-sm text-slate-500 dark:text-slate-400">Regional salary data, in-demand skills, and culturally-aware tips for any market worldwide.</p></div></div>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 reveal">
+      <div class="bg-white dark:bg-background-dark p-8 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-5"><span class="material-symbols-outlined text-primary text-2xl">search</span></div>
+        <h4 class="text-lg font-bold mb-2">Smart Job Search</h4>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Search thousands of real listings from JSearch and Adzuna. Every result is scored 0 to 100 against your skills and experience so you focus on roles where you have the best chance.</p>
       </div>
-      <div class="bg-primary/5 border-l-4 border-primary p-8 rounded-r-2xl">
-        <div class="flex items-center gap-3 mb-6"><span class="material-symbols-outlined text-primary">volunteer_activism</span><h4 class="text-xl font-bold">Tailored Applications</h4></div>
-        <div class="grid gap-5">
-          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary text-sm">description</span></div><div><p class="font-bold">Resume &amp; Cover Letter Generator</p><p class="text-sm text-slate-500 dark:text-slate-400">Custom documents for every role in seconds — professional, creative, or technical tone.</p></div></div>
-          <div class="flex items-start gap-4"><div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary text-sm">checklist</span></div><div><p class="font-bold">Application Tracker &amp; Analytics</p><p class="text-sm text-slate-500 dark:text-slate-400">Log every application. Claude analyses your history to surface patterns and sharpen strategy.</p></div></div>
-        </div>
+      <div class="bg-white dark:bg-background-dark p-8 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-5"><span class="material-symbols-outlined text-primary text-2xl">description</span></div>
+        <h4 class="text-lg font-bold mb-2">Tailored Documents</h4>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Generate resumes and cover letters matched to each job description. Choose professional, creative, or technical tone. Export as PDF or DOCX. ATS keyword scoring built in.</p>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ROADMAP -->
-<section class="py-20 bg-slate-100 dark:bg-primary/5" id="roadmap">
-  <div class="max-w-4xl mx-auto px-4">
-    <div class="text-center mb-12 space-y-3 reveal">
-      <h2 class="text-primary font-bold uppercase tracking-[0.2em] text-xs">Roadmap</h2>
-      <h3 class="text-3xl font-bold dark:text-slate-50">Built in public, shipping fast</h3>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 reveal">
-      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-sage/40 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-sage"></div>
-        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sage bg-sage/10 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-sage rounded-full"></span> Live Now</div>
-        <div class="font-bold mb-3">Core Platform</div>
-        <ul class="space-y-2 text-sm text-slate-500">
-          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>AI job search &amp; scoring</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Resume &amp; cover letter gen</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Application tracker</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Market intelligence</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-sage text-sm leading-tight mt-0.5">check</span>Resume upload &amp; AI parse</li>
-        </ul>
+      <div class="bg-white dark:bg-background-dark p-8 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-sage/15 rounded-xl flex items-center justify-center mb-5"><span class="material-symbols-outlined text-sage text-2xl">analytics</span></div>
+        <h4 class="text-lg font-bold mb-2">Application Tracking</h4>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Track every application from draft to offer. Kanban board view, response rate analytics, and AI-generated insights that show you what is working and what to adjust.</p>
       </div>
-      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-primary/40 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
-        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span> Coming Next</div>
-        <div class="font-bold mb-3">Auto-Apply</div>
-        <ul class="space-y-2 text-sm text-slate-500">
-          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>Browser form automation</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>LinkedIn Easy Apply</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>AI screening answers</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-primary/60 text-sm leading-tight mt-0.5">arrow_forward</span>One-click apply queue</li>
-        </ul>
-      </div>
-      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-slate-700/40 relative overflow-hidden opacity-80">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-600"></div>
-        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-white/5 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-slate-600 rounded-full"></span> Next</div>
-        <div class="font-bold mb-3">Integrations</div>
-        <ul class="space-y-2 text-sm text-slate-500">
-          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>LinkedIn &amp; Indeed APIs</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>Email notifications</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-600 text-sm leading-tight mt-0.5">arrow_forward</span>Calendar sync</li>
-        </ul>
-      </div>
-      <div class="bg-background-light dark:bg-background-dark p-6 rounded-2xl border-2 border-slate-700/20 relative overflow-hidden opacity-50">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-700"></div>
-        <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-white/5 px-2.5 py-1 rounded-full mb-3"><span class="w-1.5 h-1.5 bg-slate-700 rounded-full"></span> Future</div>
-        <div class="font-bold mb-3">Intelligence+</div>
-        <ul class="space-y-2 text-sm text-slate-500">
-          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Interview prep coach</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Salary negotiation</li>
-          <li class="flex gap-2"><span class="material-symbols-outlined text-slate-700 text-sm leading-tight mt-0.5">radio_button_unchecked</span>Career path planning</li>
-        </ul>
+      <div class="bg-white dark:bg-background-dark p-8 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-sage/15 rounded-xl flex items-center justify-center mb-5"><span class="material-symbols-outlined text-sage text-2xl">shield</span></div>
+        <h4 class="text-lg font-bold mb-2">Privacy First</h4>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Your data stays yours. PII is encrypted at rest with AES-256. Demographic attributes are stripped before AI processing to prevent bias. No data is sold or shared.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- STEP 3: CTA BANNER -->
+<!-- CTA BANNER -->
 <section class="py-20 px-4">
-  <div class="max-w-4xl mx-auto">
-    <div class="bg-primary rounded-[2.5rem] overflow-hidden relative shadow-2xl shadow-primary/20">
-      <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 2px 2px,black 1px,transparent 0);background-size:24px 24px;"></div>
-      <div class="relative z-10 p-8 md:p-16 flex flex-col items-center text-center gap-8">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-background-dark text-primary font-bold shadow-lg step-anchor relative">3</div>
-        <h2 class="text-3xl md:text-5xl font-bold text-background-dark leading-tight max-w-2xl">Ready to reclaim your <span class="underline decoration-slate-900/20 italic">career narrative</span>?</h2>
-        <div class="bg-background-dark/10 p-1 rounded-2xl w-full max-w-md backdrop-blur-sm">
-          <div class="bg-background-dark p-8 rounded-xl space-y-6">
-            <div class="text-center"><p class="text-primary font-bold text-2xl">Start for Free</p><p class="text-slate-400 text-sm">Set up your profile in 2 minutes</p></div>
-            <ul class="space-y-3 text-left">
-              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>AI job search &amp; scoring</li>
-              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>Tailored resume &amp; cover letters</li>
-              <li class="flex items-center gap-3 text-sm text-slate-200"><span class="material-symbols-outlined text-primary text-lg">check_circle</span>Application tracker &amp; analytics</li>
-            </ul>
-            <button onclick="openSetup()" class="w-full bg-primary text-background-dark font-bold py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all text-lg shadow-lg">Create Your Account</button>
-            <p class="text-center text-slate-500 text-xs">No credit card required. Private by default.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="max-w-3xl mx-auto text-center space-y-8">
+    <h2 class="text-3xl md:text-4xl font-bold dark:text-slate-50">Ready to start?</h2>
+    <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Set up your profile in two minutes. Search jobs, generate documents, and track applications immediately.</p>
+    <button onclick="openSetup()" class="bg-primary text-white font-bold py-4 px-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg">
+      Get Started
+    </button>
   </div>
 </section>
 
@@ -455,11 +355,11 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
       <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-4xl">route</span><h2 class="text-3xl font-bold tracking-tight">JobPath AI</h2></div>
       <p class="text-slate-500 max-w-xs">Strategic career infrastructure for the empowered professional. Built by Avien Solutions.</p>
     </div>
-    <div class="grid grid-cols-2 gap-x-16 gap-y-6 text-center">
-      <div class="space-y-3"><h5 class="font-bold text-sm">Platform</h5><ul class="space-y-2 text-slate-500 text-sm"><li><a href="#how" class="hover:text-primary transition-colors">How It Works</a></li><li><a href="#roadmap" class="hover:text-primary transition-colors">Roadmap</a></li></ul></div>
-      <div class="space-y-3"><h5 class="font-bold text-sm">Company</h5><ul class="space-y-2 text-slate-500 text-sm"><li><a href="mailto:avien@aviensolutions.com" class="hover:text-primary transition-colors">Contact</a></li><li><a href="https://www.aviensolutions.com" class="hover:text-primary transition-colors">Avien Solutions</a></li></ul></div>
+    <div class="flex gap-8 text-sm text-slate-500">
+      <a href="#how" class="hover:text-primary transition-colors">How It Works</a>
+      <a href="https://www.aviensolutions.com" class="hover:text-primary transition-colors">Avien Solutions</a>
     </div>
-    <div class="pt-6 border-t border-slate-200 dark:border-slate-800 w-full text-center text-slate-500 text-xs">© 2026 Avien Solutions Inc · avien@aviensolutions.com · www.aviensolutions.com</div>
+    <div class="pt-6 border-t border-slate-200 dark:border-slate-800 w-full text-center text-slate-500 text-xs">© 2026 Avien Solutions Inc · <a href="https://www.aviensolutions.com" class="hover:text-primary transition-colors">www.aviensolutions.com</a></div>
   </div>
 </footer>
 </div><!-- /landing -->
@@ -682,7 +582,7 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
       </div>
 
       <!-- CONTENT -->
-      <div id="content-scroll" class="p-4 md:p-5 bg-[#1a1810] dark:bg-[#1a1810]" style="background:#1a1810;">
+      <div id="content-scroll" class="p-4 md:p-5 bg-[#0f172a] dark:bg-[#0f172a]" style="background:#0f172a;">
 
         <!-- JOB SEARCH -->
         <div id="view-jobs" class="view-active">
@@ -879,7 +779,7 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
         <div id="view-employers" style="display:none">
           <!-- Hero banner -->
           <div class="bg-background-dark border border-primary/10 rounded-2xl p-6 md:p-8 mb-4 dash-panel text-center relative overflow-hidden">
-            <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse at 50% 0%, rgba(242,204,13,0.07) 0%, transparent 70%);"></div>
+            <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse at 50% 0%, rgba(140,85,67,0.07) 0%, transparent 70%);"></div>
             <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 mb-4">
               <span class="material-symbols-outlined text-sm">schedule</span> Coming Soon
             </span>
@@ -1108,7 +1008,7 @@ function setupTags(inp, con, arr) {
 function addTag(con, arr, val, inp) {
   const c = document.getElementById(con); const i = document.getElementById(inp);
   const t = document.createElement('div');
-  t.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:rgba(242,204,13,0.1);color:#f2cc0d;border:1px solid rgba(242,204,13,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:500;';
+  t.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:rgba(140,85,67,0.1);color:#8C5543;border:1px solid rgba(140,85,67,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:500;';
   t.textContent = val;
   const closeSpan = document.createElement('span');
   closeSpan.style.cssText = 'cursor:pointer;opacity:0.6;margin-left:2px;font-size:12px;';
@@ -1388,13 +1288,13 @@ function appendChatMsg(role, html) {
   d.style.cssText = 'display:flex;gap:8px;' + (role === 'user' ? 'flex-direction:row-reverse;' : 'flex-direction:row;');
   const avatar = document.createElement('div');
   avatar.style.cssText = role === 'user'
-    ? 'width:28px;height:28px;border-radius:8px;background:rgba(242,204,13,0.2);display:flex;align-items:center;justify-content:center;color:#f2cc0d;font-weight:700;font-size:12px;flex-shrink:0;'
+    ? 'width:28px;height:28px;border-radius:8px;background:rgba(140,85,67,0.2);display:flex;align-items:center;justify-content:center;color:#8C5543;font-weight:700;font-size:12px;flex-shrink:0;'
     : 'width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(141,163,153,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;';
   avatar.textContent = role === 'user' ? init : '🤖';
   const bubble = document.createElement('div');
   bubble.style.cssText = role === 'user'
-    ? 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#f2cc0d;color:#221f10;font-weight:500;'
-    : 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:rgba(255,255,255,0.05);border:1px solid rgba(242,204,13,0.08);color:#cbd5e1;';
+    ? 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#8C5543;color:#0f172a;font-weight:500;'
+    : 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:rgba(255,255,255,0.05);border:1px solid rgba(140,85,67,0.08);color:#cbd5e1;';
   if (role === 'user') { bubble.textContent = html; } else { bubble.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : ''; }
   d.appendChild(avatar); d.appendChild(bubble);
   w.appendChild(d); w.scrollTop = w.scrollHeight; return d;
@@ -1435,7 +1335,7 @@ function updateThemeIcons(isDark) {
 }
 function initTheme() {
   const saved = localStorage.getItem('jpai_theme');
-  const isDark = saved ? saved === 'dark' : true;
+  const isDark = saved ? saved === 'dark' : false;
   document.documentElement.classList.toggle('dark', isDark);
   updateThemeIcons(isDark);
 }
