@@ -275,6 +275,182 @@ html:not(.dark) .upload-dropzone p.text-slate-500 { color: #6b7280; }
 .profile-field-value { color:#e2e8f0; max-width:60%; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 html:not(.dark) .profile-field-value { color:#1f2937; }
 html:not(.dark) .profile-field { border-color: #e5e7eb; }
+
+/* ══════════════════════════════════════
+   DASHBOARD KPI CARDS
+══════════════════════════════════════ */
+.kpi-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+@media (min-width: 768px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+.kpi-card { background: rgba(140,85,67,0.05); border: 1px solid rgba(140,85,67,0.15); border-radius: 1rem; padding: 1rem; }
+html:not(.dark) .kpi-card { background: #fff; border-color: #e5e7eb; }
+.kpi-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8da399; margin-bottom: 0.35rem; }
+.kpi-value { font-size: 1.75rem; font-weight: 700; color: #8C5543; line-height: 1; }
+html:not(.dark) .kpi-value { color: #6E4535; }
+.kpi-sub { font-size: 0.7rem; color: #64748b; margin-top: 0.35rem; }
+
+/* ══════════════════════════════════════
+   GUIDED JOURNEY CHECKLIST
+══════════════════════════════════════ */
+.journey-step { display:flex; align-items:center; gap:0.75rem; padding:0.85rem; border-radius:0.75rem; border:1px solid rgba(141,163,153,0.15); background: rgba(255,255,255,0.02); transition: all 0.15s; }
+html:not(.dark) .journey-step { background:#fff; border-color:#e2e8f0; }
+.journey-step.done { opacity:0.6; }
+.journey-step.done .journey-icon { background: rgba(16,185,129,0.15); color:#10b981; }
+.journey-icon { width:36px; height:36px; border-radius:0.5rem; background:rgba(140,85,67,0.1); color:#8C5543; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.journey-label { flex:1; font-size:0.85rem; font-weight:600; }
+html:not(.dark) .journey-label { color:#1e293b; }
+.journey-desc { font-size:0.7rem; color:#64748b; margin-top:0.15rem; }
+.journey-btn { font-size:0.7rem; font-weight:700; padding:0.35rem 0.75rem; border-radius:0.5rem; background:#8C5543; color:#fff; border:none; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
+.journey-btn:hover { filter:brightness(1.1); }
+.journey-btn.done-btn { background: rgba(16,185,129,0.15); color:#10b981; }
+
+/* ══════════════════════════════════════
+   ACTIVITY TIMELINE
+══════════════════════════════════════ */
+.timeline-item { display:flex; gap:0.75rem; padding:0.6rem 0; border-bottom:1px solid rgba(141,163,153,0.08); }
+.timeline-item:last-child { border-bottom:none; }
+.timeline-dot { width:8px; height:8px; border-radius:50%; background:#8C5543; margin-top:0.4rem; flex-shrink:0; }
+.timeline-dot.applied { background:#3b82f6; }
+.timeline-dot.interview_scheduled { background:#8b5cf6; }
+.timeline-dot.offer_received { background:#10b981; }
+.timeline-dot.rejected { background:#ef4444; }
+.timeline-content { flex:1; font-size:0.8rem; }
+.timeline-content .t-detail { color:#cbd5e1; font-weight:500; }
+html:not(.dark) .timeline-content .t-detail { color:#1e293b; }
+.timeline-content .t-time { font-size:0.65rem; color:#64748b; margin-top:0.15rem; }
+
+/* ══════════════════════════════════════
+   SKILL TAGS
+══════════════════════════════════════ */
+.skill-tag { display:inline-flex; align-items:center; gap:0.25rem; font-size:0.7rem; font-weight:600; padding:0.3rem 0.65rem; border-radius:999px; margin:0.15rem; }
+.skill-tag.match { background: rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); }
+.skill-tag.gap { background: rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.25); }
+.skill-tag.neutral { background: rgba(140,85,67,0.1); color:#8C5543; border:1px solid rgba(140,85,67,0.2); }
+
+/* ══════════════════════════════════════
+   JOB CARDS (list view)
+══════════════════════════════════════ */
+.job-card { background: rgba(255,255,255,0.03); border:1px solid rgba(141,163,153,0.15); border-radius:1rem; padding:1rem; margin-bottom:0.75rem; transition:all 0.15s; }
+.job-card:hover { border-color: rgba(140,85,67,0.4); background: rgba(140,85,67,0.03); }
+html:not(.dark) .job-card { background:#fff; border-color:#e5e7eb; }
+html:not(.dark) .job-card:hover { border-color: rgba(140,85,67,0.35); background: #fcfaf9; }
+.job-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; margin-bottom:0.5rem; }
+.job-card-title { font-size:0.95rem; font-weight:700; color:#f1f5f9; line-height:1.3; }
+html:not(.dark) .job-card-title { color:#1e293b; }
+.job-card-company { font-size:0.75rem; color:#8da399; font-weight:600; margin-top:0.15rem; }
+.job-card-meta { display:flex; flex-wrap:wrap; gap:0.5rem; font-size:0.7rem; color:#64748b; margin-top:0.5rem; }
+.job-card-meta span { display:inline-flex; align-items:center; gap:0.2rem; }
+.job-card-actions { display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(141,163,153,0.1); }
+.job-card-actions button { flex:1; font-size:0.7rem; font-weight:700; padding:0.5rem 0.75rem; border-radius:0.5rem; border:1px solid rgba(140,85,67,0.25); color:#8C5543; background:transparent; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:0.25rem; }
+.job-card-actions button:hover { background: rgba(140,85,67,0.1); }
+.job-card-actions button.primary { background:#8C5543; color:#fff; border-color:#8C5543; }
+.job-card-actions button.primary:hover { filter:brightness(1.1); background:#8C5543; }
+.match-badge { display:inline-flex; align-items:center; justify-content:center; min-width:2.25rem; height:2.25rem; border-radius:0.5rem; font-size:0.85rem; font-weight:700; flex-shrink:0; }
+.match-badge.high { background: rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.35); }
+.match-badge.mid { background: rgba(140,85,67,0.15); color:#8C5543; border:1px solid rgba(140,85,67,0.35); }
+.match-badge.low { background: rgba(100,116,139,0.15); color:#94a3b8; border:1px solid rgba(100,116,139,0.3); }
+.work-tag { display:inline-flex; align-items:center; gap:0.25rem; font-size:0.65rem; font-weight:700; padding:0.2rem 0.55rem; border-radius:999px; background: rgba(141,163,153,0.12); color:#8da399; text-transform:uppercase; letter-spacing:0.05em; }
+
+/* ══════════════════════════════════════
+   JOB DETAIL SLIDE-IN PANEL
+══════════════════════════════════════ */
+.job-detail-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:400; backdrop-filter: blur(2px); }
+.job-detail-panel { position:fixed; top:0; right:0; bottom:0; width:100%; max-width:640px; background:#0f172a; border-left:1px solid rgba(140,85,67,0.2); z-index:401; overflow-y:auto; padding:1.5rem 1.25rem; }
+html:not(.dark) .job-detail-panel { background:#fff; border-color:#e5e7eb; }
+@media (max-width: 767px) { .job-detail-panel { max-width:100%; } }
+.job-detail-close { position:absolute; top:1rem; right:1rem; width:2rem; height:2rem; border-radius:0.5rem; background:transparent; border:1px solid rgba(141,163,153,0.2); color:#94a3b8; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.job-detail-close:hover { background: rgba(140,85,67,0.1); color:#8C5543; }
+
+/* ══════════════════════════════════════
+   KANBAN BOARD
+══════════════════════════════════════ */
+.kanban-scroll { display:flex; gap:0.75rem; overflow-x:auto; padding-bottom:1rem; scrollbar-width:thin; }
+.kanban-column { flex:0 0 280px; background: rgba(255,255,255,0.03); border:1px solid rgba(141,163,153,0.15); border-radius:1rem; padding:0.85rem; min-height:400px; display:flex; flex-direction:column; }
+html:not(.dark) .kanban-column { background:#f8fafc; border-color:#e2e8f0; }
+.kanban-column.drag-over { border-color: rgba(140,85,67,0.6); background: rgba(140,85,67,0.05); }
+.kanban-col-head { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.65rem; padding-bottom:0.5rem; border-bottom:1px solid rgba(141,163,153,0.15); }
+.kanban-col-dot { width:10px; height:10px; border-radius:50%; }
+.kanban-col-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#cbd5e1; flex:1; }
+html:not(.dark) .kanban-col-label { color:#1e293b; }
+.kanban-col-count { font-size:0.7rem; font-weight:700; color:#64748b; background: rgba(141,163,153,0.12); padding:0.15rem 0.5rem; border-radius:999px; }
+.kanban-cards { display:flex; flex-direction:column; gap:0.5rem; flex:1; }
+.kanban-card { background:#0f172a; border:1px solid rgba(141,163,153,0.15); border-radius:0.75rem; padding:0.75rem; cursor:grab; transition:all 0.15s; }
+html:not(.dark) .kanban-card { background:#fff; border-color:#e5e7eb; box-shadow:0 1px 2px rgba(0,0,0,0.03); }
+.kanban-card:hover { border-color: rgba(140,85,67,0.35); }
+.kanban-card.dragging { opacity:0.4; }
+.kanban-card-title { font-size:0.8rem; font-weight:700; color:#f1f5f9; line-height:1.3; margin-bottom:0.2rem; }
+html:not(.dark) .kanban-card-title { color:#1e293b; }
+.kanban-card-company { font-size:0.7rem; color:#8da399; margin-bottom:0.35rem; }
+.kanban-card-meta { display:flex; justify-content:space-between; align-items:center; font-size:0.65rem; color:#64748b; }
+.kanban-card-notes { font-size:0.7rem; color:#94a3b8; margin-top:0.35rem; padding-top:0.35rem; border-top:1px solid rgba(141,163,153,0.08); line-height:1.45; max-height:3.2em; overflow:hidden; }
+html:not(.dark) .kanban-card-notes { color:#64748b; }
+.kanban-nudge { font-size:0.6rem; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:0.05em; margin-top:0.25rem; display:flex; align-items:center; gap:0.2rem; }
+
+/* ══════════════════════════════════════
+   TABS (for Insights)
+══════════════════════════════════════ */
+.tab-bar { display:flex; gap:0.25rem; border-bottom:1px solid rgba(141,163,153,0.15); margin-bottom:1rem; overflow-x:auto; }
+.tab-item { font-size:0.75rem; font-weight:700; padding:0.65rem 0.9rem; color:#64748b; background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+.tab-item:hover { color:#8C5543; }
+.tab-item.active { color:#8C5543; border-bottom-color:#8C5543; }
+
+/* ══════════════════════════════════════
+   TEMPLATE PICKER (Documents)
+══════════════════════════════════════ */
+.template-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:0.75rem; }
+.template-card { border:2px solid rgba(141,163,153,0.15); border-radius:0.75rem; padding:0.85rem; cursor:pointer; transition:all 0.15s; background:rgba(255,255,255,0.02); }
+html:not(.dark) .template-card { background:#fff; border-color:#e5e7eb; }
+.template-card:hover { border-color: rgba(140,85,67,0.4); }
+.template-card.selected { border-color:#8C5543; background: rgba(140,85,67,0.08); }
+.template-card-name { font-size:0.8rem; font-weight:700; color:#f1f5f9; margin-bottom:0.2rem; }
+html:not(.dark) .template-card-name { color:#1e293b; }
+.template-card-desc { font-size:0.65rem; color:#64748b; line-height:1.4; }
+
+/* ══════════════════════════════════════
+   FEED / DISCOVER CARDS
+══════════════════════════════════════ */
+.feed-summary { background: linear-gradient(135deg, rgba(140,85,67,0.1), rgba(141,163,153,0.08)); border:1px solid rgba(140,85,67,0.25); border-radius:1rem; padding:1rem 1.25rem; margin-bottom:1rem; }
+html:not(.dark) .feed-summary { background: linear-gradient(135deg, rgba(140,85,67,0.06), rgba(141,163,153,0.04)); border-color:rgba(140,85,67,0.2); }
+.feed-summary-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#8C5543; margin-bottom:0.3rem; display:flex; align-items:center; gap:0.35rem; }
+.feed-summary-text { font-size:0.85rem; color:#cbd5e1; line-height:1.55; }
+html:not(.dark) .feed-summary-text { color:#1e293b; }
+
+/* ══════════════════════════════════════
+   AI INSIGHT BANNER
+══════════════════════════════════════ */
+.ai-insight { display:flex; align-items:flex-start; gap:0.65rem; background: rgba(140,85,67,0.08); border:1px solid rgba(140,85,67,0.25); border-radius:0.75rem; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.8rem; color:#cbd5e1; line-height:1.5; }
+html:not(.dark) .ai-insight { color:#374151; }
+.ai-insight .ai-icon { color:#8C5543; flex-shrink:0; }
+
+/* ══════════════════════════════════════
+   PAGINATION
+══════════════════════════════════════ */
+.pagination { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top:1rem; }
+.pagination button { font-size:0.75rem; font-weight:700; padding:0.5rem 0.85rem; border-radius:0.5rem; border:1px solid rgba(140,85,67,0.25); color:#8C5543; background:transparent; cursor:pointer; transition:all 0.15s; }
+.pagination button:hover:not(:disabled) { background: rgba(140,85,67,0.1); }
+.pagination button:disabled { opacity:0.35; cursor:not-allowed; }
+.pagination .page-info { font-size:0.75rem; color:#64748b; font-weight:600; }
+
+/* ══════════════════════════════════════
+   SALARY DATA CARD
+══════════════════════════════════════ */
+.salary-card { background: rgba(255,255,255,0.03); border:1px solid rgba(141,163,153,0.15); border-radius:1rem; padding:1rem; margin-bottom:0.75rem; }
+html:not(.dark) .salary-card { background:#fff; border-color:#e5e7eb; }
+.salary-location { font-size:0.7rem; font-weight:700; color:#8da399; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.35rem; }
+.salary-range { font-size:1.15rem; font-weight:700; color:#f1f5f9; }
+html:not(.dark) .salary-range { color:#1e293b; }
+.salary-meta { font-size:0.7rem; color:#64748b; margin-top:0.35rem; }
+
+/* ══════════════════════════════════════
+   FEASIBILITY METER (Career Dreamer)
+══════════════════════════════════════ */
+.feasibility-meter { height:8px; background:rgba(141,163,153,0.15); border-radius:999px; overflow:hidden; margin:0.5rem 0; }
+.feasibility-fill { height:100%; background:linear-gradient(90deg, #ef4444, #f59e0b, #10b981); transition:width 0.5s ease; }
+
+/* ══════════════════════════════════════
+   SUB-NAV SECTION LABELS (sidebar)
+══════════════════════════════════════ */
+.section-label { margin-top:0.75rem; }
+.nav-new-dot { width:5px; height:5px; border-radius:50%; background:#8C5543; margin-left:auto; }
 </style>
 <script>
 // Inline: apply saved theme BEFORE first paint to prevent flash.
@@ -696,15 +872,22 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
     <!-- ── SIDEBAR ── -->
     <aside id="sidebar" class="bg-background-dark dark:bg-background-dark border-r border-primary/10 flex flex-col p-3">
       <!-- Brand (home button) -->
-      <div class="flex items-center gap-2 px-2 py-3 mb-3 border-b border-primary/10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="nav('jobs')">
+      <div class="flex items-center gap-2 px-2 py-3 mb-3 border-b border-primary/10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="nav('dashboard')">
         <span class="material-symbols-outlined text-primary flex-shrink-0">route</span>
         <span class="font-bold tracking-tight text-sm brand-text nav-label">JobPath AI</span>
       </div>
       <!-- Nav groups -->
       <div class="mb-4 flex-1 overflow-y-auto">
-        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 section-label nav-label">Discover</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer active-nav" onclick="nav('jobs')" id="nav-jobs">
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 section-label nav-label">Home</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer active-nav" onclick="nav('dashboard')" id="nav-dashboard">
+          <span class="material-symbols-outlined text-base flex-shrink-0">dashboard</span><span class="nav-label">Dashboard</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Discover</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('jobs')" id="nav-jobs">
           <span class="material-symbols-outlined text-base flex-shrink-0">search</span><span class="nav-label">Job Search</span>
+        </div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('feed')" id="nav-feed">
+          <span class="material-symbols-outlined text-base flex-shrink-0">today</span><span class="nav-label">Daily Feed</span>
         </div>
         <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('market')" id="nav-market">
           <span class="material-symbols-outlined text-base flex-shrink-0">bar_chart</span><span class="nav-label">Market Intel</span>
@@ -714,16 +897,25 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
           <span class="material-symbols-outlined text-base flex-shrink-0">description</span><span class="nav-label">Documents</span>
         </div>
         <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('tracker')" id="nav-tracker">
-          <span class="material-symbols-outlined text-base flex-shrink-0">checklist</span><span class="nav-label">Tracker</span>
+          <span class="material-symbols-outlined text-base flex-shrink-0">view_kanban</span><span class="nav-label">Tracker</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Prepare</div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('salary')" id="nav-salary">
+          <span class="material-symbols-outlined text-base flex-shrink-0">payments</span><span class="nav-label">Salary</span>
+        </div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('career')" id="nav-career">
+          <span class="material-symbols-outlined text-base flex-shrink-0">auto_awesome</span><span class="nav-label">Career Dreamer</span>
+        </div>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('interview')" id="nav-interview">
+          <span class="material-symbols-outlined text-base flex-shrink-0">forum</span><span class="nav-label">Interview Prep</span>
         </div>
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Insights</div>
         <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('analytics')" id="nav-analytics">
           <span class="material-symbols-outlined text-base flex-shrink-0">insights</span><span class="nav-label">Analytics</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('feedback')" id="nav-feedback">
-          <span class="material-symbols-outlined text-base flex-shrink-0">chat_bubble</span><span class="nav-label">Feedback</span>
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('offers')" id="nav-offers">
+          <span class="material-symbols-outlined text-base flex-shrink-0">workspace_premium</span><span class="nav-label">Offers</span>
         </div>
-        <!-- Chat moved to floating button -->
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Business</div>
         <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('employers')" id="nav-employers">
           <span class="material-symbols-outlined text-base flex-shrink-0">business</span><span class="nav-label">For Employers</span>
@@ -750,7 +942,7 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
           <button onclick="toggleSidebar()" class="hidden md:flex w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all items-center justify-center text-slate-400 hover:text-primary" title="Toggle sidebar">
             <span class="material-symbols-outlined text-base">menu</span>
           </button>
-          <div class="font-bold text-sm tracking-tight" id="pageTitle">Job Search</div>
+          <div class="font-bold text-sm tracking-tight" id="pageTitle">Dashboard</div>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="toggleTheme()" class="w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
@@ -763,25 +955,166 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
       <!-- CONTENT -->
       <div id="content-scroll" class="p-4 md:p-5 bg-slate-100 dark:bg-[#0f172a]">
 
-        <!-- JOB SEARCH -->
-        <div id="view-jobs" class="view-active">
+        <!-- ═══ DASHBOARD ═══ -->
+        <div id="view-dashboard">
+          <!-- AI greeting + guided journey (for new users or active users) -->
+          <div id="dashGreeting" class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-primary">waving_hand</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-base font-bold" id="dashGreetingText">Welcome back!</div>
+                <div class="text-xs text-slate-500 mt-0.5" id="dashGreetingSub">Loading your personalized action plan…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Guided Journey (new users) -->
+          <div id="dashJourney" style="display:none" class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Your Guided Journey</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Five quick steps to land your next role</div>
+            <div class="flex flex-col gap-2" id="journeySteps"></div>
+          </div>
+
+          <!-- KPI cards (active users) -->
+          <div id="dashKpis" style="display:none" class="mb-4">
+            <div class="kpi-grid" id="kpiGrid"></div>
+          </div>
+
+          <!-- Two column: activity + skill gaps -->
+          <div id="dashActiveContent" style="display:none">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <!-- Activity timeline -->
+              <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <div class="text-base font-bold">Recent Activity</div>
+                    <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Last 10 events</div>
+                  </div>
+                  <span class="material-symbols-outlined text-primary/40">timeline</span>
+                </div>
+                <div id="dashActivity" class="text-xs text-slate-500">Loading…</div>
+              </div>
+              <!-- Skill gaps -->
+              <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <div class="text-base font-bold">Skill Fit</div>
+                    <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Your skills vs. market demand</div>
+                  </div>
+                  <span class="material-symbols-outlined text-primary/40">psychology</span>
+                </div>
+                <div id="dashSkills" class="text-xs text-slate-500">Loading…</div>
+              </div>
+            </div>
+
+            <!-- Nudges + Feed preview -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Pending nudges -->
+              <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <div class="text-base font-bold">Follow-up Nudges</div>
+                    <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Apps waiting on a reply</div>
+                  </div>
+                  <span class="material-symbols-outlined text-primary/40">notifications_active</span>
+                </div>
+                <div id="dashNudges" class="text-xs text-slate-500">Loading…</div>
+              </div>
+              <!-- Daily feed preview -->
+              <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <div class="text-base font-bold">Today's Feed</div>
+                    <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Top picks for you</div>
+                  </div>
+                  <button onclick="nav('feed')" class="text-[10px] font-bold text-primary hover:underline">See all →</button>
+                </div>
+                <div id="dashFeedPreview" class="text-xs text-slate-500">Loading…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ JOB SEARCH (v2) ═══ -->
+        <div id="view-jobs" style="display:none">
           <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
             <div class="text-base font-bold mb-0.5">Find Jobs</div>
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">AI scores and ranks results against your profile</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-              <input id="jobLocation" placeholder="Location (e.g. Ottawa, Remote)"/>
-              <select id="jobRemote"><option value="true">Include Remote</option><option value="false">On-site Only</option></select>
-              <input id="jobMax" type="number" value="10" min="1" max="50" class="sm:col-span-1"/>
-              <button onclick="searchJobs()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1 sm:col-span-1">
-                <span class="material-symbols-outlined text-sm">search</span> Search Jobs
-              </button>
+
+            <!-- Primary row -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
+              <input id="jobLocation" placeholder="Location (auto-filled from profile)" class="md:col-span-2"/>
+              <select id="jobTypeFilter">
+                <option value="">All Job Types</option>
+                <option value="full_time">Full-time</option>
+                <option value="part_time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="freelance">Freelance</option>
+                <option value="internship">Internship</option>
+              </select>
+              <select id="jobRemoteFilter">
+                <option value="any">Any Arrangement</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="onsite">On-site</option>
+              </select>
             </div>
-            <div class="response-area empty" id="jobsResult"><span class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-3xl text-primary/30">travel_explore</span><span>Search for jobs to see AI-ranked results</span></span></div>
-            <div id="jobIdsBox" style="display:none" class="job-ids-box">
-              <div class="text-[10px] uppercase tracking-widest text-primary font-bold mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-sm">content_copy</span> Job IDs  -  use in Documents &amp; Tracker</div>
-              <div id="jobIdsList"></div>
+
+            <!-- Secondary row -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+              <select id="jobSortBy">
+                <option value="relevance">Best Match</option>
+                <option value="date">Newest</option>
+                <option value="salary">Salary (High → Low)</option>
+              </select>
+              <button type="button" onclick="toggleAdvancedFilters()" class="text-xs font-bold px-3 py-2.5 rounded-xl border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">tune</span><span id="advFiltersLabel">More filters</span>
+              </button>
+              <div class="md:col-span-2 flex gap-2">
+                <button onclick="searchJobsV2(1)" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-sm">search</span> Search Jobs
+                </button>
+              </div>
+            </div>
+
+            <!-- Advanced filters (collapsible) -->
+            <div id="advancedFilters" style="display:none" class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 pt-3 border-t border-primary/10">
+              <input id="jobSalaryMin" type="number" placeholder="Min salary" min="0"/>
+              <input id="jobSalaryMax" type="number" placeholder="Max salary" min="0"/>
+              <select id="jobExpLevel">
+                <option value="">Any Experience</option>
+                <option value="entry">Entry</option>
+                <option value="mid">Mid</option>
+                <option value="senior">Senior</option>
+                <option value="lead">Lead</option>
+                <option value="executive">Executive</option>
+              </select>
+              <select id="jobDatePosted" class="md:col-span-3">
+                <option value="">Any Date</option>
+                <option value="1">Past 24 hours</option>
+                <option value="7">Past week</option>
+                <option value="30">Past month</option>
+              </select>
             </div>
           </div>
+
+          <!-- AI insight banner -->
+          <div id="jobsAiInsight" style="display:none" class="ai-insight">
+            <span class="material-symbols-outlined ai-icon">auto_awesome</span>
+            <div id="jobsAiInsightText"></div>
+          </div>
+
+          <!-- Results -->
+          <div id="jobsResultsContainer">
+            <div class="bg-background-dark border border-primary/10 rounded-2xl p-8 dash-panel text-center">
+              <span class="material-symbols-outlined text-primary/30 text-5xl mb-3 block">travel_explore</span>
+              <div class="text-sm font-semibold text-slate-400 mb-1">Ready to find your next role?</div>
+              <div class="text-xs text-slate-500">Hit Search above to see AI-ranked jobs matched to your profile.</div>
+            </div>
+          </div>
+          <div id="jobsPagination"></div>
         </div>
 
         <!-- MARKET -->
@@ -811,20 +1144,47 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
           </div>
         </div>
 
-        <!-- DOCUMENTS -->
+        <!-- ═══ DOCUMENTS ═══ -->
         <div id="view-docs" style="display:none">
+          <!-- Template picker -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
+            <div class="text-base font-bold mb-0.5">Pick a Template</div>
+            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Choose a design, then generate &amp; download</div>
+            <div id="templateGrid" class="template-grid">
+              <div class="text-xs text-slate-500 col-span-full text-center py-4">Loading templates…</div>
+            </div>
+          </div>
+
+          <!-- Resume generator -->
           <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
             <div class="text-base font-bold mb-0.5">Resume Generator</div>
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Tailored to each role in seconds</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-              <input id="resumeJobId" placeholder="Job ID from search results"/>
-              <select id="resumeTone"><option value="professional">Professional</option><option value="creative">Creative</option><option value="technical">Technical</option></select>
-              <button onclick="genResume()" class="sm:col-span-2 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
-                <span class="material-symbols-outlined text-sm">description</span> Generate Resume
-              </button>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
+              <input id="resumeJobId" placeholder="Job ID from search results" class="sm:col-span-2"/>
+              <select id="resumeTone">
+                <option value="professional">Professional</option>
+                <option value="creative">Creative</option>
+                <option value="technical">Technical</option>
+                <option value="executive">Executive</option>
+                <option value="academic">Academic</option>
+              </select>
+              <div class="flex gap-2 sm:col-span-3">
+                <select id="docFormat" class="flex-[0_0_140px]">
+                  <option value="pdf">PDF</option>
+                  <option value="docx">DOCX</option>
+                </select>
+                <button onclick="genResume()" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-sm">description</span> Generate
+                </button>
+                <button onclick="downloadResume()" class="flex-1 border border-primary/25 text-primary font-bold py-2.5 px-4 rounded-xl hover:bg-primary/10 transition-all text-sm flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-sm">download</span> Download
+                </button>
+              </div>
             </div>
             <div class="response-area empty" id="resumeResult"><span class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-3xl text-primary/30">description</span><span>Enter a Job ID and generate a tailored resume</span></span></div>
           </div>
+
+          <!-- Cover letter -->
           <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
             <div class="text-base font-bold mb-0.5">Cover Letter Generator</div>
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Compelling, role-specific cover letters</div>
@@ -838,28 +1198,37 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
           </div>
         </div>
 
-        <!-- TRACKER -->
+        <!-- ═══ TRACKER (KANBAN) ═══ -->
         <div id="view-tracker" style="display:none">
+          <!-- Quick track bar -->
           <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 mb-4 dash-panel">
-            <div class="text-base font-bold mb-0.5">Track New Application</div>
-            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Log a job application to start tracking progress</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-              <input id="trackJobId" placeholder="Job ID to track"/>
-              <input id="trackNotes" placeholder="Notes (optional)"/>
-              <button onclick="trackApp()" class="sm:col-span-2 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
-                <span class="material-symbols-outlined text-sm">add_task</span> Track Application
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-base font-bold">Application Tracker</div>
+                <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Drag cards between columns to update status</div>
+              </div>
+              <button onclick="loadKanbanBoard()" class="text-xs font-bold px-3 py-2 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">refresh</span> Refresh
               </button>
             </div>
-            <div class="response-area empty" id="trackResult"><span class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-3xl text-primary/30">add_task</span><span>Enter a Job ID to start tracking your application</span></span></div>
-          </div>
-          <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
-            <div class="text-base font-bold mb-0.5">Update Application Status</div>
-            <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Log interviews, offers, or rejections</div>
-            <div class="flex gap-2 flex-wrap">
-              <input id="updateAppId" placeholder="Application ID" style="flex:1;"/>
-              <button onclick="openUpdateModal()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
-                <span class="material-symbols-outlined text-sm">edit</span> Update Status
+            <div class="flex gap-2">
+              <input id="trackJobId" placeholder="Paste Job ID to start tracking" style="flex:1;"/>
+              <button onclick="trackApp()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+                <span class="material-symbols-outlined text-sm">add_task</span> Track
               </button>
+            </div>
+          </div>
+
+          <!-- AI nudge banner -->
+          <div id="kanbanAiInsight" style="display:none" class="ai-insight">
+            <span class="material-symbols-outlined ai-icon">auto_awesome</span>
+            <div id="kanbanAiInsightText"></div>
+          </div>
+
+          <!-- Kanban board -->
+          <div class="bg-background-dark border border-primary/10 rounded-2xl p-3 md:p-4 dash-panel">
+            <div id="kanbanContainer">
+              <div class="text-center py-10 text-slate-500 text-sm">Loading board…</div>
             </div>
           </div>
         </div>
