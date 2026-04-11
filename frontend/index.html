@@ -96,9 +96,12 @@ textarea { resize: vertical; }
 #toast { position:fixed;bottom:80px;right:16px;padding:11px 18px;border-radius:12px;font-size:0.8rem;z-index:9999;transform:translateY(12px);opacity:0;transition:all 0.25s;max-width:300px;border:1px solid; }
 @media (min-width: 640px) { #toast { bottom: 20px; right: 20px; } }
 #toast.show { transform:translateY(0);opacity:1; }
-#toast.success { background:#0f172a;border-color:rgba(141,163,153,0.4);color:#8da399; }
-#toast.error { background:#0f172a;border-color:rgba(244,63,94,0.3);color:#f87171; }
-#toast.info { background:#0f172a;border-color:rgba(140,85,67,0.3);color:#8C5543; }
+#toast.success { background:#f0fdf4;border-color:#86efac;color:#166534; }
+#toast.error { background:#fef2f2;border-color:#fca5a5;color:#991b1b; }
+#toast.info { background:#fdf8f6;border-color:rgba(140,85,67,0.3);color:#8C5543; }
+html.dark #toast.success { background:#0f172a;border-color:rgba(141,163,153,0.4);color:#8da399; }
+html.dark #toast.error { background:#0f172a;border-color:rgba(244,63,94,0.3);color:#f87171; }
+html.dark #toast.info { background:#0f172a;border-color:rgba(140,85,67,0.3);color:#8C5543; }
 
 /* ── Scroll reveal ── */
 .reveal { opacity:1;transform:translateY(0);transition:opacity 0.6s ease,transform 0.6s ease; }
@@ -141,8 +144,8 @@ textarea { resize: vertical; }
   position: fixed;
   bottom: 0; left: 0; right: 0;
   height: 60px;
-  background: #0f172a;
-  border-top: 1px solid rgba(140,85,67,0.1);
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
   z-index: 200;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -199,9 +202,9 @@ html:not(.dark) .response-area strong { color:#111827; }
 html:not(.dark) .response-area code { background:rgba(180,83,9,0.08); color:#6E4535; }
 html:not(.dark) .job-ids-box { background:rgba(140,85,67,0.08); border-color:rgba(140,85,67,0.25); }
 html:not(.dark) .job-id-item { color:#6b7280; border-color:rgba(140,85,67,0.12); }
-html:not(.dark) #mobile-nav { background:#f8fafc; border-color:#e5e7eb; }
-html:not(.dark) #mobile-nav .mn-item { color:#9ca3af; }
-html:not(.dark) #mobile-nav .mn-item.active { color:#6E4535; }
+html.dark #mobile-nav { background:#0f172a; border-color:rgba(140,85,67,0.1); }
+html.dark #mobile-nav .mn-item { color:#475569; }
+html.dark #mobile-nav .mn-item.active { color:#8C5543; }
 html:not(.dark) #sidebar { background: #f1f5f9; border-color: #e2e8f0; }
 
 /* ── Upload dropzone ── */
@@ -696,12 +699,12 @@ html:not(.dark) .profile-field { border-color: #e5e7eb; }
           <button onclick="toggleTheme()" class="w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
             <span class="material-symbols-outlined text-base" id="themeIconDash">light_mode</span>
           </button>
-          <div class="text-[11px] font-bold px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20" id="statusBadge">● Connecting…</div>
+          <div class="hidden" id="statusBadge"></div>
         </div>
       </div>
 
       <!-- CONTENT -->
-      <div id="content-scroll" class="p-4 md:p-5 bg-[#0f172a] dark:bg-[#0f172a]" style="background:#0f172a;">
+      <div id="content-scroll" class="p-4 md:p-5 bg-slate-100 dark:bg-[#0f172a]">
 
         <!-- JOB SEARCH -->
         <div id="view-jobs" class="view-active">
@@ -1512,8 +1515,8 @@ function appendChatMsg(role, html) {
   avatar.textContent = role === 'user' ? init : '🤖';
   const bubble = document.createElement('div');
   bubble.style.cssText = role === 'user'
-    ? 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#8C5543;color:#0f172a;font-weight:500;'
-    : 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:rgba(255,255,255,0.05);border:1px solid rgba(140,85,67,0.08);color:#cbd5e1;';
+    ? 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#8C5543;color:#fff;font-weight:500;'
+    : 'max-width:80%;padding:10px 14px;border-radius:12px;font-size:0.875rem;line-height:1.7;background:#f1f5f9;border:1px solid #e2e8f0;color:#1e293b;';
   if (role === 'user') { bubble.textContent = html; } else { bubble.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : ''; }
   d.appendChild(avatar); d.appendChild(bubble);
   w.appendChild(d); w.scrollTop = w.scrollHeight; return d;
