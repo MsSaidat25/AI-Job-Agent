@@ -9,6 +9,7 @@ from slowapi import Limiter
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
+from routers._job_serializer import cached_to_job_detail, normalize_cached_job
 from routers.schemas import (
     AgentResponse,
     ApplicationTipsRequest,
@@ -86,50 +87,13 @@ def _setup_routes(
                 del agent._job_cache[oldest_key]
             agent._job_cache[job_id] = job
 
-        # Build rich responses from cache
+        # Build rich responses from cache via the shared serializer helper.
         jobs: list[JobDetailResponse] = []
         for job_id in job_ids:
             cached = agent._job_cache.get(job_id)
             if not cached:
                 continue
-            if isinstance(cached, dict):
-                from routers.kanban import build_location
-                jobs.append(JobDetailResponse(
-                    id=job_id,
-                    title=str(cached.get("job_title") or cached.get("title") or ""),
-                    company=str(cached.get("employer_name") or cached.get("company") or ""),
-                    location=build_location(cached),
-                    remote_allowed=bool(cached.get("job_is_remote", False)),
-                    job_type=str(cached.get("job_employment_type") or "full_time"),
-                    description=(cached.get("job_description") or "")[:3000],
-                    salary_min=cached.get("job_min_salary"),
-                    salary_max=cached.get("job_max_salary"),
-                    source_url=str(cached.get("job_apply_link") or cached.get("redirect_url") or ""),
-                    source_platform=str(cached.get("_source") or ""),
-                    match_score=cached.get("_match_score"),
-                    match_rationale=cached.get("_match_rationale"),
-                ))
-            else:
-                # JobListing Pydantic model
-                jobs.append(JobDetailResponse(
-                    id=job_id,
-                    title=cached.title,
-                    company=cached.company,
-                    location=cached.location,
-                    remote_allowed=cached.remote_allowed,
-                    job_type=cached.job_type.value if hasattr(cached.job_type, "value") else str(cached.job_type),
-                    description=cached.description[:3000],
-                    requirements=cached.requirements,
-                    nice_to_have=cached.nice_to_have,
-                    salary_min=cached.salary_min,
-                    salary_max=cached.salary_max,
-                    currency=cached.currency,
-                    posted_date=str(cached.posted_date) if cached.posted_date else None,
-                    source_url=cached.source_url,
-                    source_platform=cached.source_platform,
-                    match_score=cached.match_score,
-                    match_rationale=cached.match_rationale,
-                ))
+            jobs.append(cached_to_job_detail(job_id, cached))
 
         # Apply post-filters
         if body.job_type:
@@ -182,20 +146,9 @@ def _setup_routes(
             )
             jobs: list[JobDetailResponse] = []
             for sr in saved_rows:
-                r: Any = sr
-                job_orm = r.job
-                if job_orm:
-                    j: Any = job_orm
-                    jobs.append(JobDetailResponse(
-                        id=j.id, title=j.title, company=j.company,
-                        location=j.location, remote_allowed=bool(j.remote_allowed),
-                        job_type=j.job_type or "full_time",
-                        description=(j.description or "")[:500],
-                        salary_min=j.salary_min, salary_max=j.salary_max,
-                        source_url=j.source_url or "",
-                        source_platform=j.source_platform or "",
-                        is_saved=True,
-                    ))
+                job_orm = sr.job
+                if job_orm is not None:
+                    jobs.append(cached_to_job_detail(job_orm.id, job_orm, is_saved=True))
             return SavedJobListResponse(jobs=jobs, total=len(jobs))
         finally:
             db.close()
@@ -210,64 +163,19 @@ def _setup_routes(
         """Get full details for a specific job by ID."""
         agent = get_agent_fn(session_id)
         cached = agent._job_cache.get(job_id)
-        if not cached:
-            # Try DB fallback
-            from src.models import JobListingORM, init_db
-            db = init_db()
-            try:
-                orm = db.query(JobListingORM).filter_by(id=job_id).first()
-                if orm:
-                    r: Any = orm
-                    return JobDetailResponse(
-                        id=r.id, title=r.title, company=r.company,
-                        location=r.location, remote_allowed=bool(r.remote_allowed),
-                        job_type=r.job_type or "full_time",
-                        description=r.description or "",
-                        requirements=r.requirements or [],
-                        nice_to_have=r.nice_to_have or [],
-                        salary_min=r.salary_min, salary_max=r.salary_max,
-                        currency=r.currency or "USD",
-                        posted_date=str(r.posted_date) if r.posted_date else None,
-                        source_url=r.source_url or "",
-                        source_platform=r.source_platform or "",
-                        match_score=r.match_score,
-                        match_rationale=r.match_rationale,
-                    )
-            finally:
-                db.close()
-            raise HTTPException(status_code=404, detail="Job not found.")
+        if cached:
+            return cached_to_job_detail(job_id, cached)
 
-        if isinstance(cached, dict):
-            return JobDetailResponse(
-                id=job_id,
-                title=cached.get("job_title", cached.get("title", "")),
-                company=cached.get("employer_name", cached.get("company", "")),
-                location=cached.get("job_city", cached.get("location", "")),
-                remote_allowed=bool(cached.get("job_is_remote", False)),
-                job_type=cached.get("job_employment_type", "full_time"),
-                description=(cached.get("job_description", "") or "")[:3000],
-                salary_min=cached.get("job_min_salary"),
-                salary_max=cached.get("job_max_salary"),
-                source_url=cached.get("job_apply_link", cached.get("redirect_url", "")),
-                source_platform=cached.get("_source", ""),
-                match_score=cached.get("_match_score"),
-                match_rationale=cached.get("_match_rationale"),
-            )
-        return JobDetailResponse(
-            id=job_id, title=cached.title, company=cached.company,
-            location=cached.location, remote_allowed=cached.remote_allowed,
-            job_type=cached.job_type.value if hasattr(cached.job_type, "value") else str(cached.job_type),
-            description=cached.description[:3000],
-            requirements=cached.requirements,
-            nice_to_have=cached.nice_to_have,
-            salary_min=cached.salary_min, salary_max=cached.salary_max,
-            currency=cached.currency,
-            posted_date=str(cached.posted_date) if cached.posted_date else None,
-            source_url=cached.source_url,
-            source_platform=cached.source_platform,
-            match_score=cached.match_score,
-            match_rationale=cached.match_rationale,
-        )
+        # Cache miss: fall back to the persisted row.
+        from src.models import JobListingORM, init_db
+        db = init_db()
+        try:
+            orm = db.query(JobListingORM).filter_by(id=job_id).first()
+            if orm:
+                return cached_to_job_detail(job_id, orm)
+        finally:
+            db.close()
+        raise HTTPException(status_code=404, detail="Job not found.")
 
     @router.post("/jobs/{job_id}/save", response_model=SaveJobResponse)
     @limiter.limit("30/minute")
@@ -298,33 +206,23 @@ def _setup_routes(
                 cached = agent._job_cache.get(job_id)
                 if not cached:
                     raise HTTPException(status_code=404, detail="Job not found in cache or database.")
-                if isinstance(cached, dict):
-                    job_orm = JobListingORM(
-                        id=job_id,
-                        title=cached.get("job_title", cached.get("title", "")),
-                        company=cached.get("employer_name", cached.get("company", "")),
-                        location=cached.get("job_city", cached.get("location", "")),
-                        remote_allowed=bool(cached.get("job_is_remote", False)),
-                        job_type=cached.get("job_employment_type", "full_time"),
-                        description=cached.get("job_description", "")[:5000],
-                        source_url=cached.get("job_apply_link", ""),
-                        source_platform=cached.get("_source", ""),
-                        salary_min=cached.get("job_min_salary"),
-                        salary_max=cached.get("job_max_salary"),
-                    )
-                else:
-                    job_orm = JobListingORM(
-                        id=job_id, title=cached.title, company=cached.company,
-                        location=cached.location, remote_allowed=cached.remote_allowed,
-                        job_type=cached.job_type.value if hasattr(cached.job_type, "value") else str(cached.job_type),
-                        description=cached.description[:5000],
-                        requirements=cached.requirements,
-                        nice_to_have=cached.nice_to_have,
-                        salary_min=cached.salary_min, salary_max=cached.salary_max,
-                        currency=cached.currency,
-                        source_url=cached.source_url,
-                        source_platform=cached.source_platform,
-                    )
+                n = normalize_cached_job(cached)
+                job_orm = JobListingORM(
+                    id=job_id,
+                    title=n["title"],
+                    company=n["company"],
+                    location=n["location"],
+                    remote_allowed=bool(n["remote_allowed"]),
+                    job_type=n["job_type"],
+                    description=(n["description"] or "")[:5000],
+                    requirements=n["requirements"],
+                    nice_to_have=n["nice_to_have"],
+                    salary_min=n["salary_min"],
+                    salary_max=n["salary_max"],
+                    currency=n["currency"],
+                    source_url=n["source_url"],
+                    source_platform=n["source_platform"],
+                )
                 try:
                     db.add(job_orm)
                     db.flush()
