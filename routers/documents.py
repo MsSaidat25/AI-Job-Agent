@@ -1,8 +1,9 @@
 """Documents API router -- template listing & file export."""
+from __future__ import annotations
 
 
 import asyncio
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
@@ -44,8 +45,8 @@ class GeneratedDocumentInfo(BaseModel):
     id: str
     job_id: str
     doc_type: str
-    created_at: str | None = None
-    ats_score: float | None = None
+    created_at: Optional[str] = None
+    ats_score: Optional[float] = None
 
 
 # ── Route wiring ─────────────────────────────────────────────────────────────
