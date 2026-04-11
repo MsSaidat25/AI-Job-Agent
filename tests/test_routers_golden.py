@@ -122,6 +122,105 @@ class TestJobsRouter:
         assert "job_ids" in data
 
 
+class TestSaveJobRace:
+    """P1: saving the same job twice (or in a race) must stay idempotent."""
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_save_same_job_twice_is_idempotent(self, mock_init, client, session_id, monkeypatch):
+        agent = _setup_agent(session_id, monkeypatch)
+        agent._job_cache["race-job-1"] = {
+            "job_title": "Staff Engineer",
+            "employer_name": "Acme",
+            "job_city": "Berlin",
+            "job_description": "Important stuff.",
+            "job_apply_link": "https://acme.example/apply/1",
+            "_source": "test",
+        }
+
+        r1 = client.post(
+            "/api/jobs/race-job-1/save",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r1.status_code == 200, r1.text
+        assert r1.json()["saved"] is True
+
+        # Second save must not 500 and must still report saved=True.
+        r2 = client.post(
+            "/api/jobs/race-job-1/save",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r2.status_code == 200, r2.text
+        body2 = r2.json()
+        assert body2["saved"] is True
+        assert "already saved" in body2["message"].lower()
+
+        # The saved-jobs list must still report exactly one row (the
+        # unique (user_id, job_id) index prevents the duplicate insert).
+        r3 = client.get(
+            "/api/jobs/saved",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r3.status_code == 200
+        data = r3.json()
+        assert data["total"] == 1
+        assert data["jobs"][0]["id"] == "race-job-1"
+
+    @patch("src.agent.JobAgent.__init__", return_value=None)
+    def test_save_job_integrity_error_returns_already_saved(
+        self, mock_init, client, session_id, monkeypatch
+    ):
+        """Simulate a concurrent insert: force commit() to raise IntegrityError.
+
+        The handler must catch it and respond with 200 "already saved"
+        instead of bubbling a 500. This is the race-authoritative behaviour
+        we rely on in place of the old check-then-insert pattern.
+        """
+        from sqlalchemy.exc import IntegrityError
+
+        agent = _setup_agent(session_id, monkeypatch)
+        agent._job_cache["race-job-2"] = {
+            "job_title": "Senior SWE",
+            "employer_name": "Beta",
+            "job_city": "Remote",
+            "job_description": "Important stuff.",
+            "job_apply_link": "https://beta.example/apply/2",
+            "_source": "test",
+        }
+
+        from src.models import init_db
+        real_init_db = init_db
+        call_count = {"n": 0}
+
+        def _wrapped_init_db():
+            db = real_init_db()
+            real_commit = db.commit
+
+            def _fake_commit():
+                # Raise IntegrityError on the commit that tries to persist
+                # the SavedJobORM row to simulate a concurrent winner.
+                if call_count["n"] == 0:
+                    call_count["n"] += 1
+                    raise IntegrityError("UNIQUE constraint failed", None, Exception())
+                return real_commit()
+
+            db.commit = _fake_commit  # type: ignore[method-assign]
+            return db
+
+        monkeypatch.setattr("routers.jobs.init_db", _wrapped_init_db, raising=False)
+        # Patch the name actually imported inside the handler (local import).
+        import src.models as m
+        monkeypatch.setattr(m, "init_db", _wrapped_init_db)
+
+        r = client.post(
+            "/api/jobs/race-job-2/save",
+            headers={"X-Session-ID": session_id},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["saved"] is True
+        assert "already saved" in body["message"].lower()
+
+
 class TestChatRouter:
     @patch("src.agent.JobAgent.__init__", return_value=None)
     def test_chat_message(self, mock_init, client, session_id, monkeypatch):

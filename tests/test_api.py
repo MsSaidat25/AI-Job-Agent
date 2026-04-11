@@ -196,6 +196,49 @@ class TestSecurityHeaders:
         assert r.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
         assert "default-src" in r.headers.get("content-security-policy", "")
 
+    def test_csp_drops_unsafe_inline_scripts(self, client):
+        """P1: script-src must not allow 'unsafe-inline' -- use hashes instead."""
+        r = client.get("/api/health")
+        csp = r.headers.get("content-security-policy", "")
+        # Isolate the script-src directive and verify it uses hash sources.
+        directives = {d.strip().split(" ", 1)[0]: d.strip() for d in csp.split(";") if d.strip()}
+        script_src = directives.get("script-src", "")
+        assert "'unsafe-inline'" not in script_src, script_src
+        assert "'sha256-" in script_src, script_src
+
+    def test_csp_locks_frame_ancestors_and_objects(self, client):
+        r = client.get("/api/health")
+        csp = r.headers.get("content-security-policy", "")
+        assert "object-src 'none'" in csp
+        assert "frame-ancestors 'none'" in csp
+        assert "base-uri 'self'" in csp
+        assert "form-action 'self'" in csp
+
+
+class TestHealthSplit:
+    def test_healthz_liveness_no_db(self, client, monkeypatch):
+        """P1: /healthz must return 200 even when the DB is broken."""
+        # Force _check_db_health() to fail; /healthz must still return 200.
+        import api as api_mod
+        monkeypatch.setattr(api_mod, "_check_db_health", lambda: "error")
+        r = client.get("/healthz")
+        assert r.status_code == 200
+        assert r.json()["status"] == "ok"
+
+    def test_readyz_200_when_db_ok(self, client):
+        r = client.get("/readyz")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["status"] == "ok"
+        assert body["db"] == "ok"
+
+    def test_readyz_503_when_db_broken(self, client, monkeypatch):
+        import api as api_mod
+        monkeypatch.setattr(api_mod, "_check_db_health", lambda: "error")
+        r = client.get("/readyz")
+        assert r.status_code == 503
+        assert r.json()["status"] == "degraded"
+
 
 class TestParseResume:
     def test_parse_resume_requires_session(self, client):

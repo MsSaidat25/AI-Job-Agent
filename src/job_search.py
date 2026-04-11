@@ -63,6 +63,24 @@ class MarketInsightLLM(BaseModel):
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
+def _dedup_fingerprint(job: dict) -> tuple[str, str, str]:
+    """Return a stable (source_url, title, company) tuple for dedup.
+
+    JSearch and Adzuna often surface the same listing with different
+    ``job_id`` values, so exact-id dedup alone doesn't catch cross-provider
+    duplicates. The fingerprint normalizes whitespace/case and strips
+    tracking query strings from the apply URL.
+    """
+    def _norm(s: Any) -> str:
+        return " ".join(str(s or "").lower().split())
+
+    url_raw = job.get("job_apply_link") or job.get("redirect_url") or job.get("source_url") or ""
+    url = str(url_raw).split("?", 1)[0]
+    title = _norm(job.get("job_title") or job.get("title") or "")
+    company = _norm(job.get("employer_name") or job.get("company") or "")
+    return (url, title, company)
+
+
 def _build_query(profile: UserProfile, location_filter: str = "") -> str:
     role     = (profile.desired_roles[0] if profile.desired_roles else "software engineer")
     location = location_filter or profile.location or "Canada"
@@ -495,14 +513,25 @@ async def search_jobs_live(
     if not raw:
         return (f"No jobs found for **{query}**. Try a broader location or different role.", [], [])
 
-    # Deduplicate by job_id
-    seen: set[str] = set()
+    # Deduplicate in two passes:
+    #   1) exact job_id (catches intra-provider duplicates)
+    #   2) a lightweight fingerprint over (source_url, normalized title,
+    #      normalized company) to catch the same posting surfaced by
+    #      *different* providers with different ``job_id`` values.
+    seen_ids: set[str] = set()
+    seen_fp: set[tuple[str, str, str]] = set()
     unique: list[dict] = []
     for j in raw:
-        jid = j.get("job_id", "")
-        if jid not in seen:
-            seen.add(jid)
-            unique.append(j)
+        jid = j.get("job_id", "") or ""
+        if jid and jid in seen_ids:
+            continue
+        fp = _dedup_fingerprint(j)
+        if fp in seen_fp:
+            continue
+        if jid:
+            seen_ids.add(jid)
+        seen_fp.add(fp)
+        unique.append(j)
 
     listings = sorted(
         [_to_listing(j, profile) for j in unique],

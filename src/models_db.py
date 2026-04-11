@@ -93,7 +93,7 @@ class JobListingORM(Base):
     currency = Column(String, default="USD")
     posted_date = Column(Date, nullable=True)
     application_deadline = Column(Date, nullable=True)
-    source_url = Column(String)
+    source_url = Column(String, index=True)
     source_platform = Column(String)
     industry = Column(String)
     keywords = Column(JSON)
