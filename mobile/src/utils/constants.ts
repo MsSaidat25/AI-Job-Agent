@@ -10,11 +10,11 @@ export const REQUEST_TIMEOUT = 30_000;
 export const DOCUMENT_TIMEOUT = 60_000;
 
 export const STATUS_COLORS: Record<string, string> = {
-  draft: "#78716C",
-  submitted: "#B87333",
-  under_review: "#A16207",
+  draft: "#64748b",
+  submitted: "#8C5543",
+  under_review: "#6E4535",
   interview_scheduled: "#7C3AED",
   offer_received: "#15803D",
   rejected: "#DC2626",
-  withdrawn: "#57534E",
+  withdrawn: "#475569",
 };

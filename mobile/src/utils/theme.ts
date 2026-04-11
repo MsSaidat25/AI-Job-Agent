@@ -1,29 +1,29 @@
 /** Theme color tokens for programmatic use (non-Tailwind contexts like charts) */
 
 export const lightTheme = {
-  primary: "#B87333",
-  secondary: "#78716C",
-  background: "#FAFAF9",
-  surface: "#F5F5F4",
-  text: "#292524",
-  textSecondary: "#78716C",
-  accent: "#A16207",
+  primary: "#8C5543",
+  secondary: "#64748B",
+  background: "#f8fafc",
+  surface: "#f1f5f9",
+  text: "#0f172a",
+  textSecondary: "#64748B",
+  accent: "#6E4535",
   success: "#15803D",
   error: "#DC2626",
-  border: "#E7E5E4",
+  border: "#e2e8f0",
 };
 
 export const darkTheme = {
-  primary: "#CD8B4E",
-  secondary: "#A8A29E",
-  background: "#1C1917",
-  surface: "#292524",
-  text: "#F5F5F4",
-  textSecondary: "#A8A29E",
-  accent: "#D4A72C",
+  primary: "#8C5543",
+  secondary: "#94a3b8",
+  background: "#0f172a",
+  surface: "#1e293b",
+  text: "#f1f5f9",
+  textSecondary: "#94a3b8",
+  accent: "#B8806E",
   success: "#22C55E",
   error: "#EF4444",
-  border: "#44403C",
+  border: "#334155",
 };
 
 export type ThemeColors = typeof lightTheme;
