@@ -1,11 +1,3 @@
 {
-  "mcpServers": {
-    "chainproof": {
-      "command": "node",
-      "args": [
-        ".chainproof/mcp-server.mjs"
-      ],
-      "env": {}
-    }
-  }
+  "mcpServers": {}
 }

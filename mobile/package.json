@@ -49,5 +49,9 @@
     "jest-expo": "^55.0.15",
     "typescript": "~5.9.2"
   },
+  "overrides": {
+    "markdown-it": "^12.3.2",
+    "@tootallnate/once": "^3.0.1"
+  },
   "private": true
 }
