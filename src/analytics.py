@@ -116,9 +116,15 @@ class ApplicationTracker:
         return self._orm_to_model(orm)
 
     def get_applications(self, user_id: str) -> list[ApplicationRecord]:
-        """Return all applications for a user."""
+        """Return all applications for a user.
+
+        Eager-loads the related ``JobListingORM`` so callers that access
+        ``rec.job.*`` in a loop (e.g. kanban board rendering) don't trigger
+        an N+1 query pattern.
+        """
         rows = (
             self._session.query(ApplicationRecordORM)
+            .options(joinedload(ApplicationRecordORM.job))
             .filter_by(user_id=user_id)
             .all()
         )

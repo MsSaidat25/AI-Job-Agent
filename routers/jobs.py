@@ -6,6 +6,8 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 
 from routers.schemas import (
     AgentResponse,
@@ -163,14 +165,17 @@ def _setup_routes(
         session_id: str = session_dep,
     ):
         """List all saved jobs for the current user."""
-        from src.models import JobListingORM, SavedJobORM, init_db
+        from src.models import SavedJobORM, init_db
         from src.session_store import get_session_profile
 
         profile = get_session_profile(session_id)
         db = init_db()
         try:
+            # Eager-load the related JobListingORM in a single query to avoid
+            # an N+1 pattern (one SELECT per saved row).
             saved_rows = (
                 db.query(SavedJobORM)
+                .options(joinedload(SavedJobORM.job))
                 .filter_by(user_id=profile.id)
                 .order_by(SavedJobORM.saved_at.desc())
                 .all()
@@ -178,7 +183,7 @@ def _setup_routes(
             jobs: list[JobDetailResponse] = []
             for sr in saved_rows:
                 r: Any = sr
-                job_orm = db.query(JobListingORM).filter_by(id=r.job_id).first()
+                job_orm = r.job
                 if job_orm:
                     j: Any = job_orm
                     jobs.append(JobDetailResponse(
@@ -271,7 +276,13 @@ def _setup_routes(
         job_id: str,
         session_id: str = session_dep,
     ):
-        """Save a job to the user's saved jobs list."""
+        """Save a job to the user's saved jobs list.
+
+        Race-safe: relies on the composite unique index (user_id, job_id) in
+        ``SavedJobORM.__table_args__``. If a concurrent request inserted the
+        same pair, the IntegrityError is caught and the response reports the
+        idempotent "already saved" state instead of bubbling a 500.
+        """
         from src.models import JobListingORM, SavedJobORM, init_db
         from src.session_store import get_session_profile
 
@@ -279,7 +290,9 @@ def _setup_routes(
         agent = get_agent_fn(session_id)
         db = init_db()
         try:
-            # Persist job listing if not already in DB
+            # Persist job listing if not already in DB. Another request may
+            # insert the same job concurrently; catch IntegrityError so we
+            # fall back to the already-persisted row instead of 500ing.
             existing_job = db.query(JobListingORM).filter_by(id=job_id).first()
             if not existing_job:
                 cached = agent._job_cache.get(job_id)
@@ -312,20 +325,24 @@ def _setup_routes(
                         source_url=cached.source_url,
                         source_platform=cached.source_platform,
                     )
-                db.add(job_orm)
-                db.flush()
+                try:
+                    db.add(job_orm)
+                    db.flush()
+                except IntegrityError:
+                    db.rollback()
+                    # Another writer persisted the same job first; proceed
+                    # with the existing row for the SavedJobORM insert below.
 
-            # Check if already saved
-            existing_save = db.query(SavedJobORM).filter_by(
-                user_id=profile.id, job_id=job_id,
-            ).first()
-            if existing_save:
+            # Insert the save row. The composite unique index on
+            # (user_id, job_id) is the race-authoritative guarantee; treat
+            # the IntegrityError as "already saved" rather than a failure.
+            try:
+                db.add(SavedJobORM(user_id=profile.id, job_id=job_id))
+                db.commit()
+                return SaveJobResponse(message="Job saved.", job_id=job_id, saved=True)
+            except IntegrityError:
+                db.rollback()
                 return SaveJobResponse(message="Job already saved.", job_id=job_id, saved=True)
-
-            saved = SavedJobORM(user_id=profile.id, job_id=job_id)
-            db.add(saved)
-            db.commit()
-            return SaveJobResponse(message="Job saved.", job_id=job_id, saved=True)
         except HTTPException:
             raise
         except Exception:

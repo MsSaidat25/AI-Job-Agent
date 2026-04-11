@@ -8,8 +8,11 @@ All domain endpoints live in routers/*.
 """
 
 from contextlib import asynccontextmanager
+import base64
+import hashlib
 import logging
 import os
+import re
 from typing import Optional
 import uuid
 
@@ -78,6 +81,49 @@ def _get_real_client_ip(request: Request) -> str:
 
 
 limiter = Limiter(key_func=_get_real_client_ip)
+
+
+# ── CSP inline-script hashes ────────────────────────────────────────────────
+#
+# The frontend still contains two small inline <script> blocks (theme flash
+# prevention + Tailwind config) that must run before first paint, so we can't
+# simply externalise them. Instead we compute their SHA-256 at module load
+# time and emit them as `'sha256-…'` hash sources, which lets us drop
+# `'unsafe-inline'` from `script-src` entirely. If the inline bodies change,
+# hashes are re-derived on next restart — no manual sync.
+#
+# We still allow `'unsafe-eval'` because the Tailwind Play CDN's JIT requires
+# it. That is tracked as P2-scope follow-up (ship pre-compiled CSS).
+
+_INLINE_SCRIPT_RE = re.compile(
+    r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
+def _compute_inline_script_hashes(html_path: str) -> list[str]:
+    """Return `'sha256-…'` hash sources for every inline <script> in *html_path*."""
+    try:
+        with open(html_path, "rb") as f:
+            html_bytes = f.read()
+    except OSError:
+        logger.warning("CSP hash: cannot read %s; falling back to permissive policy", html_path)
+        return []
+    hashes: list[str] = []
+    for match in _INLINE_SCRIPT_RE.finditer(html_bytes.decode("utf-8", errors="replace")):
+        body = match.group(1).encode("utf-8")
+        digest = hashlib.sha256(body).digest()
+        hashes.append(f"'sha256-{base64.b64encode(digest).decode('ascii')}'")
+    return hashes
+
+
+_INLINE_SCRIPT_HASHES: list[str] = _compute_inline_script_hashes("frontend/index.html")
+if _INLINE_SCRIPT_HASHES:
+    _SCRIPT_INLINE_POLICY = " ".join(_INLINE_SCRIPT_HASHES)
+else:
+    # Degraded mode: if we couldn't read the HTML, keep 'unsafe-inline' so
+    # inline scripts still work. This should never happen in prod.
+    _SCRIPT_INLINE_POLICY = "'unsafe-inline'"
 
 _docs_url: Optional[str] = "/docs" if not AUTH_ENABLED else None
 _redoc_url: Optional[str] = "/redoc" if not AUTH_ENABLED else None
@@ -149,11 +195,19 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; "
+        # 'unsafe-eval' is retained solely for the Tailwind Play CDN JIT.
+        # 'unsafe-inline' is intentionally dropped in favour of SHA-256
+        # hashes computed from the two inline bootstrap scripts.
+        f"script-src 'self' {_SCRIPT_INLINE_POLICY} 'unsafe-eval' "
+        "https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "img-src 'self' data:; "
         "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
-        "connect-src 'self'"
+        "connect-src 'self'; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "frame-ancestors 'none'; "
+        "form-action 'self'"
     )
     scheme = request.url.scheme
     if _TRUST_PROXY:
@@ -178,9 +232,8 @@ async def head_root():
     return Response()
 
 
-@app.get("/api/health", response_model=HealthResponse)
-async def health():
-    db_status = "ok"
+def _check_db_health() -> str:
+    """Return "ok" if the DB accepts a trivial query, else "error"."""
     try:
         from src.models import get_active_engine, get_engine
         engine = get_active_engine()
@@ -188,9 +241,45 @@ async def health():
             engine = get_engine()
         with engine.connect() as conn:
             conn.execute(sa_text("SELECT 1"))
+        return "ok"
     except Exception:
-        db_status = "error"
+        return "error"
 
+
+@app.get("/healthz", include_in_schema=False)
+async def healthz():
+    """Liveness probe -- always 200 if the process is alive.
+
+    Kubernetes/Cloud Run should hit this for liveness. Does NOT touch the
+    DB so a stalled database never triggers a pod restart loop.
+    """
+    return JSONResponse(status_code=200, content={"status": "ok"})
+
+
+@app.get("/readyz", include_in_schema=False)
+async def readyz():
+    """Readiness probe -- 200 only when the DB is reachable.
+
+    This is the gate for routing traffic: a degraded DB drops the pod from
+    the load balancer rotation without killing it.
+    """
+    db_status = _check_db_health()
+    if db_status != "ok":
+        return JSONResponse(
+            status_code=503,
+            content={"status": "degraded", "db": db_status},
+        )
+    return JSONResponse(status_code=200, content={"status": "ok", "db": db_status})
+
+
+@app.get("/api/health", response_model=HealthResponse)
+async def health():
+    """Back-compat full health report (sessions + LLM config + DB).
+
+    Prefer `/healthz` (liveness) and `/readyz` (readiness) for orchestrator
+    probes; this endpoint is kept for existing dashboards and tests.
+    """
+    db_status = _check_db_health()
     resp = HealthResponse(
         status="ok" if db_status == "ok" else "degraded",
         sessions=len(get_sessions()),
