@@ -7,12 +7,14 @@ services:
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT --workers ${WEB_CONCURRENCY:-2}
     healthCheckPath: /api/health
     envVars:
-      # LLM
+      # LLM -- OpenRouter primary, direct Anthropic available as manual fallback
       - key: OPENROUTER_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
         sync: false
       - key: AGENT_MODEL
         value: claude-sonnet-4-6
-      # GCP (enables Secret Manager + Vertex failover)
+      # GCP (Secret Manager only; Vertex failover disabled -- see USE_VERTEX_FAILOVER)
       - key: GCP_PROJECT_ID
         sync: false
       - key: VERTEX_PROJECT
@@ -20,7 +22,7 @@ services:
       - key: VERTEX_LOCATION
         value: us-central1
       - key: USE_VERTEX_FAILOVER
-        value: "true"
+        value: "false"
       # Database (Cloud SQL primary, Supabase failover)
       - key: DATABASE_URL
         sync: false

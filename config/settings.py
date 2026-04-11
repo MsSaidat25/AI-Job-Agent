@@ -137,7 +137,10 @@ if not LLM_API_KEY and not USE_VERTEX_PRIMARY:
 VERTEX_PROJECT: str = get_secret("VERTEX_PROJECT", GCP_PROJECT_ID)
 VERTEX_LOCATION: str = get_secret("VERTEX_LOCATION", "us-central1")
 VERTEX_MODEL: str = get_secret("VERTEX_MODEL", "claude-sonnet-4-6")
-USE_VERTEX_FAILOVER: bool = get_secret("USE_VERTEX_FAILOVER", "true").lower() == "true"
+# Vertex failover is OFF by default: OpenRouter + direct Anthropic cover the
+# primary path, and Vertex's quotas caused more pain than it was worth.
+# Set USE_VERTEX_FAILOVER=true to re-enable.
+USE_VERTEX_FAILOVER: bool = get_secret("USE_VERTEX_FAILOVER", "false").lower() == "true"
 
 if USE_VERTEX_PRIMARY and not VERTEX_PROJECT:
     import warnings
