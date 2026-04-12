@@ -65,6 +65,7 @@ async function updateSetting(key, value) {
 // ── Account actions ──────────────────────────────────
 async function doLogout() {
   try { await api('DELETE', '/api/auth/session'); } catch(e) { /* ok if no session */ }
+  _clearAuth();
   localStorage.removeItem('jpai_session');
   localStorage.removeItem('jpai_profile');
   sessionId = null; currentProfile = null;
@@ -248,7 +249,8 @@ async function boot() {
   setupTags('rolesInput', 'rolesTagsInput', roles);
   setupTags('certsInput', 'certsTagsInput', certs);
   setupTags('langsInput', 'langsTagsInput', langs);
-  if (sessionId) {
+  const hasToken = !!localStorage.getItem('id_token');
+  if (hasToken || sessionId) {
     // Probe /api/session/status first so a fresh (no-profile) session does
     // not trigger a 404 on /api/profile, which can't be silenced from JS
     // under the strict CSP.
@@ -263,9 +265,11 @@ async function boot() {
       // Valid session but no profile yet -- stay on landing page. The
       // Get Started button will drive the setup flow from here.
     } catch (err) {
+      // If authenticated but session probe failed, clear stale auth
+      if (hasToken) _clearAuth();
       localStorage.removeItem('jpai_session');
       sessionId = null;
-      await initSession();
+      if (!hasToken) await initSession();
     }
   } else { await initSession(); }
   checkHealth();

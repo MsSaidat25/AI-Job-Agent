@@ -10,7 +10,11 @@
       "Bash(pytest -x --tb=short -q)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(python -c \"import sys; print\\(sys.version\\); from routers import privacy; print\\('OK, LedgerEntry fields:', list\\(privacy.LedgerEntry.model_fields.keys\\(\\)\\)\\)\")",
-      "Bash(python -m pytest tests/test_api.py::TestHealthAndSession::test_health tests/test_routers_golden.py -x --no-header -q)"
+      "Bash(python -m pytest tests/test_api.py::TestHealthAndSession::test_health tests/test_routers_golden.py -x --no-header -q)",
+      "Bash(python -c \"import routers.insights; print\\('imports OK'\\); print\\('ResumeAbResponse schema:', routers.insights.ResumeAbResponse.model_json_schema\\(\\)\\)\")",
+      "Bash(grep -n \"statusBadge\" /c/Users/abbas/AI-Job-Agent/frontend/js/*.js)",
+      "Bash(find /c/Users/abbas/AI-Job-Agent -name \"*.py\" -type f -exec grep -l \"compute_metrics\" {} \\\\;)",
+      "Bash(grep -n \"async function boot\\\\|init.*session\\\\|checkHealth\" /c/Users/abbas/AI-Job-Agent/frontend/js/*.js)"
     ]
   }
 }

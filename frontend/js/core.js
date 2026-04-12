@@ -12,12 +12,42 @@ let currentProfile = null;
 // ── API helper ──────────────────────────────────────
 async function api(method, path, body = null) {
   const h = { 'Content-Type': 'application/json' };
-  if (sessionId) h['X-Session-ID'] = sessionId;
-  const r = await fetch(API + path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  const token = localStorage.getItem('id_token');
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  else if (sessionId) h['X-Session-ID'] = sessionId;
+  let r = await fetch(API + path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  // Auto-refresh expired token once, then retry
+  if (r.status === 401 && token) {
+    const refreshed = await _tryRefreshToken();
+    if (refreshed) {
+      h['Authorization'] = 'Bearer ' + localStorage.getItem('id_token');
+      r = await fetch(API + path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+    }
+  }
   if (r.status === 204) return null;
   const d = await r.json();
   if (!r.ok) throw new Error(d.detail || 'API error');
   return d;
+}
+async function _tryRefreshToken() {
+  const rt = localStorage.getItem('refresh_token');
+  if (!rt) return false;
+  try {
+    const r = await fetch(API + '/api/auth/refresh', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: rt }),
+    });
+    if (!r.ok) { _clearAuth(); return false; }
+    const d = await r.json();
+    if (d.id_token) localStorage.setItem('id_token', d.id_token);
+    if (d.refresh_token) localStorage.setItem('refresh_token', d.refresh_token);
+    return true;
+  } catch { _clearAuth(); return false; }
+}
+function _clearAuth() {
+  localStorage.removeItem('id_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('user_id');
 }
 
 // ── Toast ──────────────────────────────────────────
@@ -76,7 +106,9 @@ async function initSession() {
 // ── Counter animations ─────────────────────────────
 function animateCounters() {
   document.querySelectorAll('[data-target]').forEach(el => {
-    const t = parseInt(el.dataset.target); let c = 0;
+    const t = parseInt(el.dataset.target);
+    if (isNaN(t)) return;
+    let c = 0;
     const x = setInterval(() => { c = Math.min(c + t / 40, t); el.textContent = Math.floor(c); if (c >= t) clearInterval(x); }, 30);
   });
 }
