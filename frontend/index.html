@@ -11,7 +11,11 @@ avien@aviensolutions.com
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js" integrity="sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu" crossorigin="anonymous"></script>
+<!-- Self-hosted DOMPurify 3.2.4. Previously loaded from cdnjs; moved local so
+     (a) the browser does not probe cdnjs for purify.min.js.map (which the
+     strict connect-src 'self' CSP blocks) and (b) the page has one fewer
+     third-party dependency at runtime. -->
+<script src="/frontend/vendor/purify.min.js"></script>
 <script id="tailwind-config">
 tailwind.config = {
   darkMode: "class",
@@ -57,10 +61,10 @@ tailwind.config = {
   </div>
   <div class="flex items-center gap-3">
     <a href="#how" class="hidden md:block text-sm text-slate-500 hover:text-primary transition-colors">How It Works</a>
-    <button onclick="toggleTheme()" id="themeToggleLanding" class="w-9 h-9 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
+    <button data-action="toggleTheme" id="themeToggleLanding" class="w-9 h-9 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
       <span class="material-symbols-outlined text-lg" id="themeIconLanding">light_mode</span>
     </button>
-    <button onclick="openSetup()" class="text-sm font-bold px-4 py-2 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all">Get Started</button>
+    <button data-action="openSetup" class="text-sm font-bold px-4 py-2 rounded-lg border border-primary/20 hover:bg-primary/10 transition-all">Get Started</button>
   </div>
 </nav>
 
@@ -75,7 +79,7 @@ tailwind.config = {
         JobPath AI searches real job listings, scores each one against your profile, generates tailored resumes and cover letters, and tracks every application from submission to offer. All private, all in one place.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 pt-4 w-full max-w-md">
-        <button onclick="openSetup()" class="flex-1 bg-primary text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-base flex items-center justify-center gap-2">
+        <button data-action="openSetup" class="flex-1 bg-primary text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-base flex items-center justify-center gap-2">
           Get Started Free <span class="material-symbols-outlined text-base">arrow_forward</span>
         </button>
         <a href="#how" class="flex-1 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-4 px-8 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all text-base flex items-center justify-center gap-2">
@@ -158,7 +162,7 @@ tailwind.config = {
   <div class="max-w-3xl mx-auto text-center space-y-8">
     <h2 class="text-3xl md:text-4xl font-bold dark:text-slate-50">Ready to start?</h2>
     <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto">Set up your profile in two minutes. Search jobs, generate documents, and track applications immediately.</p>
-    <button onclick="openSetup()" class="bg-primary text-white font-bold py-4 px-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg">
+    <button data-action="openSetup" class="bg-primary text-white font-bold py-4 px-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg">
       Get Started
     </button>
   </div>
@@ -186,7 +190,7 @@ tailwind.config = {
 <!-- ═══ AUTH GATE MODAL ═══ -->
 <div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="authModal">
   <div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-primary/20 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
-    <button onclick="document.getElementById('authModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Close">
+    <button data-action="hideEl" data-target="authModal" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Close">
       <span class="material-symbols-outlined text-lg">close</span>
     </button>
     <div class="flex items-center gap-2 mb-6">
@@ -204,15 +208,15 @@ tailwind.config = {
         <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Email</label><input id="authEmail" type="email" placeholder="you@example.com"/></div>
         <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Password</label><input id="authPassword" type="password" placeholder="Min 6 characters"/></div>
       </div>
-      <button onclick="doLogin()" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Sign In</button>
+      <button data-action="doLogin" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Sign In</button>
       <div class="flex items-center gap-3 mb-3"><div class="flex-1 h-px bg-slate-200 dark:bg-white/10"></div><span class="text-xs text-slate-400">or</span><div class="flex-1 h-px bg-slate-200 dark:bg-white/10"></div></div>
-      <button onclick="doGoogleAuth()" class="w-full border border-slate-300 dark:border-slate-600 font-medium py-3 px-4 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all mb-4 flex items-center justify-center gap-2 text-sm">
+      <button data-action="doGoogleAuth" class="w-full border border-slate-300 dark:border-slate-600 font-medium py-3 px-4 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all mb-4 flex items-center justify-center gap-2 text-sm">
         <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
-      <p class="text-center text-xs text-slate-400 mt-1"><button onclick="showForgotPassword()" class="hover:text-primary transition-colors">Forgot password?</button></p>
-      <p class="text-center text-sm text-slate-500 mt-3">Don't have an account? <button onclick="showAuthSignup()" class="text-primary font-bold hover:underline">Sign up</button></p>
-      <p class="text-center text-xs text-slate-400 mt-2"><button onclick="skipAuth()" class="hover:text-primary transition-colors">Continue without account</button></p>
+      <p class="text-center text-xs text-slate-400 mt-1"><button data-action="showForgotPassword" class="hover:text-primary transition-colors">Forgot password?</button></p>
+      <p class="text-center text-sm text-slate-500 mt-3">Don't have an account? <button data-action="showAuthSignup" class="text-primary font-bold hover:underline">Sign up</button></p>
+      <p class="text-center text-xs text-slate-400 mt-2"><button data-action="skipAuth" class="hover:text-primary transition-colors">Continue without account</button></p>
     </div>
 
     <!-- Forgot Password Form (hidden) -->
@@ -222,8 +226,8 @@ tailwind.config = {
       <div class="flex flex-col gap-3 mb-4">
         <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Email</label><input id="authForgotEmail" type="email" placeholder="you@example.com"/></div>
       </div>
-      <button onclick="doForgotPassword()" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Send Reset Link</button>
-      <p class="text-center text-sm text-slate-500">Remember your password? <button onclick="showAuthLogin()" class="text-primary font-bold hover:underline">Sign in</button></p>
+      <button data-action="doForgotPassword" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Send Reset Link</button>
+      <p class="text-center text-sm text-slate-500">Remember your password? <button data-action="showAuthLogin" class="text-primary font-bold hover:underline">Sign in</button></p>
     </div>
 
     <!-- Signup Form (hidden) -->
@@ -234,9 +238,9 @@ tailwind.config = {
         <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Email</label><input id="authSignupEmail" type="email" placeholder="you@example.com"/></div>
         <div class="flex flex-col gap-1.5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Password</label><input id="authSignupPassword" type="password" placeholder="Min 6 characters"/></div>
       </div>
-      <button onclick="doSignup()" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Create Account</button>
-      <p class="text-center text-sm text-slate-500">Already have an account? <button onclick="showAuthLogin()" class="text-primary font-bold hover:underline">Sign in</button></p>
-      <p class="text-center text-xs text-slate-400 mt-2"><button onclick="skipAuth()" class="hover:text-primary transition-colors">Continue without account</button></p>
+      <button data-action="doSignup" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-all mb-3">Create Account</button>
+      <p class="text-center text-sm text-slate-500">Already have an account? <button data-action="showAuthLogin" class="text-primary font-bold hover:underline">Sign in</button></p>
+      <p class="text-center text-xs text-slate-400 mt-2"><button data-action="skipAuth" class="hover:text-primary transition-colors">Continue without account</button></p>
     </div>
   </div>
 </div>
@@ -244,7 +248,7 @@ tailwind.config = {
 <!-- ═══ ONBOARDING PATH MODAL ═══ -->
 <div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="onboardingPathModal">
   <div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
-    <button onclick="document.getElementById('onboardingPathModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Close">
+    <button data-action="hideEl" data-target="onboardingPathModal" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Close">
       <span class="material-symbols-outlined text-lg">close</span>
     </button>
     <div class="flex items-center gap-2 mb-2">
@@ -256,7 +260,7 @@ tailwind.config = {
 
     <div class="flex flex-col gap-3">
       <!-- Path A: Resume Upload -->
-      <button onclick="startOnboardingPath('resume')" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
+      <button data-action="startOnboardingPath" data-arg="resume" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
         <div class="flex items-start gap-3">
           <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-primary">upload_file</span>
@@ -270,7 +274,7 @@ tailwind.config = {
       </button>
 
       <!-- Path B: Guided Wizard -->
-      <button onclick="startOnboardingPath('wizard')" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
+      <button data-action="startOnboardingPath" data-arg="wizard" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
         <div class="flex items-start gap-3">
           <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-primary">edit_note</span>
@@ -284,7 +288,7 @@ tailwind.config = {
       </button>
 
       <!-- Path C: Browse First -->
-      <button onclick="startOnboardingPath('browse')" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
+      <button data-action="startOnboardingPath" data-arg="browse" class="w-full text-left p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 transition-all group">
         <div class="flex items-start gap-3">
           <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-primary">explore</span>
@@ -298,14 +302,14 @@ tailwind.config = {
       </button>
     </div>
 
-    <button onclick="document.getElementById('onboardingPathModal').classList.add('hidden')" class="mt-4 text-xs text-slate-400 hover:text-primary transition-colors w-full text-center">Back</button>
+    <button data-action="hideEl" data-target="onboardingPathModal" class="mt-4 text-xs text-slate-400 hover:text-primary transition-colors w-full text-center">Back</button>
   </div>
 </div>
 
 <!-- ═══ PROFILE SETUP MODAL ═══ -->
 <div class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="setupModal">
   <div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-primary/20 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
-    <button onclick="document.getElementById('setupModal').classList.add('hidden'); showOnboardingPath();" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Back to options">
+    <button data-action="setupToOnboarding" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Back to options">
       <span class="material-symbols-outlined text-lg">close</span>
     </button>
     <div class="flex items-center gap-2 mb-5">
@@ -380,7 +384,7 @@ tailwind.config = {
           </div>
           <p class="text-xs text-slate-500 mb-3">Upload your resume and AI will auto-fill all profile fields instantly.</p>
           <div class="upload-dropzone" id="resumeDropzone">
-            <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx,.txt" onchange="handleResumeUpload(event,'setup')"/>
+            <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx,.txt" data-action="handleResumeUpload" data-arg="setup"/>
             <span class="material-symbols-outlined text-primary/40 text-3xl mb-2 block">description</span>
             <p class="text-sm text-slate-400 font-medium">Click to upload or drag &amp; drop</p>
             <p class="text-[11px] text-slate-600 mt-1">PDF, DOC, DOCX, TXT</p>
@@ -397,7 +401,7 @@ tailwind.config = {
           </div>
           <div class="flex gap-2">
             <input id="pLinkedin" placeholder="https://linkedin.com/in/yourname" style="flex:1;"/>
-            <button onclick="openLinkedIn()" class="flex-shrink-0 flex items-center gap-1 bg-sage/10 text-sage border border-sage/20 font-bold py-2.5 px-3 rounded-xl hover:bg-sage/20 transition-all text-xs">
+            <button data-action="openLinkedIn" class="flex-shrink-0 flex items-center gap-1 bg-sage/10 text-sage border border-sage/20 font-bold py-2.5 px-3 rounded-xl hover:bg-sage/20 transition-all text-xs">
               <span class="material-symbols-outlined text-sm">open_in_new</span> Open
             </button>
           </div>
@@ -420,10 +424,10 @@ tailwind.config = {
     </div>
 
     <div class="flex gap-3 mt-7">
-      <button class="flex items-center gap-1 text-sm font-medium px-4 py-2.5 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all" id="setupBackBtn" onclick="setupPrev()" style="display:none">
+      <button class="flex items-center gap-1 text-sm font-medium px-4 py-2.5 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all" id="setupBackBtn" data-action="setupPrev" style="display:none">
         <span class="material-symbols-outlined text-sm">arrow_back</span> Back
       </button>
-      <button class="ml-auto flex items-center gap-1 bg-primary text-white font-bold py-2.5 px-6 rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm" id="setupNextBtn" onclick="setupNext()">
+      <button class="ml-auto flex items-center gap-1 bg-primary text-white font-bold py-2.5 px-6 rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm" id="setupNextBtn" data-action="setupNext">
         Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>
       </button>
     </div>
@@ -438,8 +442,8 @@ tailwind.config = {
     <div class="flex flex-col gap-1.5 mb-3"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Employer Feedback</label><textarea id="updateFeedback" placeholder="What did they say?" rows="3"></textarea></div>
     <div class="flex flex-col gap-1.5 mb-5"><label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold">Notes</label><textarea id="updateNotes" placeholder="Additional notes…" rows="2"></textarea></div>
     <div class="flex gap-2 justify-end">
-      <button onclick="closeUpdateModal()" class="text-sm font-medium px-4 py-2 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all">Cancel</button>
-      <button onclick="submitUpdate()" class="bg-primary text-white font-bold py-2 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">Update <span class="material-symbols-outlined text-sm">check</span></button>
+      <button data-action="closeUpdateModal" class="text-sm font-medium px-4 py-2 rounded-xl border border-sage/20 text-slate-400 hover:bg-white/5 transition-all">Cancel</button>
+      <button data-action="submitUpdate" class="bg-primary text-white font-bold py-2 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1">Update <span class="material-symbols-outlined text-sm">check</span></button>
     </div>
   </div>
 </div>
@@ -453,58 +457,58 @@ tailwind.config = {
     <!-- ── SIDEBAR ── -->
     <aside id="sidebar" class="bg-background-dark dark:bg-background-dark border-r border-primary/10 flex flex-col p-3">
       <!-- Brand (home button) -->
-      <div class="flex items-center gap-2 px-2 py-3 mb-3 border-b border-primary/10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="nav('dashboard')">
+      <div class="flex items-center gap-2 px-2 py-3 mb-3 border-b border-primary/10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" data-action="nav" data-arg="dashboard">
         <span class="material-symbols-outlined text-primary flex-shrink-0">route</span>
         <span class="font-bold tracking-tight text-sm brand-text nav-label">JobPath AI</span>
       </div>
       <!-- Nav groups -->
       <div class="mb-4 flex-1 overflow-y-auto">
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 section-label nav-label">Home</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer active-nav" onclick="nav('dashboard')" id="nav-dashboard">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer active-nav" data-action="nav" data-arg="dashboard" id="nav-dashboard">
           <span class="material-symbols-outlined text-base flex-shrink-0">dashboard</span><span class="nav-label">Dashboard</span>
         </div>
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Discover</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('jobs')" id="nav-jobs">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="jobs" id="nav-jobs">
           <span class="material-symbols-outlined text-base flex-shrink-0">search</span><span class="nav-label">Job Search</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('feed')" id="nav-feed">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="feed" id="nav-feed">
           <span class="material-symbols-outlined text-base flex-shrink-0">today</span><span class="nav-label">Daily Feed</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('market')" id="nav-market">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="market" id="nav-market">
           <span class="material-symbols-outlined text-base flex-shrink-0">bar_chart</span><span class="nav-label">Market Intel</span>
         </div>
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Apply</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('docs')" id="nav-docs">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="docs" id="nav-docs">
           <span class="material-symbols-outlined text-base flex-shrink-0">description</span><span class="nav-label">Documents</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('tracker')" id="nav-tracker">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="tracker" id="nav-tracker">
           <span class="material-symbols-outlined text-base flex-shrink-0">view_kanban</span><span class="nav-label">Tracker</span>
         </div>
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Prepare</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('salary')" id="nav-salary">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="salary" id="nav-salary">
           <span class="material-symbols-outlined text-base flex-shrink-0">payments</span><span class="nav-label">Salary</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('career')" id="nav-career">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="career" id="nav-career">
           <span class="material-symbols-outlined text-base flex-shrink-0">auto_awesome</span><span class="nav-label">Career Dreamer</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('interview')" id="nav-interview">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="interview" id="nav-interview">
           <span class="material-symbols-outlined text-base flex-shrink-0">forum</span><span class="nav-label">Interview Prep</span>
         </div>
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Insights</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('analytics')" id="nav-analytics">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="analytics" id="nav-analytics">
           <span class="material-symbols-outlined text-base flex-shrink-0">insights</span><span class="nav-label">Analytics</span>
         </div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('offers')" id="nav-offers">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="offers" id="nav-offers">
           <span class="material-symbols-outlined text-base flex-shrink-0">workspace_premium</span><span class="nav-label">Offers</span>
         </div>
         <div class="text-[10px] uppercase tracking-widest text-slate-600 font-bold px-2 mb-1 mt-3 section-label nav-label">Business</div>
-        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" onclick="nav('employers')" id="nav-employers">
+        <div class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-all cursor-pointer" data-action="nav" data-arg="employers" id="nav-employers">
           <span class="material-symbols-outlined text-base flex-shrink-0">business</span><span class="nav-label">For Employers</span>
         </div>
       </div>
       <!-- User footer -->
       <div class="border-t border-primary/10 pt-3 flex-shrink-0">
-        <div class="sidebar-user flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 cursor-pointer transition-all" onclick="nav('profile')">
+        <div class="sidebar-user flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 cursor-pointer transition-all" data-action="nav" data-arg="profile">
           <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0" id="sidebarAvatar">?</div>
           <div class="min-w-0 user-info nav-label">
             <div class="text-sm font-semibold truncate" id="sidebarName">Loading...</div>
@@ -520,13 +524,13 @@ tailwind.config = {
       <div class="bg-background-dark border-b border-primary/10 px-4 md:px-6 h-14 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-3">
           <!-- Sidebar toggle (desktop/tablet) -->
-          <button onclick="toggleSidebar()" class="hidden md:flex w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all items-center justify-center text-slate-400 hover:text-primary" title="Toggle sidebar">
+          <button data-action="toggleSidebar" class="hidden md:flex w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all items-center justify-center text-slate-400 hover:text-primary" title="Toggle sidebar">
             <span class="material-symbols-outlined text-base">menu</span>
           </button>
           <div class="font-bold text-sm tracking-tight" id="pageTitle">Dashboard</div>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="toggleTheme()" class="w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
+          <button data-action="toggleTheme" class="w-8 h-8 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all flex items-center justify-center text-slate-400 hover:text-primary" title="Toggle theme">
             <span class="material-symbols-outlined text-base" id="themeIconDash">light_mode</span>
           </button>
           <div class="hidden" id="statusBadge"></div>
@@ -610,7 +614,7 @@ tailwind.config = {
                     <div class="text-base font-bold">Today's Feed</div>
                     <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Top picks for you</div>
                   </div>
-                  <button onclick="nav('feed')" class="text-[10px] font-bold text-primary hover:underline">See all →</button>
+                  <button data-action="nav" data-arg="feed" class="text-[10px] font-bold text-primary hover:underline">See all →</button>
                 </div>
                 <div id="dashFeedPreview" class="text-xs text-slate-500">Loading…</div>
               </div>
@@ -650,11 +654,11 @@ tailwind.config = {
                 <option value="date">Newest</option>
                 <option value="salary">Salary (High → Low)</option>
               </select>
-              <button type="button" onclick="toggleAdvancedFilters()" class="text-xs font-bold px-3 py-2.5 rounded-xl border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center justify-center gap-1">
+              <button type="button" data-action="toggleAdvancedFilters" class="text-xs font-bold px-3 py-2.5 rounded-xl border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-sm">tune</span><span id="advFiltersLabel">More filters</span>
               </button>
               <div class="md:col-span-2 flex gap-2">
-                <button onclick="searchJobsV2(1)" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                <button data-action="searchJobsV2" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
                   <span class="material-symbols-outlined text-sm">search</span> Search Jobs
                 </button>
               </div>
@@ -706,7 +710,7 @@ tailwind.config = {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
               <input id="mktRegion" placeholder="Region (e.g. North America)"/>
               <input id="mktIndustry" placeholder="Industry (e.g. Technology)"/>
-              <button onclick="getMarket()" class="sm:col-span-2 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+              <button data-action="getMarket" class="sm:col-span-2 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-sm">analytics</span> Get Report
               </button>
             </div>
@@ -717,7 +721,7 @@ tailwind.config = {
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Culturally-aware advice for any market</div>
             <div class="flex gap-2 mb-4 flex-wrap">
               <input id="tipsRegion" placeholder="Region (e.g. Japan, UK, Canada)" style="flex:1;"/>
-              <button onclick="getTips()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+              <button data-action="getTips" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
                 <span class="material-symbols-outlined text-sm">travel_explore</span> Get Tips
               </button>
             </div>
@@ -754,10 +758,10 @@ tailwind.config = {
                   <option value="pdf">PDF</option>
                   <option value="docx">DOCX</option>
                 </select>
-                <button onclick="genResume()" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+                <button data-action="genResume" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
                   <span class="material-symbols-outlined text-sm">description</span> Generate
                 </button>
-                <button onclick="downloadResume()" class="flex-1 border border-primary/25 text-primary font-bold py-2.5 px-4 rounded-xl hover:bg-primary/10 transition-all text-sm flex items-center justify-center gap-1">
+                <button data-action="downloadResume" class="flex-1 border border-primary/25 text-primary font-bold py-2.5 px-4 rounded-xl hover:bg-primary/10 transition-all text-sm flex items-center justify-center gap-1">
                   <span class="material-symbols-outlined text-sm">download</span> Download
                 </button>
               </div>
@@ -771,7 +775,7 @@ tailwind.config = {
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Compelling, role-specific cover letters</div>
             <div class="flex gap-2 mb-4 flex-wrap">
               <input id="clJobId" placeholder="Job ID from search results" style="flex:1;"/>
-              <button onclick="genCoverLetter()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+              <button data-action="genCoverLetter" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
                 <span class="material-symbols-outlined text-sm">mail</span> Generate
               </button>
             </div>
@@ -788,13 +792,13 @@ tailwind.config = {
                 <div class="text-base font-bold">Application Tracker</div>
                 <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Drag cards between columns to update status</div>
               </div>
-              <button onclick="loadKanbanBoard()" class="text-xs font-bold px-3 py-2 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
+              <button data-action="loadKanbanBoard" class="text-xs font-bold px-3 py-2 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">refresh</span> Refresh
               </button>
             </div>
             <div class="flex gap-2">
               <input id="trackJobId" placeholder="Paste Job ID to start tracking" style="flex:1;"/>
-              <button onclick="trackApp()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+              <button data-action="trackApp" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
                 <span class="material-symbols-outlined text-sm">add_task</span> Track
               </button>
             </div>
@@ -820,11 +824,11 @@ tailwind.config = {
             <div class="text-base font-bold mb-0.5">Insights</div>
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">AI-generated career performance intelligence</div>
             <div class="tab-bar">
-              <button class="tab-item active" onclick="switchInsightTab('overview')" data-tab="overview">Overview</button>
-              <button class="tab-item" onclick="switchInsightTab('outcome')" data-tab="outcome">Outcome Learning</button>
-              <button class="tab-item" onclick="switchInsightTab('rejection')" data-tab="rejection">Rejection Patterns</button>
-              <button class="tab-item" onclick="switchInsightTab('weekly')" data-tab="weekly">Weekly Report</button>
-              <button class="tab-item" onclick="switchInsightTab('restrat')" data-tab="restrat">Re-strategize</button>
+              <button class="tab-item active" data-action="switchInsightTab" data-arg="overview" data-tab="overview">Overview</button>
+              <button class="tab-item" data-action="switchInsightTab" data-arg="outcome" data-tab="outcome">Outcome Learning</button>
+              <button class="tab-item" data-action="switchInsightTab" data-arg="rejection" data-tab="rejection">Rejection Patterns</button>
+              <button class="tab-item" data-action="switchInsightTab" data-arg="weekly" data-tab="weekly">Weekly Report</button>
+              <button class="tab-item" data-action="switchInsightTab" data-arg="restrat" data-tab="restrat">Re-strategize</button>
             </div>
             <div id="insightOverview" class="response-area empty"><span class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-3xl text-primary/30">insights</span><span>Load your application performance overview</span></span></div>
             <div id="insightOutcome" class="response-area empty" style="display:none"><span>Analyze what's working in your job search</span></div>
@@ -843,7 +847,7 @@ tailwind.config = {
               <input id="salaryRole" placeholder="Role (auto-filled from profile)"/>
               <input id="salaryLocations" placeholder="Locations, comma-separated"/>
             </div>
-            <button onclick="calibrateSalary()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+            <button data-action="calibrateSalary" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
               <span class="material-symbols-outlined text-sm">analytics</span> Calibrate
             </button>
           </div>
@@ -862,7 +866,7 @@ tailwind.config = {
               <input id="negCompany" placeholder="Company"/>
               <textarea id="negLeverage" placeholder="Leverage points (one per line)" rows="3" class="md:col-span-2"></textarea>
             </div>
-            <button onclick="negotiateSalary()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+            <button data-action="negotiateSalary" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
               <span class="material-symbols-outlined text-sm">handshake</span> Get Negotiation Plan
             </button>
             <div class="response-area empty mt-3" id="negResult"><span>Fill in the details to get a custom negotiation strategy</span></div>
@@ -877,7 +881,7 @@ tailwind.config = {
                 <div class="text-base font-bold">Daily Feed</div>
                 <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Curated picks for today</div>
               </div>
-              <button onclick="refreshFeed()" class="text-xs font-bold px-3 py-2 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
+              <button data-action="refreshFeed" class="text-xs font-bold px-3 py-2 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">refresh</span> Refresh
               </button>
             </div>
@@ -908,7 +912,7 @@ tailwind.config = {
                 <option value="60">60 months</option>
               </select>
             </div>
-            <button onclick="createDream()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+            <button data-action="createDream" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
               <span class="material-symbols-outlined text-sm">auto_awesome</span> Analyze Dream
             </button>
           </div>
@@ -920,10 +924,10 @@ tailwind.config = {
             <div class="feasibility-meter"><div class="feasibility-fill" id="dreamMeterFill" style="width:0%"></div></div>
             <div class="response-area text-sm mt-3" id="dreamAnalysis"></div>
             <div class="flex gap-2 mt-3">
-              <button onclick="saveDream()" class="flex-1 border border-primary/25 text-primary font-bold py-2.5 px-4 rounded-xl hover:bg-primary/10 transition-all text-sm flex items-center justify-center gap-1">
+              <button data-action="saveDream" class="flex-1 border border-primary/25 text-primary font-bold py-2.5 px-4 rounded-xl hover:bg-primary/10 transition-all text-sm flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-sm">bookmark</span> Save Dream
               </button>
-              <button onclick="findJobsForDream()" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+              <button data-action="findJobsForDream" class="flex-1 bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-sm">search</span> Find Jobs
               </button>
             </div>
@@ -942,15 +946,15 @@ tailwind.config = {
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Generate a prep package for an upcoming interview</div>
             <div class="flex gap-2 mb-3">
               <input id="interviewAppId" placeholder="Application ID" style="flex:1;"/>
-              <button onclick="loadPrepPackage()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
+              <button data-action="loadPrepPackage" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1 flex-shrink-0">
                 <span class="material-symbols-outlined text-sm">workspaces</span> Generate Package
               </button>
             </div>
             <div class="tab-bar">
-              <button class="tab-item active" onclick="switchInterviewTab('prep')" data-tab="prep">Full Prep</button>
-              <button class="tab-item" onclick="switchInterviewTab('brief')" data-tab="brief">Company Brief</button>
-              <button class="tab-item" onclick="switchInterviewTab('questions')" data-tab="questions">Practice Qs</button>
-              <button class="tab-item" onclick="switchInterviewTab('debrief')" data-tab="debrief">Debrief</button>
+              <button class="tab-item active" data-action="switchInterviewTab" data-arg="prep" data-tab="prep">Full Prep</button>
+              <button class="tab-item" data-action="switchInterviewTab" data-arg="brief" data-tab="brief">Company Brief</button>
+              <button class="tab-item" data-action="switchInterviewTab" data-arg="questions" data-tab="questions">Practice Qs</button>
+              <button class="tab-item" data-action="switchInterviewTab" data-arg="debrief" data-tab="debrief">Debrief</button>
             </div>
             <div id="interviewPrep" class="response-area empty"><span>Enter an Application ID and generate a prep package</span></div>
             <div id="interviewBrief" class="response-area empty" style="display:none"><span>Company research brief</span></div>
@@ -969,7 +973,7 @@ tailwind.config = {
                 </select>
                 <textarea id="debriefNotes" rows="3" placeholder="Additional notes" class="md:col-span-2"></textarea>
               </div>
-              <button onclick="submitDebrief()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+              <button data-action="submitDebrief" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-sm">send</span> Submit Debrief
               </button>
               <div class="response-area empty mt-3" id="debriefResult"><span>Debrief analysis will appear here</span></div>
@@ -996,7 +1000,7 @@ tailwind.config = {
               </select>
               <textarea id="offerBenefits" rows="2" placeholder="Benefits summary" class="md:col-span-2"></textarea>
             </div>
-            <button onclick="createOffer()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+            <button data-action="createOffer" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
               <span class="material-symbols-outlined text-sm">add</span> Save Offer
             </button>
           </div>
@@ -1006,7 +1010,7 @@ tailwind.config = {
                 <div class="text-base font-bold">Your Offers</div>
                 <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">All logged offers</div>
               </div>
-              <button onclick="compareOffers()" class="text-xs font-bold px-3 py-2 rounded-lg bg-primary text-white hover:brightness-110 transition-all flex items-center gap-1">
+              <button data-action="compareOffers" class="text-xs font-bold px-3 py-2 rounded-lg bg-primary text-white hover:brightness-110 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">compare_arrows</span> Compare
               </button>
             </div>
@@ -1024,7 +1028,7 @@ tailwind.config = {
           <div class="bg-background-dark border border-primary/10 rounded-2xl p-4 md:p-5 dash-panel">
             <div class="text-base font-bold mb-0.5">Employer Feedback Analysis</div>
             <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Patterns and themes from your interview feedback</div>
-            <div class="mb-4"><button onclick="loadFeedback()" class="bg-primary text-white font-bold py-2.5 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">chat_bubble</span> Analyse Feedback</button></div>
+            <div class="mb-4"><button data-action="loadFeedback" class="bg-primary text-white font-bold py-2.5 px-5 rounded-xl hover:brightness-110 transition-all text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">chat_bubble</span> Analyse Feedback</button></div>
             <div class="response-area empty" id="feedbackResult"><span>Click Analyse to see feedback patterns</span></div>
           </div>
         </div>
@@ -1044,7 +1048,7 @@ tailwind.config = {
               <span class="text-[10px] bg-primary/15 text-primary px-2 py-1 rounded-full font-bold flex-shrink-0 ml-3">AI Auto-fill</span>
             </div>
             <div class="upload-dropzone mb-3" id="dashResumeDropzone">
-              <input type="file" id="dashResumeUpload" accept=".pdf,.doc,.docx,.txt" onchange="handleResumeUpload(event,'dashboard')"/>
+              <input type="file" id="dashResumeUpload" accept=".pdf,.doc,.docx,.txt" data-action="handleResumeUpload" data-arg="dashboard"/>
               <span class="material-symbols-outlined text-primary/40 text-4xl mb-2 block">upload_file</span>
               <p class="text-sm text-slate-300 font-semibold">Click to upload or drag &amp; drop</p>
               <p class="text-xs text-slate-500 mt-1">PDF, DOC, DOCX, TXT  -  AI parses and updates your profile</p>
@@ -1062,7 +1066,7 @@ tailwind.config = {
                 <div class="text-base font-bold mb-0.5">Current Profile</div>
                 <div class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Your active job-seeking profile</div>
               </div>
-              <button onclick="openSetup()" class="text-xs font-bold px-3 py-1.5 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
+              <button data-action="openSetup" class="text-xs font-bold px-3 py-1.5 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">edit</span> Edit
               </button>
             </div>
@@ -1085,15 +1089,15 @@ tailwind.config = {
             <div class="space-y-3">
               <label class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-primary/10 cursor-pointer">
                 <div><div class="text-sm font-semibold text-slate-700 dark:text-slate-200">Follow-up Nudges</div><div class="text-xs text-slate-500">Get reminders to follow up on applications</div></div>
-                <input type="checkbox" checked class="accent-primary w-4 h-4" onchange="updateSetting('nudges', this.checked)"/>
+                <input type="checkbox" checked class="accent-primary w-4 h-4" data-action="updateSetting" data-arg="nudges"/>
               </label>
               <label class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-primary/10 cursor-pointer">
                 <div><div class="text-sm font-semibold text-slate-700 dark:text-slate-200">Daily Job Feed</div><div class="text-xs text-slate-500">Curated job recommendations each day</div></div>
-                <input type="checkbox" checked class="accent-primary w-4 h-4" onchange="updateSetting('feed', this.checked)"/>
+                <input type="checkbox" checked class="accent-primary w-4 h-4" data-action="updateSetting" data-arg="feed"/>
               </label>
               <label class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-primary/10 cursor-pointer">
                 <div><div class="text-sm font-semibold text-slate-700 dark:text-slate-200">Auto-Apply</div><div class="text-xs text-slate-500">Automatically apply to highly-matched roles</div></div>
-                <input type="checkbox" class="accent-primary w-4 h-4" onchange="updateSetting('auto_apply', this.checked)"/>
+                <input type="checkbox" class="accent-primary w-4 h-4" data-action="updateSetting" data-arg="auto_apply"/>
               </label>
             </div>
           </div>
@@ -1106,21 +1110,21 @@ tailwind.config = {
               <label class="text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-bold mb-1 block">New Password</label>
               <div class="flex gap-2">
                 <input id="changePasswordInput" type="password" placeholder="Min 6 characters" class="flex-1"/>
-                <button onclick="doChangePassword()" class="text-sm font-bold px-4 py-2 rounded-xl bg-primary text-white hover:opacity-90 transition-all">Save</button>
-                <button onclick="document.getElementById('changePasswordSection').style.display='none'" class="text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-all">Cancel</button>
+                <button data-action="doChangePassword" class="text-sm font-bold px-4 py-2 rounded-xl bg-primary text-white hover:opacity-90 transition-all">Save</button>
+                <button data-action="hidePwSection" class="text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-all">Cancel</button>
               </div>
             </div>
             <div class="flex flex-wrap gap-2">
-              <button onclick="document.getElementById('changePasswordSection').style.display=''" class="text-sm font-medium px-4 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all flex items-center gap-1">
+              <button data-action="showPwSection" class="text-sm font-medium px-4 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">lock</span> Change Password
               </button>
-              <button onclick="doLogout()" class="text-sm font-medium px-4 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all flex items-center gap-1">
+              <button data-action="doLogout" class="text-sm font-medium px-4 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">logout</span> Sign Out
               </button>
-              <button onclick="doExportData()" class="text-sm font-medium px-4 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all flex items-center gap-1">
+              <button data-action="doExportData" class="text-sm font-medium px-4 py-2 rounded-xl border border-slate-300 dark:border-primary/20 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">download</span> Export My Data
               </button>
-              <button onclick="doDeleteAccount()" class="text-sm font-medium px-4 py-2 rounded-xl border border-red-300 dark:border-red-500/20 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all flex items-center gap-1">
+              <button data-action="doDeleteAccount" class="text-sm font-medium px-4 py-2 rounded-xl border border-red-300 dark:border-red-500/20 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">delete_forever</span> Delete Account
               </button>
             </div>
@@ -1174,7 +1178,7 @@ tailwind.config = {
                   <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Up to 10 matched profiles</li>
                   <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Basic skill match score</li>
                 </ul>
-                <button onclick="document.getElementById('waitlistEmail').focus()" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all">Join Waitlist</button>
+                <button data-action="focusEl" data-target="waitlistEmail" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all">Join Waitlist</button>
               </div>
               <!-- Pro -->
               <div class="border border-primary rounded-xl p-4 flex flex-col gap-2 relative">
@@ -1187,7 +1191,7 @@ tailwind.config = {
                   <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Full ATS score + gap report</li>
                   <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Priority support</li>
                 </ul>
-                <button onclick="document.getElementById('waitlistEmail').focus()" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg bg-primary text-white hover:brightness-110 transition-all">Join Waitlist</button>
+                <button data-action="focusEl" data-target="waitlistEmail" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg bg-primary text-white hover:brightness-110 transition-all">Join Waitlist</button>
               </div>
               <!-- Enterprise -->
               <div class="border border-primary/10 rounded-xl p-4 flex flex-col gap-2">
@@ -1199,7 +1203,7 @@ tailwind.config = {
                   <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>Custom integrations (ATS/HRIS)</li>
                   <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">check</span>SLA + compliance reports</li>
                 </ul>
-                <button onclick="document.getElementById('waitlistEmail').focus()" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all">Join Waitlist</button>
+                <button data-action="focusEl" data-target="waitlistEmail" class="mt-2 text-xs font-bold py-2 px-3 rounded-lg border border-primary/20 text-primary hover:bg-primary/10 transition-all">Join Waitlist</button>
               </div>
             </div>
           </div>
@@ -1219,7 +1223,7 @@ tailwind.config = {
                 <option value="201-1000">201–1,000 employees</option>
                 <option value="1000+">1,000+ employees</option>
               </select>
-              <button onclick="joinWaitlist()" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
+              <button data-action="joinWaitlist" class="bg-primary text-white font-bold py-2.5 px-4 rounded-xl hover:brightness-110 transition-all text-sm flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-sm">mail</span> Request Early Access
               </button>
             </div>
@@ -1233,19 +1237,19 @@ tailwind.config = {
 
   <!-- ── MOBILE BOTTOM NAV ── -->
   <nav id="mobile-nav">
-    <div class="mn-item active" onclick="nav('dashboard')" id="mn-dashboard">
+    <div class="mn-item active" data-action="nav" data-arg="dashboard" id="mn-dashboard">
       <span class="material-symbols-outlined">dashboard</span>Home
     </div>
-    <div class="mn-item" onclick="nav('jobs')" id="mn-jobs">
+    <div class="mn-item" data-action="nav" data-arg="jobs" id="mn-jobs">
       <span class="material-symbols-outlined">search</span>Jobs
     </div>
-    <div class="mn-item" onclick="nav('tracker')" id="mn-tracker">
+    <div class="mn-item" data-action="nav" data-arg="tracker" id="mn-tracker">
       <span class="material-symbols-outlined">view_kanban</span>Track
     </div>
-    <div class="mn-item" onclick="nav('docs')" id="mn-docs">
+    <div class="mn-item" data-action="nav" data-arg="docs" id="mn-docs">
       <span class="material-symbols-outlined">description</span>Docs
     </div>
-    <div class="mn-item" onclick="nav('profile')" id="mn-profile">
+    <div class="mn-item" data-action="nav" data-arg="profile" id="mn-profile">
       <span class="material-symbols-outlined">person</span>Me
     </div>
   </nav>
@@ -1255,7 +1259,7 @@ tailwind.config = {
 <!-- ══════════════════════════════════════
      FLOATING CHAT WIDGET
 ══════════════════════════════════════ -->
-<button id="chatFab" onclick="toggleChatOverlay()" style="display:none" class="fixed bottom-5 right-5 z-[300] w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center">
+<button id="chatFab" data-action="toggleChatOverlay" style="display:none" class="fixed bottom-5 right-5 z-[300] w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center">
   <span class="material-symbols-outlined text-2xl" id="chatFabIcon">smart_toy</span>
 </button>
 <div id="chatOverlay" style="display:none" class="fixed bottom-24 right-5 z-[300] w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl shadow-2xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark flex flex-col overflow-hidden" style="height:520px;">
@@ -1265,10 +1269,10 @@ tailwind.config = {
       <span class="font-bold text-sm text-slate-800 dark:text-slate-100">AI Assistant</span>
     </div>
     <div class="flex items-center gap-1">
-      <button onclick="resetChat()" class="w-7 h-7 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center text-red-400 transition-all" title="Reset chat">
+      <button data-action="resetChat" class="w-7 h-7 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center text-red-400 transition-all" title="Reset chat">
         <span class="material-symbols-outlined text-base">restart_alt</span>
       </button>
-      <button onclick="toggleChatOverlay()" class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 transition-all" title="Close">
+      <button data-action="toggleChatOverlay" class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 transition-all" title="Close">
         <span class="material-symbols-outlined text-base">close</span>
       </button>
     </div>
@@ -1279,8 +1283,8 @@ tailwind.config = {
     </div>
   </div>
   <div class="flex gap-2 p-3 border-t border-slate-200 dark:border-primary/10 flex-shrink-0">
-    <textarea id="chatInput" rows="1" placeholder="Ask anything..." onkeydown="chatKeydown(event)" style="flex:1;resize:none;border-radius:0.75rem;padding:10px 14px;font-size:0.8rem;min-height:40px;"></textarea>
-    <button onclick="sendChat()" class="bg-primary text-white font-bold px-3 rounded-xl hover:brightness-110 transition-all flex items-center flex-shrink-0">
+    <textarea id="chatInput" rows="1" placeholder="Ask anything..." data-action="chatKeydown" style="flex:1;resize:none;border-radius:0.75rem;padding:10px 14px;font-size:0.8rem;min-height:40px;"></textarea>
+    <button data-action="sendChat" class="bg-primary text-white font-bold px-3 rounded-xl hover:brightness-110 transition-all flex items-center flex-shrink-0">
       <span class="material-symbols-outlined text-lg">send</span>
     </button>
   </div>
@@ -1289,7 +1293,9 @@ tailwind.config = {
 <div id="toast"></div>
 
 <!-- App modules -- loaded in dependency order. Each is deferred, so they execute
-     sequentially after DOMContentLoaded with access to each other's top-level declarations. -->
+     sequentially after DOMContentLoaded with access to each other's top-level declarations.
+     events.js installs the document-level delegated listeners that replace the
+     inline on*= handlers the CSP blocks. -->
 <script src="/frontend/js/core.js" defer></script>
 <script src="/frontend/js/auth.js" defer></script>
 <script src="/frontend/js/shell.js" defer></script>
@@ -1300,5 +1306,6 @@ tailwind.config = {
 <script src="/frontend/js/prepare.js" defer></script>
 <script src="/frontend/js/insights.js" defer></script>
 <script src="/frontend/js/client.js" defer></script>
+<script src="/frontend/js/events.js" defer></script>
 </body>
 </html>

@@ -113,6 +113,13 @@ class SessionResponse(BaseModel):
     session_id: str
 
 
+class SessionStatusResponse(BaseModel):
+    """Lightweight boot probe so the frontend can branch on `has_profile`
+    without triggering a 404 on GET /api/profile for brand-new sessions."""
+    session_id: str
+    has_profile: bool
+
+
 class ProfileResponse(BaseModel):
     profile_id: str
     message: str

@@ -242,6 +242,19 @@ def get_session_profile(session_id: str) -> Any:
         return sess["profile"]
 
 
+def session_has_profile(session_id: str) -> bool:
+    """Return True iff *session_id* maps to a session with a bound profile.
+
+    Unlike :func:`get_session_profile` this never raises -- callers that only
+    need to know whether the user has finished onboarding (e.g. the frontend
+    boot probe) can use this without triggering the 404 console noise the
+    strict CSP can't mask.
+    """
+    with _sessions_lock:
+        sess = _sessions.get(session_id)
+        return bool(sess and sess.get("profile"))
+
+
 def close_all_sessions() -> None:
     """Close all sessions (for shutdown)."""
     with _sessions_lock:

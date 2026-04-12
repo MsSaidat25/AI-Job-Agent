@@ -54,6 +54,7 @@ from src.session_store import (  # noqa: E402
     get_session_lock,
     get_session_profile,
     get_sessions,
+    session_has_profile,
     set_session_agent,
 )
 from routers.schemas import (  # noqa: E402
@@ -61,6 +62,7 @@ from routers.schemas import (  # noqa: E402
     ProfileRequest,
     ProfileResponse,
     SessionResponse,
+    SessionStatusResponse,
 )
 
 
@@ -198,8 +200,10 @@ async def add_security_headers(request: Request, call_next):
         # 'unsafe-eval' is retained solely for the Tailwind Play CDN JIT.
         # 'unsafe-inline' is intentionally dropped in favour of SHA-256
         # hashes computed from the two inline bootstrap scripts.
+        # DOMPurify is self-hosted under /frontend/vendor/, so cdnjs no longer
+        # needs to appear in script-src. 'unsafe-eval' remains for Tailwind JIT.
         f"script-src 'self' {_SCRIPT_INLINE_POLICY} 'unsafe-eval' "
-        "https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; "
+        "https://cdn.tailwindcss.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "img-src 'self' data:; "
         "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
@@ -297,6 +301,22 @@ async def new_session(request: Request):
     await cleanup_sessions()
     session_id = create_session()
     return SessionResponse(session_id=session_id)
+
+
+@app.get("/api/session/status", response_model=SessionStatusResponse)
+@limiter.limit("120/minute")
+async def session_status(request: Request, session_id: str = SessionId):
+    """Boot probe: does the current session have a profile bound?
+
+    The frontend calls this on load instead of GET /api/profile so that a
+    fresh (no-profile) session does not emit a 404 in the browser console --
+    something that, under the strict CSP, is not suppressible from JS.
+    Returns 200 in both states.
+    """
+    return SessionStatusResponse(
+        session_id=session_id,
+        has_profile=session_has_profile(session_id),
+    )
 
 
 @app.post("/api/profile", status_code=status.HTTP_201_CREATED, response_model=ProfileResponse)

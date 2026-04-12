@@ -249,11 +249,19 @@ async function boot() {
   setupTags('certsInput', 'certsTagsInput', certs);
   setupTags('langsInput', 'langsTagsInput', langs);
   if (sessionId) {
+    // Probe /api/session/status first so a fresh (no-profile) session does
+    // not trigger a 404 on /api/profile, which can't be silenced from JS
+    // under the strict CSP.
     try {
-      const p = await api('GET', '/api/profile');
-      launchDashboard(p);
-      document.getElementById('landing').style.display = 'none';
-      return;
+      const status = await api('GET', '/api/session/status');
+      if (status && status.has_profile) {
+        const p = await api('GET', '/api/profile');
+        launchDashboard(p);
+        document.getElementById('landing').style.display = 'none';
+        return;
+      }
+      // Valid session but no profile yet -- stay on landing page. The
+      // Get Started button will drive the setup flow from here.
     } catch (err) {
       localStorage.removeItem('jpai_session');
       sessionId = null;

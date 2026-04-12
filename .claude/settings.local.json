@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(python c:/tmp/rewrite_handlers.py)",
+      "Bash(python -c ':*)",
+      "Bash(pytest tests/test_api.py tests/test_auth_bearer.py -x --tb=short)",
+      "Bash(cat \"C:\\\\\\\\Users\\\\\\\\abbas\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\c--Users-abbas-AI-Job-Agent\\\\\\\\5959f069-c556-4cae-8b69-0dc7c63b7458\\\\\\\\tasks\\\\\\\\belhwkuwb.output\")",
+      "Bash(ls -la \"C:\\\\\\\\Users\\\\\\\\abbas\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\c--Users-abbas-AI-Job-Agent\\\\\\\\5959f069-c556-4cae-8b69-0dc7c63b7458\\\\\\\\tasks\\\\\\\\\")",
+      "Bash(pytest -x --tb=short -q)",
+      "Bash(taskkill //F //IM node.exe)"
     ]
   }
 }
