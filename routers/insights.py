@@ -1,7 +1,7 @@
 """Intelligence and insights endpoints (Sprint 4)."""
 
 import asyncio
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, Field
@@ -43,7 +43,7 @@ class ResumeVariantBucket(BaseModel):
 
 class ResumeAbResponse(BaseModel):
     variants: list[ResumeVariantBucket] = Field(default_factory=list)
-    winning_variant_id: str | None = None
+    winning_variant_id: Optional[str] = None
     total_variants: int = 0
 
 
