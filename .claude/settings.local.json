@@ -8,7 +8,9 @@
       "Bash(cat \"C:\\\\\\\\Users\\\\\\\\abbas\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\c--Users-abbas-AI-Job-Agent\\\\\\\\5959f069-c556-4cae-8b69-0dc7c63b7458\\\\\\\\tasks\\\\\\\\belhwkuwb.output\")",
       "Bash(ls -la \"C:\\\\\\\\Users\\\\\\\\abbas\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\c--Users-abbas-AI-Job-Agent\\\\\\\\5959f069-c556-4cae-8b69-0dc7c63b7458\\\\\\\\tasks\\\\\\\\\")",
       "Bash(pytest -x --tb=short -q)",
-      "Bash(taskkill //F //IM node.exe)"
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(python -c \"import sys; print\\(sys.version\\); from routers import privacy; print\\('OK, LedgerEntry fields:', list\\(privacy.LedgerEntry.model_fields.keys\\(\\)\\)\\)\")",
+      "Bash(python -m pytest tests/test_api.py::TestHealthAndSession::test_health tests/test_routers_golden.py -x --no-header -q)"
     ]
   }
 }

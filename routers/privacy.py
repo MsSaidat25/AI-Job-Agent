@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel, Field
@@ -22,7 +22,7 @@ class LedgerEntry(BaseModel):
     llm_model: str = ""
     retention_days: int = 0
     details: dict[str, Any] = Field(default_factory=dict)
-    created_at: str | None = None
+    created_at: Optional[str] = None
 
 
 class LedgerResponse(BaseModel):
